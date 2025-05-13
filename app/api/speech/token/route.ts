@@ -3,8 +3,8 @@ import { NextResponse } from "next/server"
 // This endpoint generates a token for the Azure Speech service
 export async function GET() {
     try {
-        const speechKey = process.env.NEXT_PUBLIC_AZURE_SPEECH_KEY
-        const speechRegion = process.env.NEXT_PUBLIC_AZURE_SPEECH_REGION
+        const speechKey = process.env.AZURE_SPEECH_KEY
+        const speechRegion = process.env.AZURE_SPEECH_REGION
 
         if (!speechKey || !speechRegion) {
             return NextResponse.json({ error: "Speech service credentials are not configured" }, { status: 500 })

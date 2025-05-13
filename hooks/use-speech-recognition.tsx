@@ -26,8 +26,8 @@ export function useSpeechRecognition() {
             }
 
             // Check if the Azure Speech key and region are available
-            const speechKey = process.env.NEXT_PUBLIC_AZURE_SPEECH_KEY
-            const speechRegion = process.env.NEXT_PUBLIC_AZURE_SPEECH_REGION
+            const speechKey = process.env.AZURE_SPEECH_KEY
+            const speechRegion = process.env.AZURE_SPEECH_REGION
 
             if (!speechKey || !speechRegion) {
                 throw new Error("Azure Speech credentials are not configured")
