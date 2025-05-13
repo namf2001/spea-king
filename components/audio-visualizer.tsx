@@ -38,7 +38,7 @@ export function AudioVisualizer({
             if (!isActive) {
                 // Clear canvas when not active
                 ctx.fillStyle = backgroundColor
-                ctx.fillRect(0, 0, canvas.width, canvas.height)
+                ctx.fillRect(0, 0, canvas.width / dpr, canvas.height / dpr)
                 return
             }
 

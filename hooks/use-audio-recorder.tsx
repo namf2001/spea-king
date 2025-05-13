@@ -105,7 +105,14 @@ export function useAudioRecorder() {
 
             // Create media recorder
             try {
-                const mediaRecorder = new MediaRecorder(stream)
+                if (!("MediaRecorder" in window)) {
+                    throw new Error("Recording not supported in this browser")
+                }
+                const mimeType =
+                    MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+                        ? "audio/webm;codecs=opus"
+                        : "audio/mp4"
+                const mediaRecorder = new MediaRecorder(stream, { mimeType })
                 mediaRecorderRef.current = mediaRecorder
 
                 mediaRecorder.ondataavailable = (event) => {
@@ -172,6 +179,11 @@ export function useAudioRecorder() {
         // until we're completely done with the recording
         if (streamRef.current) {
             streamRef.current.getTracks().forEach((track) => track.stop())
+            streamRef.current = null
+        }
+        if (audioContextRef.current && isAudioContextActiveRef.current) {
+            audioContextRef.current.close().catch(() => { })
+            isAudioContextActiveRef.current = false
         }
     }
 
