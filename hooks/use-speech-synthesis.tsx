@@ -27,6 +27,15 @@ export function useSpeechSynthesis() {
 
             // Get speech token using Server Action
             const result = await getSpeechToken()
+            
+            // Log the speech token result
+            console.log("Speech Synthesis Token Result:", {
+                action: "getSpeechToken for synthesis",
+                success: result.success,
+                region: result.region,
+                hasToken: !!result.token,
+                error: result.error || null
+            });
 
             if (!result.success || !result.token || !result.region) {
                 throw new Error(result.error || "Failed to get speech token")

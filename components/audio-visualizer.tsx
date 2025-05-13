@@ -8,6 +8,7 @@ interface AudioVisualizerProps {
     readonly height?: number
     readonly barColor?: string
     readonly backgroundColor?: string
+    readonly className?: string
 }
 
 export function AudioVisualizer({
@@ -16,6 +17,7 @@ export function AudioVisualizer({
     height = 100,
     barColor = "#3b82f6",
     backgroundColor = "#f3f4f6",
+    className = "",
 }: AudioVisualizerProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const animationRef = useRef<number | undefined>(undefined)
@@ -121,5 +123,5 @@ export function AudioVisualizer({
         }
     }, [isActive, getAudioData, height, barColor, backgroundColor])
 
-    return <canvas ref={canvasRef} className="w-full rounded-md" style={{ height: `${height}px` }} />
+    return <canvas ref={canvasRef} className={`w-full rounded-md ${className}`} style={{ height: `${height}px` }} />
 }

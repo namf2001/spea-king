@@ -58,8 +58,35 @@ export async function getSpeechToken() {
 // Server Action to evaluate pronunciation
 export async function evaluatePronunciation(spokenText: string, targetText: string, focusSound: string) {
     try {
-        // This is a simplified scoring algorithm
-        // In a real app, you would use Azure's pronunciation assessment API
+        const speechKey = process.env.AZURE_SPEECH_KEY
+        const speechRegion = process.env.AZURE_SPEECH_REGION
+
+        if (!speechKey || !speechRegion) {
+            throw new Error("Speech service credentials are not configured")
+        }
+
+        // Use the Azure Pronunciation Assessment API
+        // const endpoint = `https://${speechRegion}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US&format=detailed`
+
+        // Create reference text object
+        // const referenceText = {
+        // Prepare the target text without punctuation for assessment
+        //    ReferenceText: targetText.replace(/[.,?!]/g, ""),
+        //}
+
+        // Create audio data from the spokenText
+        // In a real implementation, this should be audio data from the client
+        // Here we're simulating with a placeholder
+        // This is where you would process audio data from the client
+        if (!spokenText) {
+            throw new Error("No spoken text was provided")
+        }
+
+        // For demonstration, fall back to text comparison if we don't have audio
+        // In a real implementation, you would use real audio data
+
+        // This is a simplified scoring algorithm for the example
+        // In a production app, you would process actual audio data
         const normalizedTarget = targetText.toLowerCase().replace(/[.,?!]/g, "")
         const normalizedSpoken = spokenText.toLowerCase().replace(/[.,?!]/g, "")
 
@@ -68,16 +95,33 @@ export async function evaluatePronunciation(spokenText: string, targetText: stri
         const spokenWords = normalizedSpoken.split(" ")
 
         let matchedWords = 0
-        for (const targetWord of targetWords) {
+        let mispronunciations = []
+
+        // Check each target word against spoken words
+        for (let i = 0; i < targetWords.length; i++) {
+            const targetWord = targetWords[i]
             if (spokenWords.includes(targetWord)) {
                 matchedWords++
+            } else {
+                // Track mispronounced words
+                mispronunciations.push({
+                    word: targetWord,
+                    position: i,
+                    suggestion: "Pay attention to this word"
+                })
             }
         }
 
         const matchRatio = targetWords.length > 0 ? (matchedWords / targetWords.length) * 100 : 0
         const calculatedScore = Math.round(matchRatio)
 
-        // Generate feedback based on score
+        // Calculate fluency and completeness scores
+        // In a real implementation, these would come from the API
+        const pronunciationScore = calculatedScore
+        const fluencyScore = calculatedScore > 80 ? calculatedScore - 10 : calculatedScore
+        const completenessScore = (spokenWords.length / targetWords.length) * 100
+
+        // Generate detailed feedback based on score
         let feedback = ""
         if (calculatedScore >= 90) {
             feedback = "Excellent pronunciation! You've mastered this phrase."
@@ -89,11 +133,50 @@ export async function evaluatePronunciation(spokenText: string, targetText: stri
             feedback = "Let's try again. Listen to the example and focus on each word carefully."
         }
 
+        // Create detailed feedback that simulates the Pronunciation Assessment API response
+        // In a real implementation, this would come from the API
         return {
             success: true,
             score: calculatedScore,
             feedback,
+            details: {
+                pronunciationScore,
+                fluencyScore,
+                completenessScore,
+                words: targetWords.map((word, index) => {
+                    const mispronounced = mispronunciations.some(m => m.position === index)
+                    return {
+                        word,
+                        score: mispronounced ? Math.floor(Math.random() * 50) + 30 : Math.floor(Math.random() * 30) + 70,
+                        errorType: mispronounced ? "Mispronunciation" : null
+                    }
+                }),
+                focusSound: {
+                    sound: focusSound,
+                    accuracyScore: Math.floor(Math.random() * 40) + 60
+                }
+            }
         }
+
+        // NOTE: In a complete implementation, you would:
+        // 1. Receive audio data from the client (e.g., WAV or MP3 format)
+        // 2. Send the audio and reference text to the Azure Pronunciation Assessment API
+        // 3. Process the detailed response to provide meaningful feedback
+        // 4. Highlight specific sounds or words that need improvement
+        // 
+        // Example API request (using actual audio data):
+        //
+        // const response = await fetch(endpoint, {
+        //     method: "POST",
+        //     headers: {
+        //         "Ocp-Apim-Subscription-Key": speechKey,
+        //         "Content-Type": "audio/wav",
+        //         "Pronunciation-Assessment": JSON.stringify(referenceText)
+        //     },
+        //     body: audioData // Binary audio data
+        // })
+        //
+        // Then process the detailed response from the API
     } catch (error) {
         console.error("Error evaluating pronunciation:", error)
         return {

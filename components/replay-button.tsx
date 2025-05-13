@@ -7,9 +7,10 @@ import { Repeat, Loader2 } from "lucide-react"
 interface ReplayButtonProps {
     readonly onReplay: () => void
     readonly disabled?: boolean
+    readonly label?: string
 }
 
-export function ReplayButton({ onReplay, disabled = false }: ReplayButtonProps) {
+export function ReplayButton({ onReplay, disabled = false, label = "Replay My Voice" }: ReplayButtonProps) {
     const [isPlaying, setIsPlaying] = useState(false)
 
     const handleReplay = () => {
@@ -25,7 +26,7 @@ export function ReplayButton({ onReplay, disabled = false }: ReplayButtonProps) 
     return (
         <Button
             onClick={handleReplay}
-            variant="outline"
+            variant="ghost"
             size="sm"
             disabled={disabled || isPlaying}
             className="flex items-center gap-2 transition-all hover:bg-blue-50 dark:hover:bg-blue-900"
@@ -38,7 +39,7 @@ export function ReplayButton({ onReplay, disabled = false }: ReplayButtonProps) 
             ) : (
                 <>
                     <Repeat className="h-4 w-4" />
-                    <span>Replay My Voice</span>
+                    <span>{label}</span>
                 </>
             )}
         </Button>

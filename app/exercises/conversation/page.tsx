@@ -39,7 +39,6 @@ export default function ConversationPage() {
   } = useSpeechRecognition()
   const { speak, isSpeaking, error: synthesisError } = useSpeechSynthesis()
   const {
-    isRecording,
     audioUrl,
     startRecording,
     stopRecording,
@@ -225,6 +224,19 @@ export default function ConversationPage() {
   const handleGenerateResponse = async (userInput: string) => {
     // Use the Server Action to generate a response
     const result = await generateConversationResponse(userInput, activeScenario.id)
+    
+    // Log the response from the server action
+    console.log("Server Action Result:", {
+      action: "generateConversationResponse",
+      input: {
+        userInput,
+        scenarioId: activeScenario.id
+      },
+      result: result,
+      success: result.success,
+      response: result.response,
+      error: result.error
+    });
 
     if (result.success && result.response) {
       // Add AI response to conversation
@@ -244,7 +256,7 @@ export default function ConversationPage() {
       }
     } else {
       toast.error("Response Generation Error", {
-        description: result.error || "Failed to generate response",
+        description: result.error ?? "Failed to generate response",
       })
     }
   }

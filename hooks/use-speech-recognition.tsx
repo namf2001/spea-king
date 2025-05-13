@@ -4,21 +4,53 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import * as SpeechSDK from "microsoft-cognitiveservices-speech-sdk"
 import { getSpeechToken } from "@/app/actions/speech"
 
+interface SpeechRecognitionState {
+    recognizer: SpeechSDK.SpeechRecognizer | null;
+    recognizedText: string;
+    isRecognizing: boolean;
+    error: string | null;
+    audioData: Blob | null;
+}
+
 export function useSpeechRecognition() {
-    const [recognizer, setRecognizer] = useState<SpeechSDK.SpeechRecognizer | null>(null)
-    const [recognizedText, setRecognizedText] = useState("")
-    const [isRecognizing, setIsRecognizing] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const [state, setState] = useState<SpeechRecognitionState>({
+        recognizer: null,
+        recognizedText: "",
+        isRecognizing: false,
+        error: null,
+        audioData: null
+    });
+    
     const accumulatedTextRef = useRef("")
+    const audioChunksRef = useRef<Blob[]>([])
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+    const streamRef = useRef<MediaStream | null>(null)
 
     useEffect(() => {
-        // Clean up the recognizer on unmount
+        // Clean up the recognizer and media resources on unmount
         return () => {
-            if (recognizer) {
-                recognizer.close()
+            if (state.recognizer) {
+                state.recognizer.close()
             }
+            stopMediaRecording()
         }
-    }, [recognizer])
+    }, [state.recognizer])
+
+    const stopMediaRecording = useCallback(() => {
+        if (mediaRecorderRef.current) {
+            try {
+                mediaRecorderRef.current.stop()
+            } catch (err) {
+                console.error("Error stopping MediaRecorder:", err)
+            }
+            mediaRecorderRef.current = null
+        }
+        
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop())
+            streamRef.current = null
+        }
+    }, [])
 
     const initializeRecognizer = useCallback(async () => {
         try {
@@ -29,6 +61,15 @@ export function useSpeechRecognition() {
 
             // Get speech token using Server Action
             const result = await getSpeechToken()
+            
+            // Log the speech token result
+            console.log("Speech Token Result:", {
+                action: "getSpeechToken",
+                success: result.success,
+                region: result.region,
+                hasToken: !!result.token,
+                error: result.error || null
+            });
 
             if (!result.success || !result.token || !result.region) {
                 throw new Error(result.error || "Failed to get speech token")
@@ -47,35 +88,55 @@ export function useSpeechRecognition() {
             // Set up event handlers
             newRecognizer.recognized = (_, event) => {
                 if (event.result.reason === SpeechSDK.ResultReason.RecognizedSpeech) {
-                    // Tích lũy văn bản đã nhận diện
+                    // Accumulate recognized text
                     const newText = event.result.text;
                     
-                    // Nếu nhận diện mới có nội dung, thêm vào văn bản đã tích lũy
                     if (newText.trim()) {
-                        // Thêm khoảng trắng nếu đã có nội dung trước đó
+                        // Add space if there's already content
                         accumulatedTextRef.current = accumulatedTextRef.current 
                             ? accumulatedTextRef.current + " " + newText
                             : newText;
                             
-                        // Cập nhật state với văn bản đã tích lũy
-                        setRecognizedText(accumulatedTextRef.current);
+                        // Update state with accumulated text
+                        setState(prev => ({
+                            ...prev,
+                            recognizedText: accumulatedTextRef.current
+                        }));
                     }
                     
-                    setIsRecognizing(false);
+                    setState(prev => ({
+                        ...prev,
+                        isRecognizing: false
+                    }));
                 }
             }
 
             newRecognizer.canceled = (_, event) => {
                 if (event.reason === SpeechSDK.CancellationReason.Error) {
-                    setError(`Speech recognition error: ${event.errorDetails}`)
+                    setState(prev => ({
+                        ...prev,
+                        error: `Speech recognition error: ${event.errorDetails}`,
+                        isRecognizing: false
+                    }));
+                } else {
+                    setState(prev => ({
+                        ...prev,
+                        isRecognizing: false
+                    }));
                 }
-                setIsRecognizing(false)
             }
 
-            setRecognizer(newRecognizer)
+            setState(prev => ({
+                ...prev,
+                recognizer: newRecognizer
+            }));
+            
             return newRecognizer
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to initialize speech recognition")
+            setState(prev => ({
+                ...prev,
+                error: err instanceof Error ? err.message : "Failed to initialize speech recognition"
+            }));
             return null
         }
     }, [])
@@ -83,51 +144,111 @@ export function useSpeechRecognition() {
     const startRecognition = useCallback(async () => {
         // Reset accumulated text when starting a new recognition session
         accumulatedTextRef.current = "";
-        setRecognizedText("");
-        setError(null);
+        audioChunksRef.current = [];
+        
+        setState(prev => ({
+            ...prev,
+            recognizedText: "",
+            error: null,
+            audioData: null
+        }));
 
         try {
-            let currentRecognizer = recognizer
+            let currentRecognizer = state.recognizer;
 
             if (!currentRecognizer) {
-                currentRecognizer = await initializeRecognizer()
-                if (!currentRecognizer) return
+                currentRecognizer = await initializeRecognizer();
+                if (!currentRecognizer) return;
             }
 
-            setIsRecognizing(true)
+            // Start audio recording for pronunciation assessment
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                streamRef.current = stream;
+                
+                // Set up MediaRecorder to capture audio for assessment
+                const mimeType = MediaRecorder.isTypeSupported('audio/webm') 
+                    ? 'audio/webm' 
+                    : 'audio/mp4';
+                
+                const mediaRecorder = new MediaRecorder(stream, { mimeType });
+                mediaRecorderRef.current = mediaRecorder;
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunksRef.current.push(event.data);
+                    }
+                };
+                
+                mediaRecorder.onstop = () => {
+                    if (audioChunksRef.current.length > 0) {
+                        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+                        setState(prev => ({
+                            ...prev,
+                            audioData: audioBlob
+                        }));
+                    }
+                };
+                
+                mediaRecorder.start();
+            } catch (err) {
+                console.error("Failed to start audio recording:", err);
+                // Continue with recognition even if recording fails
+            }
+
+            setState(prev => ({
+                ...prev,
+                isRecognizing: true
+            }));
+            
             currentRecognizer.startContinuousRecognitionAsync(
                 () => {
                     // Started successfully
                 },
                 (err) => {
-                    setError(`Failed to start recognition: ${err}`)
-                    setIsRecognizing(false)
+                    setState(prev => ({
+                        ...prev,
+                        error: `Failed to start recognition: ${err}`,
+                        isRecognizing: false
+                    }));
                 },
             )
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to start speech recognition")
-            setIsRecognizing(false)
+            setState(prev => ({
+                ...prev,
+                error: err instanceof Error ? err.message : "Failed to start speech recognition",
+                isRecognizing: false
+            }));
         }
-    }, [recognizer, initializeRecognizer])
+    }, [state.recognizer, initializeRecognizer])
 
     const stopRecognition = useCallback(() => {
-        if (recognizer) {
-            recognizer.stopContinuousRecognitionAsync(
+        if (state.recognizer) {
+            state.recognizer.stopContinuousRecognitionAsync(
                 () => {
                     // Stopped successfully
+                    // Now stop the media recorder to finalize the audio data
+                    stopMediaRecording();
                 },
                 (err) => {
-                    setError(`Failed to stop recognition: ${err}`)
+                    setState(prev => ({
+                        ...prev,
+                        error: `Failed to stop recognition: ${err}`
+                    }));
+                    stopMediaRecording();
                 },
             )
+        } else {
+            stopMediaRecording();
         }
-    }, [recognizer])
+    }, [state.recognizer, stopMediaRecording])
 
     return {
         startRecognition,
         stopRecognition,
-        recognizedText,
-        isRecognizing,
-        error,
+        recognizedText: state.recognizedText,
+        isRecognizing: state.isRecognizing,
+        error: state.error,
+        audioData: state.audioData,
     }
 }

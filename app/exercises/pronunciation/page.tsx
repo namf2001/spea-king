@@ -12,10 +12,11 @@ import { ExerciseControls } from "./components/exercise-controls"
 import { TranscriptDisplay } from "./components/transcript-display"
 import { FeedbackDisplay } from "./components/feedback-display"
 import { evaluatePronunciation } from "@/app/actions/speech"
-import { AudioVisualizer } from "@/components/audio-visualizer"
 import { ReplayButton } from "@/components/replay-button"
 import { Card } from "@/components/ui/card"
 import { toast } from "sonner"
+import { motion, AnimatePresence } from "framer-motion"
+import { ChevronLeft, Award, Mic } from "lucide-react"
 
 export default function PronunciationPage() {
     const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
@@ -23,6 +24,7 @@ export default function PronunciationPage() {
     const [transcript, setTranscript] = useState("")
     const [score, setScore] = useState<number | null>(null)
     const [feedback, setFeedback] = useState("")
+    const [details, setDetails] = useState<any>(null)
     const [useFallback, setUseFallback] = useState(false)
     const [audioVisualizerEnabled, setAudioVisualizerEnabled] = useState(true)
     const {
@@ -31,10 +33,10 @@ export default function PronunciationPage() {
         recognizedText,
         isRecognizing,
         error: recognitionError,
+        audioData
     } = useSpeechRecognition()
     const { speak, isSpeaking, error: synthesisError } = useSpeechSynthesis()
     const {
-        isRecording,
         audioUrl,
         startRecording,
         stopRecording,
@@ -53,7 +55,7 @@ export default function PronunciationPage() {
             })
             setUseFallback(true)
         }
-    }, [recognitionError, toast])
+    }, [recognitionError])
 
     useEffect(() => {
         if (synthesisError) {
@@ -62,7 +64,7 @@ export default function PronunciationPage() {
             })
             setUseFallback(true)
         }
-    }, [synthesisError, toast])
+    }, [synthesisError])
 
     useEffect(() => {
         if (recordingError) {
@@ -71,7 +73,7 @@ export default function PronunciationPage() {
             })
             setAudioVisualizerEnabled(false)
         }
-    }, [recordingError, toast])
+    }, [recordingError])
 
     useEffect(() => {
         if (recognizedText) {
@@ -85,6 +87,7 @@ export default function PronunciationPage() {
         setTranscript("")
         setScore(null)
         setFeedback("")
+        setDetails(null)
         try {
             // Start speech recognition
             await startRecognition()
@@ -135,6 +138,7 @@ export default function PronunciationPage() {
         setTranscript("")
         setScore(null)
         setFeedback("")
+        setDetails(null)
     }
 
     const handleFallbackSubmit = (text: string) => {
@@ -143,15 +147,98 @@ export default function PronunciationPage() {
     }
 
     const handleEvaluatePronunciation = async (text: string) => {
-        // Use the Server Action to evaluate pronunciation
-        const result = await evaluatePronunciation(text, currentExercise.text, currentExercise.focusSound)
+        // Hiển thị trạng thái đang đánh giá
+        toast.info("Evaluating pronunciation...");
+        
+        // Chuẩn bị dữ liệu để gửi đến server
+        try {
+            // Kiểm tra xem có dữ liệu âm thanh không
+            if (!audioData) {
+                console.warn("No audio data available for pronunciation assessment");
+                // Nếu không có dữ liệu âm thanh, sử dụng server action hiện tại
+                const result = await evaluatePronunciation(text, currentExercise.text, currentExercise.focusSound);
+                handleEvaluationResult(result);
+                return;
+            }
+            
+            console.log("Audio data available for pronunciation assessment:", {
+                type: audioData.type,
+                size: audioData.size,
+                hasAudio: !!audioData
+            });
+            
+            // Chuyển đổi Blob thành FormData và gửi đến API route
+            const formData = new FormData();
+            formData.append('audio', audioData, 'recording.wav');
+            formData.append('text', text);
+            formData.append('targetText', currentExercise.text);
+            formData.append('focusSound', currentExercise.focusSound);
+            
+            // Gọi API route để đánh giá phát âm
+            const response = await fetch('/api/evaluate-pronunciation', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error ?? `Server error: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            handleEvaluationResult(result);
+        } catch (err) {
+            console.error("Error during pronunciation evaluation:", err);
+            
+            // Nếu API gặp lỗi, thử sử dụng server action hiện tại
+            try {
+                toast.warning("Using fallback pronunciation assessment method");
+                const result = await evaluatePronunciation(text, currentExercise.text, currentExercise.focusSound);
+                handleEvaluationResult(result);
+            } catch (fallbackErr) {
+                console.error("Fallback evaluation also failed:", fallbackErr);
+                toast.error("Evaluation Error", {
+                    description: err instanceof Error ? err.message : "An unexpected error occurred",
+                });
+            }
+        }
+    };
+
+    // Xử lý kết quả đánh giá
+    interface EvaluationResult {
+        success: boolean;
+        score?: number;
+        feedback?: string;
+        details?: any;
+        error?: string;
+    }
+
+    const handleEvaluationResult = (result: EvaluationResult) => {
+        // Log kết quả đánh giá phát âm
+        console.log("Pronunciation Evaluation Result:", {
+            success: result.success,
+            score: result.score,
+            feedback: result.feedback,
+            hasDetails: !!result.details
+        });
+        
         if (result.success && result.score !== undefined && result.feedback) {
-            setScore(result.score)
-            setFeedback(result.feedback)
+            setScore(result.score);
+            setFeedback(result.feedback);
+            
+            // Đặt dữ liệu đánh giá chi tiết nếu có
+            if (result.details) {
+                setDetails(result.details);
+            }
+            
+            // Thông báo hoàn tất đánh giá
+            toast.success("Pronunciation evaluated", {
+                description: `Your score: ${result.score}%`
+            });
         } else {
             toast.error("Evaluation Error", {
-                description: result.error || "Failed to evaluate pronunciation",
-            })
+                description: result.error ?? "Failed to evaluate pronunciation",
+            });
         }
     }
 
@@ -166,7 +253,7 @@ export default function PronunciationPage() {
                 })
             }
         } else {
-                toast.error("Replay Error", {
+            toast.error("Replay Error", {
                 description: "No recording available to replay",
             })
         }
@@ -186,68 +273,129 @@ export default function PronunciationPage() {
     }
 
     return (
-        <div className="container mx-auto px-4 py-12">
-            <div className="max-w-3xl mx-auto">
-                <div className="mb-8">
-                    <Link href="/" className="text-blue-500 hover:underline mb-4 inline-block">
-                        ← Back to Home
-                    </Link>
-                    <h1 className="text-3xl font-bold mb-2">Pronunciation Practice</h1>
-                    <p className="text-gray-600 dark:text-gray-300">
-                        Listen to the example, then record yourself saying the same phrase
-                    </p>
-                </div>
-
-                <ExerciseDisplay
-                    exercise={currentExercise}
-                    currentIndex={currentExerciseIndex}
-                    totalExercises={exercises.length}
-                />
-
-                {useFallback ? (
-                    <div className="mb-6">
-                        <SpeechFallback onTextSubmit={handleFallbackSubmit} type="recognition" />
-                    </div>
-                ) : (
-                    <ExerciseControls
-                        isListening={isListening}
-                        isSpeaking={isSpeaking}
-                        isRecognizing={isRecognizing}
-                        onStartListening={handleStartListening}
-                        onStopListening={handleStopListening}
-                        onPlayExample={handlePlayExample}
-                        onNextExercise={handleNextExercise}
-                        getAudioData={audioVisualizerEnabled ? safeGetAudioData : undefined}
-                    />
-                )}
-
-                {isListening && !useFallback && audioVisualizerEnabled && (
-                    <Card className="p-4 mb-6">
-                        <p className="text-sm text-gray-500 mb-2">Voice Level</p>
-                        <AudioVisualizer
-                            getAudioData={safeGetAudioData}
-                            isActive={isListening}
-                            height={80}
-                            barColor="#3b82f6"
-                            backgroundColor="#f8fafc"
-                        />
-                    </Card>
-                )}
-
-                {transcript && (
-                    <div className="space-y-4">
-                        <TranscriptDisplay transcript={transcript} />
-
-                        {audioUrl && (
-                            <div className="flex justify-center mb-4">
-                                <ReplayButton onReplay={handleReplayRecording} disabled={isSpeaking} />
+        <motion.div 
+            className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-950"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+        >
+            <div className="container mx-auto px-4 py-12">
+                <div className="max-w-4xl mx-auto">
+                    <motion.div 
+                        className="mb-8"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
+                    >
+                        <Link 
+                            href="/" 
+                            className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 
+                            hover:underline mb-4 inline-flex items-center gap-1 transition-colors"
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                            <span>Back to Home</span>
+                        </Link>
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-full">
+                                <Mic className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                             </div>
-                        )}
-                    </div>
-                )}
+                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Pronunciation Practice</h1>
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-300 ml-12">
+                            Listen to the example, then record yourself saying the same phrase.
+                            Receive instant feedback on your pronunciation.
+                        </p>
+                    </motion.div>
 
-                {score !== null && <FeedbackDisplay score={score} feedback={feedback} />}
+                    <AnimatePresence mode="wait">
+                        <ExerciseDisplay
+                            exercise={currentExercise}
+                            currentIndex={currentExerciseIndex}
+                            totalExercises={exercises.length}
+                            onPlayExample={handlePlayExample}
+                        />
+                    </AnimatePresence>
+
+                    {useFallback ? (
+                        <motion.div 
+                            className="mb-8"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <Card className="p-6 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
+                                <h3 className="font-medium text-amber-700 dark:text-amber-300 mb-2">
+                                    Speech Recognition Unavailable
+                                </h3>
+                                <p className="text-amber-600 dark:text-amber-400 mb-4 text-sm">
+                                    Your browser doesn't support speech recognition or microphone access was denied.
+                                    Please enter your text manually.
+                                </p>
+                                <SpeechFallback onTextSubmit={handleFallbackSubmit} type="recognition" />
+                            </Card>
+                        </motion.div>
+                    ) : (
+                        <ExerciseControls
+                            isListening={isListening}
+                            isSpeaking={isSpeaking}
+                            isRecognizing={isRecognizing}
+                            onStartListening={handleStartListening}
+                            onStopListening={handleStopListening}
+                            onPlayExample={handlePlayExample}
+                            onNextExercise={handleNextExercise}
+                            getAudioData={audioVisualizerEnabled ? safeGetAudioData : undefined}
+                        />
+                    )}
+
+                    <AnimatePresence>
+                        {transcript && (
+                            <motion.div 
+                                className="space-y-4"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.4 }}
+                            >
+                                <TranscriptDisplay transcript={transcript} />
+
+                                {audioUrl && (
+                                    <motion.div 
+                                        className="flex justify-center mb-6"
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.3, delay: 0.2 }}
+                                    >
+                                        <div className="bg-gray-50 dark:bg-gray-800 py-3 px-6 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
+                                            <ReplayButton 
+                                                onReplay={handleReplayRecording} 
+                                                disabled={isSpeaking} 
+                                                label="Listen to your recording"
+                                            />
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    <AnimatePresence>
+                        {score !== null && <FeedbackDisplay score={score} feedback={feedback} details={details} />}
+                    </AnimatePresence>
+                    
+                    <motion.div 
+                        className="mt-12 text-center"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5, delay: 0.7 }}
+                    >
+                        <div className="inline-flex items-center gap-2 text-gray-500 dark:text-gray-400 
+                        text-sm bg-gray-50 dark:bg-gray-800 py-2 px-4 rounded-full">
+                            <Award className="h-4 w-4 text-blue-500" />
+                            <span>Practice regularly to improve your pronunciation skills</span>
+                        </div>
+                    </motion.div>
+                </div>
             </div>
-        </div>
+        </motion.div>
     )
 }

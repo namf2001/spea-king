@@ -33,28 +33,34 @@ export function useAudioRecorder() {
     }, [])
 
     // Function to safely clean up all audio resources
-    const cleanupResources = () => {
-        // Stop all media tracks
+    const cleanupResources = async () => {
+        if (mediaRecorderRef.current && state.isRecording) {
+            try {
+                mediaRecorderRef.current.stop()
+            } catch (err) {
+                console.error("Error stopping MediaRecorder:", err)
+            }
+        }
+
         if (streamRef.current) {
             streamRef.current.getTracks().forEach((track) => track.stop())
             streamRef.current = null
         }
 
-        // Revoke object URL if it exists
-        if (state.audioUrl) {
-            URL.revokeObjectURL(state.audioUrl)
-        }
-
-        // Safely close AudioContext if it's active
         if (audioContextRef.current && isAudioContextActiveRef.current) {
             try {
                 if (audioContextRef.current.state !== "closed") {
-                    audioContextRef.current.close()
+                    await audioContextRef.current.close()
                 }
             } catch (err) {
                 console.error("Error closing AudioContext:", err)
             }
             isAudioContextActiveRef.current = false
+        }
+
+        // Revoke object URL if it exists
+        if (state.audioUrl) {
+            URL.revokeObjectURL(state.audioUrl)
         }
 
         // Clear references
@@ -66,7 +72,7 @@ export function useAudioRecorder() {
     const startRecording = async () => {
         try {
             // Clean up any existing resources first
-            cleanupResources()
+            await cleanupResources()
 
             // Reset state
             audioChunksRef.current = []
@@ -157,7 +163,7 @@ export function useAudioRecorder() {
             }
         } catch (err) {
             // Clean up any partially initialized resources
-            cleanupResources()
+            await cleanupResources()
 
             setState((prev) => ({
                 ...prev,
