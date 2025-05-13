@@ -1,7 +1,5 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import Link from "next/link"
 import { Mic, MessageSquare, Award, Settings } from "lucide-react"
+import { ExerciseCard } from "@/components/exercise-card"
 
 export default function Home() {
   return (
@@ -17,80 +15,47 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Mic className="h-5 w-5 text-blue-500" />
-                Pronunciation Drills
-              </CardTitle>
-              <CardDescription>Practice pronouncing words and phrases with immediate feedback</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Perfect your pronunciation with targeted exercises designed to improve specific sounds and words.
-              </p>
-            </CardContent>
-            <CardFooter>
-              <Link href="/exercises/pronunciation" className="w-full">
-                <Button className="w-full">Start Practice</Button>
-              </Link>
-            </CardFooter>
-          </Card>
+          <ExerciseCard
+            title="Pronunciation Drills"
+            description="Practice pronouncing words and phrases with immediate feedback"
+            content="Perfect your pronunciation with targeted exercises designed to improve specific sounds and words."
+            icon={Mic}
+            iconColor="text-blue-500"
+            href="/exercises/pronunciation"
+            buttonText="Start Practice"
+          />
 
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-green-500" />
-                Conversation Simulations
-              </CardTitle>
-              <CardDescription>Engage in realistic conversations with AI-powered scenarios</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Practice everyday conversations in various scenarios like ordering food, job interviews, or casual
-                chats.
-              </p>
-            </CardContent>
-            <CardFooter>
-              <Link href="/exercises/conversation" className="w-full">
-                <Button className="w-full" variant="outline">
-                  Start Conversation
-                </Button>
-              </Link>
-            </CardFooter>
-          </Card>
+          <ExerciseCard
+            title="Conversation Simulations"
+            description="Engage in realistic conversations with AI-powered scenarios"
+            content="Practice everyday conversations in various scenarios like ordering food, job interviews, or casual chats."
+            icon={MessageSquare}
+            iconColor="text-green-500"
+            href="/exercises/conversation"
+            buttonText="Start Conversation"
+            buttonVariant="outline"
+          />
 
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="h-5 w-5 text-amber-500" />
-                Progress Tracker
-              </CardTitle>
-              <CardDescription>View your improvement over time with detailed analytics</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Track your speaking progress, see your strengths and areas for improvement with detailed feedback
-                history.
-              </p>
-            </CardContent>
-            <CardFooter>
-              <Link href="/progress" className="w-full">
-                <Button className="w-full" variant="outline">
-                  View Progress
-                </Button>
-              </Link>
-            </CardFooter>
-          </Card>
+          <ExerciseCard
+            title="Progress Tracker"
+            description="View your improvement over time with detailed analytics"
+            content="Track your speaking progress, see your strengths and areas for improvement with detailed feedback history."
+            icon={Award}
+            iconColor="text-amber-500"
+            href="/progress"
+            buttonText="View Progress"
+            buttonVariant="outline"
+          />
         </div>
 
         <div className="mt-12 text-center">
-          <Link href="/settings">
-            <Button variant="ghost" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Settings
-            </Button>
-          </Link>
+          <a
+            href="/settings"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+          >
+            <Settings className="h-4 w-4" />
+            Settings
+          </a>
         </div>
       </div>
     </main>

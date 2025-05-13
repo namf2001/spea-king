@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,8 +8,8 @@ import { AlertCircle } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 interface SpeechFallbackProps {
-    onTextSubmit: (text: string) => void
-    type: "recognition" | "synthesis"
+    readonly onTextSubmit: (text: string) => void
+    readonly type: "recognition" | "synthesis"
 }
 
 export function SpeechFallback({ onTextSubmit, type }: SpeechFallbackProps) {

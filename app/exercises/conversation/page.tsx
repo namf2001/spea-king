@@ -2,57 +2,27 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Mic, RefreshCw, Volume2 } from "lucide-react"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { RefreshCw } from "lucide-react"
 import { toast } from "sonner"
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition"
 import { useSpeechSynthesis } from "@/hooks/use-speech-synthesis"
 import Link from "next/link"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { SpeechFallback } from "@/components/speech-fallback"
+import { scenarios } from "./data/scenarios"
+import { ScenarioTabs } from "./components/scenario-tabs"
+import { ConversationDisplay } from "./components/conversation-display"
+import { ConversationControls } from "./components/conversation-controls"
+import { generateConversationResponse } from "@/app/actions/speech"
 
-// Sample conversation scenarios
-const scenarios = [
-  {
-    id: "restaurant",
-    title: "At a Restaurant",
-    description: "Practice ordering food and making special requests",
-    conversation: [
-      {
-        role: "assistant",
-        content: "Hello! Welcome to our restaurant. Do you have a reservation?",
-      },
-    ],
-  },
-  {
-    id: "interview",
-    title: "Job Interview",
-    description: "Practice answering common interview questions",
-    conversation: [
-      {
-        role: "assistant",
-        content: "Thanks for coming in today. Could you tell me a little about yourself?",
-      },
-    ],
-  },
-  {
-    id: "shopping",
-    title: "Shopping",
-    description: "Practice asking for help and making purchases",
-    conversation: [
-      {
-        role: "assistant",
-        content: "Hi there! How can I help you today?",
-      },
-    ],
-  },
-]
+type Message = {
+  role: "user" | "assistant"
+  content: string
+}
 
 export default function ConversationPage() {
   const [activeScenario, setActiveScenario] = useState(scenarios[0])
-  const [conversation, setConversation] = useState(activeScenario.conversation)
+  const [conversation, setConversation] = useState<Message[]>(activeScenario.conversation)
   const [isListening, setIsListening] = useState(false)
   const [useFallback, setUseFallback] = useState(false)
   const {
@@ -90,12 +60,12 @@ export default function ConversationPage() {
   useEffect(() => {
     if (recognizedText && !isListening) {
       // Add user message to conversation
-      const updatedConversation = [...conversation, { role: "user", content: recognizedText }]
+      const updatedConversation = [...conversation, { role: "user" as const, content: recognizedText }]
       setConversation(updatedConversation)
 
       // Generate AI response after a short delay
       setTimeout(() => {
-        generateResponse(recognizedText)
+        handleGenerateResponse(recognizedText)
       }, 1000)
     }
   }, [recognizedText, isListening])
@@ -104,11 +74,11 @@ export default function ConversationPage() {
     setIsListening(true)
     try {
       await startRecognition()
-    } catch (err) {
+    } catch (error) {
       setIsListening(false)
       setUseFallback(true)
       toast.error("Error", {
-        description: "Failed to start speech recognition. Using text input instead.",
+        description: error instanceof Error ? error.message : "Failed to start speech recognition. Using text input instead.",
       })
     }
   }
@@ -132,75 +102,55 @@ export default function ConversationPage() {
 
   const handleFallbackSubmit = (text: string) => {
     // Add user message to conversation
-    const updatedConversation = [...conversation, { role: "user", content: text }]
+    const updatedConversation = [...conversation, { role: "user" as const, content: text }]
     setConversation(updatedConversation)
 
     // Generate AI response after a short delay
     setTimeout(() => {
-      generateResponse(text)
+      handleGenerateResponse(text)
     }, 1000)
   }
 
-  const generateResponse = async (userInput: string) => {
-    // This is a simplified response generation
-    // In a real app, you would use Azure AI or another LLM to generate contextual responses
-
-    let response = ""
-    const lowerInput = userInput.toLowerCase()
-
-    // Restaurant scenario responses
-    if (activeScenario.id === "restaurant") {
-      if (lowerInput.includes("reservation") || lowerInput.includes("book")) {
-        response = "I see. What time would you like to dine with us today?"
-      } else if (lowerInput.includes("menu") || lowerInput.includes("recommend")) {
-        response = "Our chef's special today is grilled salmon with seasonal vegetables. Would you like to try that?"
-      } else if (lowerInput.includes("order") || lowerInput.includes("like")) {
-        response = "Excellent choice! Would you like any appetizers or drinks with that?"
-      } else {
-        response = "Of course. Let me show you to your table. Would you prefer a window seat?"
-      }
-    }
-    // Interview scenario responses
-    else if (activeScenario.id === "interview") {
-      if (lowerInput.includes("experience") || lowerInput.includes("work")) {
-        response = "That's impressive experience. What would you say is your greatest professional achievement?"
-      } else if (lowerInput.includes("strength") || lowerInput.includes("good at")) {
-        response = "Those are valuable strengths. How about challenges or areas you're working to improve?"
-      } else if (lowerInput.includes("question") || lowerInput.includes("ask")) {
-        response =
-          "Great question. Our company culture emphasizes collaboration and innovation. How do you feel about working in team environments?"
-      } else {
-        response =
-          "Thank you for sharing that. Could you tell me about a time when you faced a difficult challenge at work and how you handled it?"
-      }
-    }
-    // Shopping scenario responses
-    else if (activeScenario.id === "shopping") {
-      if (lowerInput.includes("looking") || lowerInput.includes("find")) {
-        response = "I can help you find that. What size and color are you looking for?"
-      } else if (lowerInput.includes("price") || lowerInput.includes("cost") || lowerInput.includes("expensive")) {
-        response = "That item is $49.99. We also have a sale on similar items if you're interested."
-      } else if (lowerInput.includes("try") || lowerInput.includes("fitting")) {
-        response = "The fitting rooms are just over there to your right. Let me know if you need a different size."
-      } else {
-        response = "Is there anything else I can help you with today?"
-      }
-    }
-
-    // Add AI response to conversation
-    const updatedConversation = [...conversation, { role: "assistant", content: response }]
-    setConversation(updatedConversation)
-
-    // Speak the response if not using fallback
-    if (!useFallback) {
+  const handleRepeatLast = async () => {
+    if (conversation.length > 1) {
       try {
-        await speak(response)
-      } catch (err) {
+        await speak(conversation[conversation.length - 1].content)
+      } catch (error) {
         setUseFallback(true)
         toast.error("Speech Synthesis Error", {
-          description: "Unable to play audio. Text will be displayed instead.",
+          description: error instanceof Error ? error.message : "Unable to play audio. Text will be displayed instead.",
         })
       }
+    }
+  }
+
+  const handleGenerateResponse = async (userInput: string) => {
+    try {
+      const result = await generateConversationResponse(userInput, activeScenario.id)
+
+      if (result.success && result.response) {
+        const updatedConversation = [...conversation, { role: "assistant" as const, content: result.response }]
+        setConversation(updatedConversation)
+
+        if (!useFallback) {
+          try {
+            await speak(result.response)
+          } catch (error) {
+            setUseFallback(true)
+            toast.error("Speech Synthesis Error", {
+              description: error instanceof Error ? error.message : "Unable to play audio. Text will be displayed instead.",
+            })
+          }
+        }
+      } else {
+        toast.error("Response Generation Error", {
+          description: result.error ?? "Failed to generate response",
+        })
+      }
+    } catch (error) {
+      toast.error("Error", {
+        description: error instanceof Error ? error.message : "Failed to generate response",
+      })
     }
   }
 
@@ -215,26 +165,7 @@ export default function ConversationPage() {
           <p className="text-gray-600 dark:text-gray-300">Practice your English in realistic conversation scenarios</p>
         </div>
 
-        <Tabs defaultValue={activeScenario.id} onValueChange={handleScenarioChange} className="mb-8">
-          <TabsList className="grid grid-cols-3 mb-4">
-            {scenarios.map((scenario) => (
-              <TabsTrigger key={scenario.id} value={scenario.id}>
-                {scenario.title}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          {scenarios.map((scenario) => (
-            <TabsContent key={scenario.id} value={scenario.id}>
-              <Card>
-                <CardHeader>
-                  <CardTitle>{scenario.title}</CardTitle>
-                  <CardDescription>{scenario.description}</CardDescription>
-                </CardHeader>
-              </Card>
-            </TabsContent>
-          ))}
-        </Tabs>
+        <ScenarioTabs scenarios={scenarios} activeScenario={activeScenario} onScenarioChange={handleScenarioChange} />
 
         <Card className="mb-6">
           <CardHeader className="pb-3">
@@ -247,34 +178,7 @@ export default function ConversationPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[400px] pr-4" ref={scrollAreaRef as any}>
-              <div className="space-y-4">
-                {conversation.map((message, index) => (
-                  <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                    <div
-                      className={`flex gap-3 max-w-[80%] ${message.role === "user" ? "flex-row-reverse" : "flex-row"}`}
-                    >
-                      <Avatar>
-                        <AvatarFallback>{message.role === "user" ? "U" : "AI"}</AvatarFallback>
-                      </Avatar>
-                      <div
-                        className={`rounded-lg px-4 py-2 ${
-                          message.role === "user" ? "bg-blue-500 text-white" : "bg-gray-100 dark:bg-gray-800"
-                        }`}
-                      >
-                        <p>{message.content}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-                {isListening && !useFallback && (
-                  <div className="flex justify-end">
-                    <div className="bg-gray-200 dark:bg-gray-700 rounded-lg px-4 py-2 text-sm">Listening...</div>
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
+            <ConversationDisplay conversation={conversation} isListening={isListening} scrollAreaRef={scrollAreaRef as React.RefObject<HTMLDivElement>} />
           </CardContent>
           <CardFooter>
             {useFallback ? (
@@ -282,35 +186,15 @@ export default function ConversationPage() {
                 <SpeechFallback onTextSubmit={handleFallbackSubmit} type="recognition" />
               </div>
             ) : (
-              <div className="w-full flex justify-center gap-4">
-                {isListening ? (
-                  <Button onClick={handleStopListening} variant="destructive" className="flex items-center gap-2">
-                    Stop Recording
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={handleStartListening}
-                    variant="default"
-                    className="flex items-center gap-2"
-                    disabled={isRecognizing || isSpeaking}
-                  >
-                    <Mic className="h-4 w-4" />
-                    {isRecognizing ? "Listening..." : "Speak Now"}
-                  </Button>
-                )}
-
-                {conversation.length > 1 && (
-                  <Button
-                    onClick={async () => await speak(conversation[conversation.length - 1].content)}
-                    variant="outline"
-                    className="flex items-center gap-2"
-                    disabled={isSpeaking}
-                  >
-                    <Volume2 className="h-4 w-4" />
-                    Repeat Last
-                  </Button>
-                )}
-              </div>
+              <ConversationControls
+                isListening={isListening}
+                isSpeaking={isSpeaking}
+                isRecognizing={isRecognizing}
+                hasConversation={conversation.length > 1}
+                onStartListening={handleStartListening}
+                onStopListening={handleStopListening}
+                onRepeatLast={handleRepeatLast}
+              />
             )}
           </CardFooter>
         </Card>

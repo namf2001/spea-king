@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import * as SpeechSDK from "microsoft-cognitiveservices-speech-sdk"
+import { getSpeechToken } from "@/app/actions/speech"
 
 export function useSpeechRecognition() {
     const [recognizer, setRecognizer] = useState<SpeechSDK.SpeechRecognizer | null>(null)
@@ -25,21 +26,15 @@ export function useSpeechRecognition() {
                 throw new Error("Speech recognition is only available in browser environments")
             }
 
-            // Fetch speech token from our secure API endpoint
-            const response = await fetch("/api/speech/token")
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error || "Failed to get speech token")
-            }
+            // Get speech token using Server Action
+            const result = await getSpeechToken()
 
-            const { token, region } = await response.json()
-
-            if (!token || !region) {
-                throw new Error("Invalid speech token response")
+            if (!result.success || !result.token || !result.region) {
+                throw new Error(result.error || "Failed to get speech token")
             }
 
             // Create the speech config with the token
-            const speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(token, region)
+            const speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(result.token, result.region)
             speechConfig.speechRecognitionLanguage = "en-US"
 
             // Create the audio config using the browser's microphone

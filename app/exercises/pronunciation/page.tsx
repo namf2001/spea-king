@@ -1,50 +1,17 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Mic, Play, SkipForward, VolumeX, Volume2 } from "lucide-react"
 import { toast } from "sonner"
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition"
 import { useSpeechSynthesis } from "@/hooks/use-speech-synthesis"
-import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import Link from "next/link"
-
-// Sample pronunciation exercises
-const exercises = [
-    {
-        id: 1,
-        text: "The quick brown fox jumps over the lazy dog.",
-        difficulty: "easy",
-        focusSound: "th",
-    },
-    {
-        id: 2,
-        text: "She sells seashells by the seashore.",
-        difficulty: "medium",
-        focusSound: "s",
-    },
-    {
-        id: 3,
-        text: "How much wood would a woodchuck chuck if a woodchuck could chuck wood?",
-        difficulty: "hard",
-        focusSound: "w",
-    },
-    {
-        id: 4,
-        text: "Thirty-three thirsty, thundering thoroughbreds.",
-        difficulty: "hard",
-        focusSound: "th",
-    },
-    {
-        id: 5,
-        text: "Red lorry, yellow lorry.",
-        difficulty: "medium",
-        focusSound: "r/l",
-    },
-]
+import { SpeechFallback } from "@/components/speech-fallback"
+import { exercises } from "./data/exercises"
+import { ExerciseDisplay } from "./components/exercise-display"
+import { ExerciseControls } from "./components/exercise-controls"
+import { TranscriptDisplay } from "./components/transcript-display"
+import { evaluatePronunciation } from "@/app/actions/speech"
+import { FeedbackDisplay } from "./components/feedback-display"
 
 export default function PronunciationPage() {
     const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
@@ -52,6 +19,7 @@ export default function PronunciationPage() {
     const [transcript, setTranscript] = useState("")
     const [score, setScore] = useState<number | null>(null)
     const [feedback, setFeedback] = useState("")
+    const [useFallback, setUseFallback] = useState(false)
     const {
         startRecognition,
         stopRecognition,
@@ -70,6 +38,7 @@ export default function PronunciationPage() {
             toast.error("Speech Recognition Error", {
                 description: recognitionError,
             })
+            setUseFallback(true)
         }
     }, [recognitionError, toast])
 
@@ -78,13 +47,14 @@ export default function PronunciationPage() {
             toast.error("Speech Synthesis Error", {
                 description: synthesisError,
             })
+            setUseFallback(true)
         }
     }, [synthesisError, toast])
 
     useEffect(() => {
         if (recognizedText) {
             setTranscript(recognizedText)
-            evaluatePronunciation(recognizedText)
+            handleEvaluatePronunciation(recognizedText)
         }
     }, [recognizedText])
 
@@ -95,10 +65,11 @@ export default function PronunciationPage() {
         setFeedback("")
         try {
             await startRecognition()
-        } catch (err) {
+        } catch (error) {
             setIsListening(false)
+            setUseFallback(true)
             toast.error("Error", {
-                description: "Failed to start speech recognition",
+                description: error instanceof Error ? error.message : "Failed to start speech recognition",
             })
         }
     }
@@ -111,9 +82,10 @@ export default function PronunciationPage() {
     const handlePlayExample = async () => {
         try {
             await speak(currentExercise.text)
-        } catch (err) {
+        } catch (error) {
+            setUseFallback(true)
             toast.error("Error", {
-                description: "Failed to play audio example",
+                description: error instanceof Error ? error.message : "Failed to play audio example",
             })
         }
     }
@@ -125,37 +97,22 @@ export default function PronunciationPage() {
         setFeedback("")
     }
 
-    const evaluatePronunciation = (text: string) => {
-        // This is a simplified scoring algorithm
-        // In a real app, you would use Azure's pronunciation assessment API
-        const targetText = currentExercise.text.toLowerCase().replace(/[.,?!]/g, "")
-        const spokenText = text.toLowerCase().replace(/[.,?!]/g, "")
+    const handleFallbackSubmit = (text: string) => {
+        setTranscript(text)
+        handleEvaluatePronunciation(text)
+    }
 
-        // Simple word match ratio
-        const targetWords = targetText.split(" ")
-        const spokenWords = spokenText.split(" ")
+    const handleEvaluatePronunciation = async (text: string) => {
+        // Use the Server Action to evaluate pronunciation
+        const result = await evaluatePronunciation(text, currentExercise.text, currentExercise.focusSound)
 
-        let matchedWords = 0
-        for (const targetWord of targetWords) {
-            if (spokenWords.includes(targetWord)) {
-                matchedWords++
-            }
-        }
-
-        const matchRatio = targetWords.length > 0 ? (matchedWords / targetWords.length) * 100 : 0
-        const calculatedScore = Math.round(matchRatio)
-
-        setScore(calculatedScore)
-
-        // Generate feedback based on score
-        if (calculatedScore >= 90) {
-            setFeedback("Excellent pronunciation! You've mastered this phrase.")
-        } else if (calculatedScore >= 70) {
-            setFeedback("Good job! Try to focus more on the '" + currentExercise.focusSound + "' sound.")
-        } else if (calculatedScore >= 50) {
-            setFeedback("Keep practicing. Pay special attention to the '" + currentExercise.focusSound + "' sound.")
+        if (result.success) {
+            setScore(result.score ?? 0)
+            setFeedback(result.feedback ?? "")
         } else {
-            setFeedback("Let's try again. Listen to the example and focus on each word carefully.")
+            toast.error("Evaluation Error", {
+                description: result.error ?? "Failed to evaluate pronunciation",
+            })
         }
     }
 
@@ -172,97 +129,37 @@ export default function PronunciationPage() {
                     </p>
                 </div>
 
-                <Card className="mb-8">
-                    <CardHeader>
-                        <div className="flex justify-between items-center">
-                            <CardTitle>
-                                Exercise {currentExerciseIndex + 1}/{exercises.length}
-                            </CardTitle>
-                            <Badge
-                                variant={
-                                    currentExercise.difficulty === "easy"
-                                        ? "outline"
-                                        : currentExercise.difficulty === "medium"
-                                            ? "secondary"
-                                            : "destructive"
-                                }
-                            >
-                                {currentExercise.difficulty}
-                            </Badge>
-                        </div>
-                        <CardDescription>Focus on the "{currentExercise.focusSound}" sound</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-md mb-6 text-center">
-                            <p className="text-xl font-medium">{currentExercise.text}</p>
-                        </div>
+                <ExerciseDisplay
+                    exercise={currentExercise}
+                    currentIndex={currentExerciseIndex}
+                    totalExercises={exercises.length}
+                />
 
-                        <div className="flex flex-wrap gap-3 justify-center mb-6">
-                            <Button
-                                onClick={handlePlayExample}
-                                variant="outline"
-                                className="flex items-center gap-2"
-                                disabled={isSpeaking}
-                            >
-                                {isSpeaking ? <Volume2 className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                                {isSpeaking ? "Playing..." : "Listen to Example"}
-                            </Button>
+                {useFallback ? (
+                    <div className="mb-6">
+                        <SpeechFallback onTextSubmit={handleFallbackSubmit} type="recognition" />
+                    </div>
+                ) : (
+                    <ExerciseControls
+                        isListening={isListening}
+                        isSpeaking={isSpeaking}
+                        isRecognizing={isRecognizing}
+                        onStartListening={handleStartListening}
+                        onStopListening={handleStopListening}
+                        onPlayExample={handlePlayExample}
+                        onNextExercise={handleNextExercise}
+                    />
+                )}
 
-                            {isListening ? (
-                                <Button onClick={handleStopListening} variant="destructive" className="flex items-center gap-2">
-                                    <VolumeX className="h-4 w-4" />
-                                    Stop Recording
-                                </Button>
-                            ) : (
-                                <Button
-                                    onClick={handleStartListening}
-                                    variant="default"
-                                    className="flex items-center gap-2"
-                                    disabled={isRecognizing}
-                                >
-                                    <Mic className="h-4 w-4" />
-                                    {isRecognizing ? "Listening..." : "Start Recording"}
-                                </Button>
-                            )}
+                {isListening && !useFallback && (
+                    <div className="mb-4">
+                        <canvas ref={audioVisualizerRef} className="w-full h-16 bg-gray-100 dark:bg-gray-800 rounded-md" />
+                    </div>
+                )}
 
-                            <Button onClick={handleNextExercise} variant="ghost" className="flex items-center gap-2">
-                                <SkipForward className="h-4 w-4" />
-                                Next Exercise
-                            </Button>
-                        </div>
+                {transcript && <TranscriptDisplay transcript={transcript} />}
 
-                        {isListening && (
-                            <div className="mb-4">
-                                <canvas ref={audioVisualizerRef} className="w-full h-16 bg-gray-100 dark:bg-gray-800 rounded-md" />
-                            </div>
-                        )}
-
-                        {transcript && (
-                            <div className="mb-6">
-                                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Your recording:</h3>
-                                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
-                                    <p>{transcript}</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {score !== null && (
-                            <div className="space-y-4">
-                                <div>
-                                    <div className="flex justify-between mb-1">
-                                        <span className="text-sm font-medium">Accuracy Score</span>
-                                        <span className="text-sm font-medium">{score}%</span>
-                                    </div>
-                                    <Progress value={score} className="h-2" />
-                                </div>
-
-                                <Alert>
-                                    <AlertDescription>{feedback}</AlertDescription>
-                                </Alert>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
+                {score !== null && <FeedbackDisplay score={score} feedback={feedback} />}
             </div>
         </div>
     )
