@@ -11,6 +11,7 @@ interface ExerciseControlsProps {
     readonly onStopListening: () => void
     readonly onPlayExample: () => Promise<void>
     readonly onNextExercise: () => void
+    readonly getAudioData?: () => Uint8Array | null
 }
 
 export function ExerciseControls({

@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+import { VoiceResponsiveButton } from "@/components/voice-responsive-button"
 import { Mic, Volume2 } from "lucide-react"
 
 interface ConversationControlsProps {
@@ -11,6 +11,7 @@ interface ConversationControlsProps {
     readonly onStartListening: () => Promise<void>
     readonly onStopListening: () => void
     readonly onRepeatLast: () => Promise<void>
+    readonly getAudioData?: () => Uint8Array | null
 }
 
 export function ConversationControls({
@@ -21,30 +22,39 @@ export function ConversationControls({
     onStartListening,
     onStopListening,
     onRepeatLast,
+    getAudioData,
 }: ConversationControlsProps) {
     return (
         <div className="w-full flex justify-center gap-4">
             {isListening ? (
-                <Button onClick={onStopListening} variant="destructive" className="flex items-center gap-2">
+                <VoiceResponsiveButton
+                    onClick={onStopListening}
+                    variant="destructive"
+                    isListening={isListening}
+                    getAudioData={getAudioData}
+                >
                     Stop Recording
-                </Button>
+                </VoiceResponsiveButton>
             ) : (
-                <Button
+                <VoiceResponsiveButton
                     onClick={onStartListening}
                     variant="default"
-                    className="flex items-center gap-2"
                     disabled={isRecognizing || isSpeaking}
+                    icon={<Mic className="h-4 w-4" />}
                 >
-                    <Mic className="h-4 w-4" />
                     {isRecognizing ? "Listening..." : "Speak Now"}
-                </Button>
+                </VoiceResponsiveButton>
             )}
 
             {hasConversation && (
-                <Button onClick={onRepeatLast} variant="outline" className="flex items-center gap-2" disabled={isSpeaking}>
-                    <Volume2 className="h-4 w-4" />
+                <VoiceResponsiveButton
+                    onClick={onRepeatLast}
+                    variant="outline"
+                    disabled={isSpeaking}
+                    icon={<Volume2 className="h-4 w-4" />}
+                >
                     Repeat Last
-                </Button>
+                </VoiceResponsiveButton>
             )}
         </div>
     )
