@@ -18,23 +18,28 @@ export function useSpeechRecognition() {
         }
     }, [recognizer])
 
-    const initializeRecognizer = useCallback(() => {
+    const initializeRecognizer = useCallback(async () => {
         try {
             // Check if we're in a browser environment
             if (typeof window === "undefined") {
                 throw new Error("Speech recognition is only available in browser environments")
             }
 
-            // Check if the Azure Speech key and region are available
-            const speechKey = process.env.NEXT_PUBLIC_AZURE_SPEECH_KEY
-            const speechRegion = process.env.NEXT_PUBLIC_AZURE_SPEECH_REGION
-
-            if (!speechKey || !speechRegion) {
-                throw new Error("Azure Speech credentials are not configured")
+            // Fetch speech token from our secure API endpoint
+            const response = await fetch("/api/speech/token")
+            if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || "Failed to get speech token")
             }
 
-            // Create the speech config
-            const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(speechKey, speechRegion)
+            const { token, region } = await response.json()
+
+            if (!token || !region) {
+                throw new Error("Invalid speech token response")
+            }
+
+            // Create the speech config with the token
+            const speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(token, region)
             speechConfig.speechRecognitionLanguage = "en-US"
 
             // Create the audio config using the browser's microphone
@@ -46,8 +51,6 @@ export function useSpeechRecognition() {
             // Set up event handlers
             newRecognizer.recognized = (_, event) => {
                 if (event.result.reason === SpeechSDK.ResultReason.RecognizedSpeech) {
-                    // Log the full JSON response
-                    console.log('Full Speech Recognition Response:', JSON.stringify(event.result, null, 2))
                     setRecognizedText(event.result.text)
                     setIsRecognizing(false)
                 }
@@ -68,7 +71,7 @@ export function useSpeechRecognition() {
         }
     }, [])
 
-    const startRecognition = useCallback(() => {
+    const startRecognition = useCallback(async () => {
         setRecognizedText("")
         setError(null)
 
@@ -76,7 +79,7 @@ export function useSpeechRecognition() {
             let currentRecognizer = recognizer
 
             if (!currentRecognizer) {
-                currentRecognizer = initializeRecognizer()
+                currentRecognizer = await initializeRecognizer()
                 if (!currentRecognizer) return
             }
 

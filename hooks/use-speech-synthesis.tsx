@@ -17,23 +17,28 @@ export function useSpeechSynthesis() {
         }
     }, [synthesizer])
 
-    const initializeSynthesizer = useCallback(() => {
+    const initializeSynthesizer = useCallback(async () => {
         try {
             // Check if we're in a browser environment
             if (typeof window === "undefined") {
                 throw new Error("Speech synthesis is only available in browser environments")
             }
 
-            // Check if the Azure Speech key and region are available
-            const speechKey = process.env.NEXT_PUBLIC_AZURE_SPEECH_KEY
-            const speechRegion = process.env.NEXT_PUBLIC_AZURE_SPEECH_REGION
-
-            if (!speechKey || !speechRegion) {
-                throw new Error("Azure Speech credentials are not configured")
+            // Fetch speech token from our secure API endpoint
+            const response = await fetch("/api/speech/token")
+            if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || "Failed to get speech token")
             }
 
-            // Create the speech config
-            const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(speechKey, speechRegion)
+            const { token, region } = await response.json()
+
+            if (!token || !region) {
+                throw new Error("Invalid speech token response")
+            }
+
+            // Create the speech config with the token
+            const speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(token, region)
             speechConfig.speechSynthesisLanguage = "en-US"
             speechConfig.speechSynthesisVoiceName = "en-US-JennyNeural"
 
@@ -52,14 +57,14 @@ export function useSpeechSynthesis() {
     }, [])
 
     const speak = useCallback(
-        (text: string) => {
+        async (text: string) => {
             setError(null)
 
             try {
                 let currentSynthesizer = synthesizer
 
                 if (!currentSynthesizer) {
-                    currentSynthesizer = initializeSynthesizer()
+                    currentSynthesizer = await initializeSynthesizer()
                     if (!currentSynthesizer) return
                 }
 

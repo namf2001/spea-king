@@ -11,6 +11,7 @@ import { useSpeechSynthesis } from "@/hooks/use-speech-synthesis"
 import Link from "next/link"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { SpeechFallback } from "@/components/speech-fallback"
 
 // Sample conversation scenarios
 const scenarios = [
@@ -53,9 +54,26 @@ export default function ConversationPage() {
   const [activeScenario, setActiveScenario] = useState(scenarios[0])
   const [conversation, setConversation] = useState(activeScenario.conversation)
   const [isListening, setIsListening] = useState(false)
-  const { startRecognition, stopRecognition, recognizedText, isRecognizing } = useSpeechRecognition()
-  const { speak, isSpeaking } = useSpeechSynthesis()
+  const [useFallback, setUseFallback] = useState(false)
+  const {
+    startRecognition,
+    stopRecognition,
+    recognizedText,
+    isRecognizing,
+    error: recognitionError,
+  } = useSpeechRecognition()
+  const { speak, isSpeaking, error: synthesisError } = useSpeechSynthesis()
   const scrollAreaRef = useRef<HTMLDivElement>(null)
+
+  // Check for errors and enable fallback if needed
+  useEffect(() => {
+    if (recognitionError || synthesisError) {
+      setUseFallback(true)
+      toast.error("Speech Service Error", {
+        description: "Using text input as a fallback. Check your internet connection.",
+      })
+    }
+  }, [recognitionError, synthesisError, toast])
 
   useEffect(() => {
     // Reset conversation when scenario changes
@@ -82,9 +100,17 @@ export default function ConversationPage() {
     }
   }, [recognizedText, isListening])
 
-  const handleStartListening = () => {
+  const handleStartListening = async () => {
     setIsListening(true)
-    startRecognition()
+    try {
+      await startRecognition()
+    } catch (err) {
+      setIsListening(false)
+      setUseFallback(true)
+      toast.error("Error", {
+        description: "Failed to start speech recognition. Using text input instead.",
+      })
+    }
   }
 
   const handleStopListening = () => {
@@ -104,7 +130,18 @@ export default function ConversationPage() {
     })
   }
 
-  const generateResponse = (userInput: string) => {
+  const handleFallbackSubmit = (text: string) => {
+    // Add user message to conversation
+    const updatedConversation = [...conversation, { role: "user", content: text }]
+    setConversation(updatedConversation)
+
+    // Generate AI response after a short delay
+    setTimeout(() => {
+      generateResponse(text)
+    }, 1000)
+  }
+
+  const generateResponse = async (userInput: string) => {
     // This is a simplified response generation
     // In a real app, you would use Azure AI or another LLM to generate contextual responses
 
@@ -152,11 +189,19 @@ export default function ConversationPage() {
 
     // Add AI response to conversation
     const updatedConversation = [...conversation, { role: "assistant", content: response }]
-
     setConversation(updatedConversation)
 
-    // Speak the response
-    speak(response)
+    // Speak the response if not using fallback
+    if (!useFallback) {
+      try {
+        await speak(response)
+      } catch (err) {
+        setUseFallback(true)
+        toast.error("Speech Synthesis Error", {
+          description: "Unable to play audio. Text will be displayed instead.",
+        })
+      }
+    }
   }
 
   return (
@@ -223,7 +268,7 @@ export default function ConversationPage() {
                   </div>
                 ))}
 
-                {isListening && (
+                {isListening && !useFallback && (
                   <div className="flex justify-end">
                     <div className="bg-gray-200 dark:bg-gray-700 rounded-lg px-4 py-2 text-sm">Listening...</div>
                   </div>
@@ -232,35 +277,41 @@ export default function ConversationPage() {
             </ScrollArea>
           </CardContent>
           <CardFooter>
-            <div className="w-full flex justify-center gap-4">
-              {isListening ? (
-                <Button onClick={handleStopListening} variant="destructive" className="flex items-center gap-2">
-                  Stop Recording
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleStartListening}
-                  variant="default"
-                  className="flex items-center gap-2"
-                  disabled={isRecognizing || isSpeaking}
-                >
-                  <Mic className="h-4 w-4" />
-                  {isRecognizing ? "Listening..." : "Speak Now"}
-                </Button>
-              )}
+            {useFallback ? (
+              <div className="w-full">
+                <SpeechFallback onTextSubmit={handleFallbackSubmit} type="recognition" />
+              </div>
+            ) : (
+              <div className="w-full flex justify-center gap-4">
+                {isListening ? (
+                  <Button onClick={handleStopListening} variant="destructive" className="flex items-center gap-2">
+                    Stop Recording
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleStartListening}
+                    variant="default"
+                    className="flex items-center gap-2"
+                    disabled={isRecognizing || isSpeaking}
+                  >
+                    <Mic className="h-4 w-4" />
+                    {isRecognizing ? "Listening..." : "Speak Now"}
+                  </Button>
+                )}
 
-              {conversation.length > 1 && (
-                <Button
-                  onClick={() => speak(conversation[conversation.length - 1].content)}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                  disabled={isSpeaking}
-                >
-                  <Volume2 className="h-4 w-4" />
-                  Repeat Last
-                </Button>
-              )}
-            </div>
+                {conversation.length > 1 && (
+                  <Button
+                    onClick={async () => await speak(conversation[conversation.length - 1].content)}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                    disabled={isSpeaking}
+                  >
+                    <Volume2 className="h-4 w-4" />
+                    Repeat Last
+                  </Button>
+                )}
+              </div>
+            )}
           </CardFooter>
         </Card>
       </div>

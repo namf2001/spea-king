@@ -52,11 +52,34 @@ export default function PronunciationPage() {
     const [transcript, setTranscript] = useState("")
     const [score, setScore] = useState<number | null>(null)
     const [feedback, setFeedback] = useState("")
-    const { startRecognition, stopRecognition, recognizedText, isRecognizing } = useSpeechRecognition()
-    const { speak, isSpeaking } = useSpeechSynthesis()
+    const {
+        startRecognition,
+        stopRecognition,
+        recognizedText,
+        isRecognizing,
+        error: recognitionError,
+    } = useSpeechRecognition()
+    const { speak, isSpeaking, error: synthesisError } = useSpeechSynthesis()
     const audioVisualizerRef = useRef<HTMLCanvasElement>(null)
 
     const currentExercise = exercises[currentExerciseIndex]
+
+    // Display errors as toasts
+    useEffect(() => {
+        if (recognitionError) {
+            toast.error("Speech Recognition Error", {
+                description: recognitionError,
+            })
+        }
+    }, [recognitionError, toast])
+
+    useEffect(() => {
+        if (synthesisError) {
+            toast.error("Speech Synthesis Error", {
+                description: synthesisError,
+            })
+        }
+    }, [synthesisError, toast])
 
     useEffect(() => {
         if (recognizedText) {
@@ -65,12 +88,19 @@ export default function PronunciationPage() {
         }
     }, [recognizedText])
 
-    const handleStartListening = () => {
+    const handleStartListening = async () => {
         setIsListening(true)
         setTranscript("")
         setScore(null)
         setFeedback("")
-        startRecognition()
+        try {
+            await startRecognition()
+        } catch (err) {
+            setIsListening(false)
+            toast.error("Error", {
+                description: "Failed to start speech recognition",
+            })
+        }
     }
 
     const handleStopListening = () => {
@@ -78,8 +108,14 @@ export default function PronunciationPage() {
         stopRecognition()
     }
 
-    const handlePlayExample = () => {
-        speak(currentExercise.text)
+    const handlePlayExample = async () => {
+        try {
+            await speak(currentExercise.text)
+        } catch (err) {
+            toast.error("Error", {
+                description: "Failed to play audio example",
+            })
+        }
     }
 
     const handleNextExercise = () => {
