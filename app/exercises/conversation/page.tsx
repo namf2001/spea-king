@@ -81,20 +81,39 @@ export default function ConversationPage() {
   }, [conversation])
 
   useEffect(() => {
-    if (recognizedText && !isListening) {
-      // Store the user message for replay
-      setLastUserMessage(recognizedText)
-
-      // Add user message to conversation
-      const updatedConversation = [...conversation, { role: "user" as const, content: recognizedText }]
-      setConversation(updatedConversation)
-
-      // Generate AI response after a short delay
-      setTimeout(() => {
-        handleGenerateResponse(recognizedText)
-      }, 1000)
+    if (recognizedText) {
+      // Thêm tin nhắn người dùng vào conversation ngay lập tức khi có văn bản
+      // Điều này đảm bảo hiển thị ngay lập tức, không cần đợi dừng nghe
+      const userMessage = { role: "user" as const, content: recognizedText };
+      
+      // Tìm và thay thế tin nhắn người dùng cuối cùng nếu đang nghe,
+      // hoặc thêm mới nếu đã dừng nghe
+      if (isListening) {
+        // Nếu tin nhắn cuối cùng là của người dùng, cập nhật tin nhắn đó
+        // thay vì thêm mới, tránh hiển thị nhiều tin nhắn liên tiếp
+        const lastMessage = conversation[conversation.length - 1];
+        if (lastMessage && lastMessage.role === "user") {
+          const updatedConversation = [...conversation.slice(0, -1), userMessage];
+          setConversation(updatedConversation);
+        } else {
+          // Thêm tin nhắn mới nếu tin nhắn cuối cùng không phải của người dùng
+          setConversation([...conversation, userMessage]);
+        }
+      } else {
+        // Khi dừng nghe, lưu tin nhắn và tạo phản hồi
+        setLastUserMessage(recognizedText);
+        
+        // Đảm bảo thêm tin nhắn mới vì đây là tin nhắn cuối cùng
+        const updatedConversation = [...conversation, userMessage];
+        setConversation(updatedConversation);
+        
+        // Tạo phản hồi AI sau một khoảng thời gian ngắn
+        setTimeout(() => {
+          handleGenerateResponse(recognizedText);
+        }, 500);
+      }
     }
-  }, [recognizedText, isListening])
+  }, [recognizedText, isListening]);
 
   const handleStartListening = async () => {
     setIsListening(true)
@@ -254,7 +273,12 @@ export default function ConversationPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <ConversationDisplay conversation={conversation} isListening={isListening} scrollAreaRef={scrollAreaRef as React.RefObject<HTMLDivElement>} />
+            <ConversationDisplay 
+              conversation={conversation} 
+              isListening={isListening} 
+              scrollAreaRef={scrollAreaRef as React.RefObject<HTMLDivElement>} 
+              recognizedText={recognizedText}
+            />
 
             {isListening && !useFallback && audioVisualizerEnabled && (
               <div className="mt-4">

@@ -7,9 +7,14 @@ interface ConversationDisplayProps {
     readonly conversation: Message[]
     readonly isListening: boolean
     readonly scrollAreaRef: RefObject<HTMLDivElement>
+    readonly recognizedText?: string
 }
 
-export function ConversationDisplay({ conversation, isListening, scrollAreaRef }: ConversationDisplayProps) {
+export function ConversationDisplay({ conversation, isListening, scrollAreaRef, recognizedText }: ConversationDisplayProps) {
+    // Kiểm tra xem tin nhắn cuối cùng trong conversation có phải của người dùng không
+    const lastMessage = conversation.length > 0 ? conversation[conversation.length - 1] : null;
+    const isLastMessageFromUser = lastMessage?.role === "user";
+
     return (
         <ScrollArea className="h-[400px] pr-4" ref={scrollAreaRef as any}>
             <div className="space-y-4">
@@ -29,9 +34,23 @@ export function ConversationDisplay({ conversation, isListening, scrollAreaRef }
                     </div>
                 ))}
 
-                {isListening && (
+                {/* Chỉ hiển thị văn bản tạm thời nếu đang lắng nghe và KHÔNG có tin nhắn người dùng ở cuối conversation */}
+                {isListening && recognizedText && !isLastMessageFromUser && (
                     <div className="flex justify-end">
-                        <div className="bg-gray-200 dark:bg-gray-700 rounded-lg px-4 py-2 text-sm">Listening...</div>
+                        <div className={`flex gap-3 max-w-[80%] flex-row-reverse`}>
+                            <Avatar>
+                                <AvatarFallback>U</AvatarFallback>
+                            </Avatar>
+                            <div className="bg-blue-300 text-blue-900 rounded-lg px-4 py-2">
+                                <p>{recognizedText} ...</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {isListening && !recognizedText && (
+                    <div className="flex justify-end">
+                        <div className="bg-gray-200 dark:bg-gray-700 rounded-lg px-4 py-2 text-sm">Đang nghe...</div>
                     </div>
                 )}
             </div>

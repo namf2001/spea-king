@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import * as SpeechSDK from "microsoft-cognitiveservices-speech-sdk"
 import { getSpeechToken } from "@/app/actions/speech"
 
@@ -9,6 +9,7 @@ export function useSpeechRecognition() {
     const [recognizedText, setRecognizedText] = useState("")
     const [isRecognizing, setIsRecognizing] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const accumulatedTextRef = useRef("")
 
     useEffect(() => {
         // Clean up the recognizer on unmount
@@ -46,8 +47,21 @@ export function useSpeechRecognition() {
             // Set up event handlers
             newRecognizer.recognized = (_, event) => {
                 if (event.result.reason === SpeechSDK.ResultReason.RecognizedSpeech) {
-                    setRecognizedText(event.result.text)
-                    setIsRecognizing(false)
+                    // Tích lũy văn bản đã nhận diện
+                    const newText = event.result.text;
+                    
+                    // Nếu nhận diện mới có nội dung, thêm vào văn bản đã tích lũy
+                    if (newText.trim()) {
+                        // Thêm khoảng trắng nếu đã có nội dung trước đó
+                        accumulatedTextRef.current = accumulatedTextRef.current 
+                            ? accumulatedTextRef.current + " " + newText
+                            : newText;
+                            
+                        // Cập nhật state với văn bản đã tích lũy
+                        setRecognizedText(accumulatedTextRef.current);
+                    }
+                    
+                    setIsRecognizing(false);
                 }
             }
 
@@ -67,8 +81,10 @@ export function useSpeechRecognition() {
     }, [])
 
     const startRecognition = useCallback(async () => {
-        setRecognizedText("")
-        setError(null)
+        // Reset accumulated text when starting a new recognition session
+        accumulatedTextRef.current = "";
+        setRecognizedText("");
+        setError(null);
 
         try {
             let currentRecognizer = recognizer
