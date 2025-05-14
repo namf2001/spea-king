@@ -1,14 +1,31 @@
 import { Mic, MessageSquare, Award, Settings, Zap } from "lucide-react"
 import { ExerciseCard } from "@/components/exercise-card"
+import Image from "next/image"
+
+import LogoDark from "@/assets/image/spea_king_logo_dark.png"
+import LogoLight from "@/assets/image/spea_king_logo_light.png"
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-950">
       <div className="container mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-6xl mb-4">
-            SpeakEasy
-          </h1>
+          <div className="flex justify-center mb-4">
+            <Image
+              src={LogoDark}
+              alt="SPEA-KING Logo"
+              width={100}
+              height={100}
+              className="hidden dark:block"
+            />
+            <Image
+              src={LogoLight}
+              alt="SPEA-KING Logo"
+              width={100}
+              height={100}
+              className="block dark:hidden"
+            />
+          </div>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Improve your English speaking skills with interactive exercises and AI-powered feedback
           </p>
