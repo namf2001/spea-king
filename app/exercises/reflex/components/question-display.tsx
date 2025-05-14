@@ -10,11 +10,11 @@ import { Question } from "../data/questions"
 import { toast } from "sonner"
 
 interface QuestionDisplayProps {
-    question: Question
-    currentIndex: number
-    totalQuestions: number
-    timeRemaining: number
-    isAnswering: boolean
+    readonly question: Question
+    readonly currentIndex: number
+    readonly totalQuestions: number
+    readonly timeRemaining: number
+    readonly isAnswering: boolean
 }
 
 export function QuestionDisplay({

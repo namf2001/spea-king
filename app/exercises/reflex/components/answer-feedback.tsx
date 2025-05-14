@@ -6,9 +6,9 @@ import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion"
 
 interface AnswerFeedbackProps {
-    transcript: string
-    targetAnswerText: string
-    isActive: boolean
+    readonly transcript: string
+    readonly targetAnswerText: string
+    readonly isActive: boolean
 }
 
 interface WordMatch {
@@ -100,13 +100,6 @@ export function AnswerFeedback({
         }
         
         return matrix[a.length][b.length]
-    }
-
-    // Tạo sắc thái màu cho độ chính xác
-    const getAccuracyColor = () => {
-        if (accuracy >= 80) return "text-green-600 dark:text-green-400"
-        if (accuracy >= 50) return "text-yellow-600 dark:text-yellow-400"
-        return "text-red-600 dark:text-red-400"
     }
 
     // Nếu không có dữ liệu, trả về null
