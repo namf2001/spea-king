@@ -1,4 +1,4 @@
-import { Mic, MessageSquare, Award, Settings } from "lucide-react"
+import { Mic, MessageSquare, Award, Settings, Zap } from "lucide-react"
 import { ExerciseCard } from "@/components/exercise-card"
 
 export default function Home() {
@@ -37,11 +37,22 @@ export default function Home() {
           />
 
           <ExerciseCard
+            title="Reflex Exercises"
+            description="Enhance your reflexes and response time in English conversations"
+            content="Improve your speaking reflexes with timed exercises that challenge your quick thinking and response."
+            icon={Zap}
+            iconColor="text-amber-500"
+            href="/exercises/reflex"
+            buttonText="Start Reflex"
+            buttonVariant="outline"
+          />
+
+          <ExerciseCard
             title="Progress Tracker"
             description="View your improvement over time with detailed analytics"
             content="Track your speaking progress, see your strengths and areas for improvement with detailed feedback history."
             icon={Award}
-            iconColor="text-amber-500"
+            iconColor="text-indigo-500"
             href="/progress"
             buttonText="View Progress"
             buttonVariant="outline"

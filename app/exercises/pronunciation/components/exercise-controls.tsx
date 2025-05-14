@@ -127,7 +127,7 @@ export function ExerciseControls({
                     </motion.div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-lg">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full max-w-lg">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key="listen-button"
@@ -135,13 +135,13 @@ export function ExerciseControls({
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             transition={{ duration: 0.2 }}
-                            className="flex justify-center"
+                            className="flex justify-center w-full sm:w-auto"
                         >
                             <Button 
                                 onClick={onPlayExample} 
                                 variant="outline" 
                                 size="lg"
-                                className={`flex items-center gap-2 h-14 px-6 relative overflow-hidden transition-all 
+                                className={`flex items-center gap-2 h-14 px-6 relative overflow-hidden transition-all w-full sm:w-auto
                                     rounded-xl shadow-sm border-2
                                     ${isSpeaking 
                                         ? 'bg-blue-50 text-blue-700 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700' 
@@ -173,17 +173,16 @@ export function ExerciseControls({
                                 initial={{ scale: 0.9, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 exit={{ scale: 0.9, opacity: 0 }}
-                                className="flex justify-center"
+                                className="flex justify-center w-full sm:w-auto"
                             >
                                 <Button 
                                     onClick={onStopListening} 
                                     variant="destructive" 
                                     size="lg"
-                                    className="flex items-center gap-2 h-14 px-6 relative pulse-animation rounded-xl shadow-md"
+                                    className="flex items-center gap-2 h-14 px-6 relative pulse-animation rounded-xl shadow-md w-full sm:w-auto"
                                 >
                                     <VolumeX className="h-5 w-5" />
                                     <span className="font-medium">Stop</span>
-                                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping"></span>
                                 </Button>
                             </motion.div>
                         ) : (
@@ -192,13 +191,13 @@ export function ExerciseControls({
                                 initial={{ scale: 0.9, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 exit={{ scale: 0.9, opacity: 0 }}
-                                className="flex justify-center"
+                                className="flex justify-center w-full sm:w-auto"
                             >
                                 <Button
                                     onClick={onStartListening}
                                     variant="default"
                                     size="lg"
-                                    className="flex items-center gap-2 h-14 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                                    className="flex items-center gap-2 h-14 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg w-full sm:w-auto"
                                     disabled={isRecognizing}
                                 >
                                     <Mic className="h-5 w-5" />
@@ -226,13 +225,13 @@ export function ExerciseControls({
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ duration: 0.2, delay: 0.1 }}
-                        className="flex justify-center"
+                        className="flex justify-center w-full sm:w-auto mt-2 sm:mt-0"
                     >
                         <Button 
                             onClick={onNextExercise} 
                             variant="ghost" 
                             size="lg"
-                            className="flex items-center gap-2 h-14 px-6 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl shadow-sm border border-transparent hover:border-blue-200 dark:hover:border-blue-800 transition-all"
+                            className="flex items-center gap-2 h-14 px-6 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl shadow-sm border border-transparent hover:border-blue-200 dark:hover:border-blue-800 transition-all w-full sm:w-auto"
                         >
                             <SkipForward className="h-5 w-5" />
                             <span>Next</span>
@@ -242,20 +241,20 @@ export function ExerciseControls({
 
                 {/* Progress Steps Indicator */}
                 <div className="flex items-center mt-8 gap-1 w-full max-w-lg mx-auto justify-between">
-                    <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
-                        <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 flex items-center justify-center font-medium">1</div>
+                    <div className="flex items-center gap-1 sm:gap-2 text-xs text-blue-600 dark:text-blue-400">
+                        <div className="w-5 sm:w-6 h-5 sm:h-6 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 flex items-center justify-center font-medium text-[10px] sm:text-xs">1</div>
                         <span className="hidden sm:inline">Listen</span>
                     </div>
                     <div className="h-[2px] flex-1 bg-blue-100 dark:bg-blue-900"></div>
-                    <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center font-medium ${
+                    <div className="flex items-center gap-1 sm:gap-2 text-xs text-blue-600 dark:text-blue-400">
+                        <div className={`w-5 sm:w-6 h-5 sm:h-6 rounded-full flex items-center justify-center font-medium text-[10px] sm:text-xs ${
                             isListening || isRecognizing ? 'bg-blue-500 text-white' : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400'
                         }`}>2</div>
                         <span className="hidden sm:inline">Record</span>
                     </div>
                     <div className="h-[2px] flex-1 bg-blue-100 dark:bg-blue-900"></div>
-                    <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
-                        <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 flex items-center justify-center font-medium">3</div>
+                    <div className="flex items-center gap-1 sm:gap-2 text-xs text-gray-400 dark:text-gray-500">
+                        <div className="w-5 sm:w-6 h-5 sm:h-6 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 flex items-center justify-center font-medium text-[10px] sm:text-xs">3</div>
                         <span className="hidden sm:inline">Review</span>
                     </div>
                 </div>

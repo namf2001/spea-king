@@ -4,14 +4,14 @@ import Link from "next/link"
 import type { LucideIcon } from "lucide-react"
 
 interface ExerciseCardProps {
-    title: string
-    description: string
-    content: string
-    icon: LucideIcon
-    iconColor: string
-    href: string
-    buttonText: string
-    buttonVariant?: "default" | "outline"
+    readonly title: string
+    readonly description: string
+    readonly content: string
+    readonly icon: LucideIcon
+    readonly iconColor: string
+    readonly href: string
+    readonly buttonText: string
+    readonly buttonVariant?: "default" | "outline"
 }
 
 export function ExerciseCard({
@@ -36,7 +36,7 @@ export function ExerciseCard({
             <CardContent>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{content}</p>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="mt-auto">
                 <Link href={href} className="w-full">
                     <Button className="w-full" variant={buttonVariant}>
                         {buttonText}

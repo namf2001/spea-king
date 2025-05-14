@@ -297,11 +297,11 @@ export default function PronunciationPage() {
                         </Link>
                         <div className="flex items-center gap-3 mb-3">
                             <div className="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-full">
-                                <Mic className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                <Mic className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Pronunciation Practice</h1>
+                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Pronunciation Practice</h1>
                         </div>
-                        <p className="text-gray-600 dark:text-gray-300 ml-12">
+                        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 ml-10 sm:ml-12">
                             Listen to the example, then record yourself saying the same phrase.
                             Receive instant feedback on your pronunciation.
                         </p>
