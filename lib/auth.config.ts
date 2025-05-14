@@ -2,10 +2,6 @@ import type { NextAuthConfig } from "next-auth";
 import { Role } from "@prisma/client";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
-import Credentials from "next-auth/providers/credentials";
-import { loginSchema } from "@/schemas/auth";
-import { prisma } from "@/lib/prisma";
-import { compare } from "bcryptjs";
 
 export default {
     pages: {
@@ -21,68 +17,8 @@ export default {
             clientId: process.env.GOOGLE_ID,
             clientSecret: process.env.GOOGLE_SECRET,
         }),
-        Credentials({
-            name: "Credentials",
-            credentials: {
-                email: { label: "Email", type: "email" },
-                password: { label: "Password", type: "password" }
-            },
-            async authorize(credentials) {
-                // check info user 
-                const validatedFields = loginSchema.safeParse(credentials);
-
-                if (!validatedFields.success) {
-                    return null;
-                }
-
-                const { email, password } = validatedFields.data;
-
-                // find user by email
-                const user = await prisma.user.findUnique({
-                    where: { email }
-                });
-
-                if (!user?.password) {
-                    return null;
-                }
-
-                // check email verified
-                if (!user.emailVerified) {
-                    throw new Error("EmailNotVerified");
-                }
-
-                // check password
-                const passwordMatch = await compare(
-                    password,
-                    user.password
-                );
-
-                if (!passwordMatch) {
-                    return null;
-                }
-
-                return {
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    image: user.image,
-                    role: user.role,
-                };
-            }
-        })
     ],
     callbacks: {
-        async signIn({ user, account }) {
-            // Allow login via OAuth without requiring email verification
-            if (account?.provider !== "credentials") return true;
-
-            // Prevent users from logging in if their email is not verified
-            const existingUser = await prisma.user.findUnique({
-                where: { email: user.email! }
-            });
-
-            return !!(existingUser?.emailVerified);
-        },
         session: async ({ session, token }) => {
             if (session.user) {
                 session.user.name = token.name ?? "";
