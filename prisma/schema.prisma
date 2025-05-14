@@ -1,0 +1,217 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id              String           @id @default(cuid())
+  name            String?
+  email           String?          @unique
+  emailVerified   DateTime?        @map("email_verified")
+  password        String
+  image           String?
+  role            Role             @default(USER)
+  accounts        Account[]
+  sessions        Session[]
+  exerciseResults ExerciseResult[]
+  customLessons   CustomLesson[]
+  progress        Progress[]
+  achievements    UserAchievement[]
+  createdExercises Exercise[] @relation("CreatedExercises")
+  studySessions    StudySession[]
+
+  @@map("users")
+}
+
+model ExerciseResult {
+  id           String         @id @default(cuid())
+  exerciseType ExerciseType   // "reflex", "pronunciation", etc.
+  questionId   Int
+  accuracy     Float
+  responseTime Float?
+  date         DateTime @default(now())
+  userId       String
+  exerciseId   String?
+
+  // Relationships
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise Exercise? @relation(fields: [exerciseId], references: [id], onDelete: SetNull)
+}
+
+model CustomLesson {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  content     Json // Lưu nội dung của bài học
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Exercise {
+  id          String        @id @default(cuid())
+  title       String
+  description String?
+  type        ExerciseType
+  difficulty  Difficulty    @default(MEDIUM)
+  content     Json
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  createdBy   String?
+  isPublic    Boolean       @default(true)
+     
+  // Relationships
+  author      User?         @relation("CreatedExercises", fields: [createdBy], references: [id], onDelete: Cascade)
+  questions   Question[]
+  results     ExerciseResult[]
+  progress    Progress[]
+}
+   
+model Question {
+  id         String   @id @default(cuid())
+  exerciseId String
+  content    String
+  answer     String
+  options    Json?    // Cho câu hỏi trắc nghiệm
+     
+  // Relationships
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+}
+
+model Progress {
+  id              String   @id @default(cuid())
+  userId          String
+  exerciseId      String
+  completedAt     DateTime @default(now())
+  score           Float
+  bestScore       Float    @default(0)
+  completionCount Int      @default(1)
+     
+  // Relationships
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise        Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+     
+  @@unique([userId, exerciseId])
+}
+
+model Achievement {
+  id               String            @id @default(cuid())
+  name             String
+  description      String
+  criteria         Json     // Điều kiện đạt được
+  image            String?  // URL hình ảnh huy hiệu
+     
+  // Relationships
+  userAchievements UserAchievement[]
+}
+   
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime    @default(now())
+     
+  // Relationships
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+     
+  @@unique([userId, achievementId])
+}
+
+model StudySession {
+  id        String         @id @default(cuid())
+  userId    String
+  startTime DateTime       @default(now())
+  endTime   DateTime?
+  duration  Int?     // Thời gian học tập tính bằng giây
+     
+  // Relationships
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activities ActivityLog[]
+}
+   
+model ActivityLog {
+  id            String       @id @default(cuid())
+  sessionId     String
+  activityType  String   // "exercise_start", "exercise_complete", "lesson_view", etc.
+  entityId      String?  // ID của bài tập, bài học liên quan
+  entityType    String?  // "exercise", "lesson", etc.
+  timestamp     DateTime     @default(now())
+  metadata      Json?    // Dữ liệu bổ sung
+     
+  // Relationships
+  studySession  StudySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ExerciseType {
+  REFLEX
+  PRONUNCIATION
+  VOCABULARY
+  GRAMMAR
+  LISTENING
+  SPEAKING
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
