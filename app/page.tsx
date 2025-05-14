@@ -1,9 +1,7 @@
 import { Mic, MessageSquare, Award, Settings, Zap } from "lucide-react"
 import { ExerciseCard } from "@/components/exercise-card"
 import Image from "next/image"
-
-import LogoDark from "@/assets/image/spea_king_logo_dark.png"
-import LogoLight from "@/assets/image/spea_king_logo_light.png"
+import {logo} from '@/assets/image'
 
 export default function Home() {
   return (
@@ -12,14 +10,7 @@ export default function Home() {
         <div className="text-center mb-12">
           <div className="flex justify-center mb-4">
             <Image
-              src={LogoDark}
-              alt="SPEA-KING Logo"
-              width={100}
-              height={100}
-              className="hidden dark:block"
-            />
-            <Image
-              src={LogoLight}
+              src={logo}
               alt="SPEA-KING Logo"
               width={100}
               height={100}
