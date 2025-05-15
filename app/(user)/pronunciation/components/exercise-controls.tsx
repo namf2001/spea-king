@@ -29,7 +29,7 @@ export function ExerciseControls({
 }: ExerciseControlsProps) {
     const [recordingTime, setRecordingTime] = useState(0);
     const [showTip, setShowTip] = useState(false);
-
+    
     // Recording timer
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -54,6 +54,24 @@ export function ExerciseControls({
         
         return () => clearTimeout(tipTimeout);
     }, []);
+
+    // Handle listen button click with direct user interaction
+    const handlePlayExample = async () => {
+        // For mobile browsers, need direct user interaction to play audio
+        try {
+            // Create and immediately play silent audio to unlock audio context
+            const silentAudio = new Audio("data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//tUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABGwD///////////////////////////////////////////8AAAA8TEFNRTMuMTAwA8MAAAAAAAAAABQgJAi4QAAB4AAABRsgyDfkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//sUZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZCgP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZEwP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZHIP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV");
+            silentAudio.play().catch(err => console.log("Silent audio play failed:", err));
+            
+            // Then play the actual speech
+            setTimeout(() => {
+                onPlayExample();
+            }, 50);
+        } catch (err) {
+            console.error("Error in play example handler:", err);
+            onPlayExample();
+        }
+    };
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
@@ -138,7 +156,7 @@ export function ExerciseControls({
                             className="flex justify-center w-full sm:w-auto"
                         >
                             <Button 
-                                onClick={onPlayExample} 
+                                onClick={handlePlayExample} 
                                 variant="outline" 
                                 size="lg"
                                 className={`flex items-center gap-2 h-14 px-6 relative overflow-hidden transition-all w-full sm:w-auto
