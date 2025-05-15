@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { Exercise } from "../data/exercises"
 import { motion } from "framer-motion"
 import { Volume2 } from "lucide-react"
+import { useState } from "react"
 
 const getBadgeVariant = (difficulty: Exercise["difficulty"]) => {
     if (difficulty === "easy") return "outline"
@@ -18,6 +19,33 @@ interface ExerciseDisplayProps {
 }
 
 export function ExerciseDisplay({ exercise, currentIndex, totalExercises, onPlayExample }: ExerciseDisplayProps) {
+    const [isPlaying, setIsPlaying] = useState(false);
+    
+    // Handle the play button click with audio context unlocking for mobile
+    const handlePlayExample = () => {
+        if (!onPlayExample || isPlaying) return;
+        
+        setIsPlaying(true);
+        
+        try {
+            // Create and immediately play silent audio to unlock audio context on mobile
+            const silentAudio = new Audio("data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//tUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABGwD///////////////////////////////////////////8AAAA8TEFNRTMuMTAwA8MAAAAAAAAAABQgJAi4QAAB4AAABRsgyDfkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//sUZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZCgP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZEwP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZHIP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV");
+            silentAudio.play().catch(err => console.log("Silent audio play failed:", err));
+            
+            // Then play the actual speech after a short delay
+            setTimeout(() => {
+                onPlayExample();
+                // Reset state after a short delay
+                setTimeout(() => setIsPlaying(false), 1000);
+            }, 50);
+        } catch (err) {
+            console.error("Error in play example handler:", err);
+            onPlayExample();
+            // Reset state even if there was an error
+            setTimeout(() => setIsPlaying(false), 1000);
+        }
+    };
+    
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -47,13 +75,17 @@ export function ExerciseDisplay({ exercise, currentIndex, totalExercises, onPlay
                         <p className="text-2xl font-medium tracking-wide">{exercise.text}</p>
                         {onPlayExample && (
                             <button 
-                                onClick={onPlayExample}
-                                className="absolute top-3 right-3 p-2 text-blue-600 hover:text-blue-800 
-                                dark:text-blue-400 dark:hover:text-blue-200 rounded-full 
-                                hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors"
+                                onClick={handlePlayExample}
+                                disabled={isPlaying}
+                                className={`absolute top-3 right-3 p-2 
+                                ${isPlaying 
+                                    ? 'text-blue-400 dark:text-blue-300 cursor-not-allowed' 
+                                    : 'text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 hover:bg-blue-100 dark:hover:bg-blue-800/50'
+                                } 
+                                rounded-full transition-colors`}
                                 aria-label="Play pronunciation example"
                             >
-                                <Volume2 className="w-5 h-5" />
+                                <Volume2 className={`w-5 h-5 ${isPlaying ? 'animate-pulse' : ''}`} />
                             </button>
                         )}
                     </div>
