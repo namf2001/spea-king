@@ -25,8 +25,8 @@ export function ExerciseDisplay({ exercise, currentIndex, totalExercises, onPlay
             transition={{ duration: 0.5 }}
             key={currentIndex}
         >
-            <Card className="mb-8 border-2 border-blue-100 dark:border-blue-900 shadow-md">
-                <CardHeader className="bg-gradient-to-r from-blue-50 to-white dark:from-gray-800 dark:to-gray-900">
+            <Card className="mb-8 border-2 border-blue-100 dark:border-blue-900 shadow-md pt-0">
+                <CardHeader className="bg-gradient-to-r from-blue-50 to-white dark:from-gray-800 dark:to-gray-900 py-4 rounded-t-lg">
                     <div className="flex justify-between items-center">
                         <CardTitle className="text-blue-800 dark:text-blue-300">
                             Exercise {currentIndex + 1}/{totalExercises}

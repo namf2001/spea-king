@@ -171,7 +171,7 @@ export function FeedbackDisplay({ score, feedback, details }: FeedbackDisplayPro
                                     Content coverage
                                 </p>
                                 <p className={`text-sm font-medium ${getScoreColor(details.completenessScore)}`}>
-                                    {details.completenessScore}%
+                                    {details.completenessScore.toFixed(2)}%
                                 </p>
                             </div>
                         </motion.div>
