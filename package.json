@@ -30,6 +30,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.11.0",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.510.0",
     "microsoft-cognitiveservices-speech-sdk": "^1.43.1",
     "next": "15.3.2",
