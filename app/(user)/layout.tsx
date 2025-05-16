@@ -9,7 +9,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
             <SidebarProvider>
                 <AppSidebar />
                 <div className="flex-1">
-                    <ScrollArea className="h-full flex flex-col gap-4 p-4">
+                    <ScrollArea className="h-full flex flex-col gap-4 px-4">
                         {children}
                         <ScrollBar orientation="horizontal" />
                     </ScrollArea>

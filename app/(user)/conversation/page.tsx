@@ -16,6 +16,8 @@ import { generateConversationResponse } from "@/app/actions/speech"
 import { AudioVisualizer } from "@/components/audio-visualizer"
 import { ReplayButton } from "@/components/replay-button"
 import { toast } from "sonner"
+import { motion, AnimatePresence } from "framer-motion"
+import { RippleEffect } from "@/components/animations/ripple-effect"
 
 interface Message {
   role: "user" | "assistant"
@@ -55,7 +57,7 @@ export default function ConversationPage() {
         description: "Using text input as a fallback. Check your internet connection.",
       })
     }
-  }, [recognitionError, synthesisError, toast])
+  }, [recognitionError, synthesisError])
 
   useEffect(() => {
     if (recordingError) {
@@ -64,7 +66,7 @@ export default function ConversationPage() {
       })
       setAudioVisualizerEnabled(false)
     }
-  }, [recordingError, toast])
+  }, [recordingError])
 
   useEffect(() => {
     // Reset conversation when scenario changes
@@ -251,70 +253,131 @@ export default function ConversationPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="bg-primary p-2 rounded-full">
-            <Mic className="h-5 w-5 sm:h-6 sm:w-6" />
-          </div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Pronunciation Practice</h1>
-        </div>
-        <ScenarioTabs scenarios={scenarios} activeScenario={activeScenario} onScenarioChange={handleScenarioChange} />
-        <Card className="mb-6 bg-gradient-to-t from-primary/20 to-background">
-          <CardHeader className="pb-3">
-            <div className="flex justify-between items-center">
-              <CardTitle>Conversation</CardTitle>
-              <Button variant="outline" size="sm" onClick={handleResetConversation} className="flex items-center gap-1">
-                <RefreshCw className="h-3 w-3" />
-                Reset
-              </Button>
+      <motion.div 
+        className="max-w-4xl mx-auto"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <motion.div 
+          className="flex items-center gap-3 mb-8"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <div className="bg-primary p-2 rounded-full relative overflow-hidden">
+            <Mic className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
+            <div className="absolute inset-0">
+              <RippleEffect color="white" />
             </div>
-          </CardHeader>
-          <CardContent>
-            <ConversationDisplay
-              conversation={conversation}
-              isListening={isListening}
-              scrollAreaRef={scrollAreaRef as React.RefObject<HTMLDivElement>}
-              recognizedText={recognizedText}
-            />
+          </div>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Conversation Practice</h1>
+        </motion.div>
 
-            {isListening && !useFallback && audioVisualizerEnabled && (
-              <div className="mt-4">
-                <AudioVisualizer
-                  getAudioData={safeGetAudioData}
-                  isActive={isListening}
-                  height={60}
-                  barColor="#3b82f6"
-                  backgroundColor="#f8fafc"
-                />
-              </div>
-            )}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <ScenarioTabs scenarios={scenarios} activeScenario={activeScenario} onScenarioChange={handleScenarioChange} />
+        </motion.div>
 
-            {audioUrl && lastUserMessage && (
-              <div className="flex justify-end mt-4">
-                <ReplayButton onReplay={handleReplayRecording} disabled={isSpeaking || isListening} />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <Card className="mb-6 bg-gradient-to-t from-primary/20 to-background shadow-lg border-2">
+            <CardHeader className="pb-3">
+              <div className="flex justify-between items-center">
+                <CardTitle>Conversation</CardTitle>
+                <Button variant="outline" size="sm" onClick={handleResetConversation} className="flex items-center gap-1">
+                  <RefreshCw className="h-3 w-3" />
+                  Reset
+                </Button>
               </div>
-            )}
-          </CardContent>
-          <CardFooter>
-            {useFallback ? (
-              <div className="w-full">
-                <SpeechFallback onTextSubmit={handleFallbackSubmit} type="recognition" />
-              </div>
-            ) : (
-              <ConversationControls
+            </CardHeader>
+            <CardContent>
+              <ConversationDisplay
+                conversation={conversation}
                 isListening={isListening}
-                isSpeaking={isSpeaking}
-                isRecognizing={isRecognizing}
-                hasConversation={conversation.length > 1}
-                onStartListening={handleStartListening}
-                onStopListening={handleStopListening}
-                onRepeatLast={handleRepeatLast}
-                getAudioData={audioVisualizerEnabled ? safeGetAudioData : undefined}
+                scrollAreaRef={scrollAreaRef as React.RefObject<HTMLDivElement>}
+                recognizedText={recognizedText}
               />
-            )}
-          </CardFooter>
-        </Card>
-      </div>
+
+              <AnimatePresence>
+                {isListening && !useFallback && audioVisualizerEnabled && (
+                  <motion.div 
+                    className="mt-4"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <AudioVisualizer
+                      getAudioData={safeGetAudioData}
+                      isActive={isListening}
+                      height={60}
+                      barColor="#3b82f6"
+                      backgroundColor="rgba(248, 250, 252, 0.8)"
+                      className="rounded-lg overflow-hidden"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg pointer-events-none"></div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence>
+                {audioUrl && lastUserMessage && (
+                  <motion.div 
+                    className="flex justify-end mt-4"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ReplayButton onReplay={handleReplayRecording} disabled={isSpeaking || isListening} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </CardContent>
+            <CardFooter>
+              <AnimatePresence mode="wait">
+                {useFallback ? (
+                  <motion.div 
+                    className="w-full"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <SpeechFallback onTextSubmit={handleFallbackSubmit} type="recognition" />
+                  </motion.div>
+                ) : (
+                  <motion.div 
+                    className="w-full"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ConversationControls
+                      isListening={isListening}
+                      isSpeaking={isSpeaking}
+                      isRecognizing={isRecognizing}
+                      hasConversation={conversation.length > 1}
+                      onStartListening={handleStartListening}
+                      onStopListening={handleStopListening}
+                      onRepeatLast={handleRepeatLast}
+                      getAudioData={audioVisualizerEnabled ? safeGetAudioData : undefined}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </CardFooter>
+          </Card>
+        </motion.div>
+      </motion.div>
     </div>
   )
 }
