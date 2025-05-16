@@ -10,7 +10,7 @@ import { MotivationalQuotesSlider } from "@/components/layout/motivational-quote
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col bg-blue-700 relative overflow-hidden">
+    <main className="min-h-screen flex flex-col relative overflow-hidden">
       {/* Stars background effect */}
       <div className="absolute inset-0 overflow-hidden">
         {Array.from({ length: 50 }).map((_, i) => (
@@ -71,12 +71,12 @@ export default function Home() {
 
           <div className="mt-10 w-full flex flex-col items-center md:items-end space-y-4">
             <Link href="/login" className="block w-full max-w-md">
-              <Button className="w-full py-6 text-lg font-bold bg-green-500 hover:bg-green-600 text-white border-none rounded-2xl">
+              <Button className="w-full">
                 GET STARTED
               </Button>
             </Link>
             <Link href="/login" className="block w-full max-w-md">
-              <Button variant="outline" className="w-full py-6 text-lg font-bold text-white border-white hover:bg-blue-800 rounded-2xl">
+              <Button variant="outline" className="w-full">
                 I ALREADY HAVE AN ACCOUNT
               </Button>
             </Link>

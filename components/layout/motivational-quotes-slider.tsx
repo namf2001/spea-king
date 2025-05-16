@@ -14,7 +14,7 @@ const motivationalQuotes = [
 
 export function MotivationalQuotesSlider() {
   return (
-    <div className="bg-blue-800 w-full py-6 z-10 overflow-hidden">
+    <div className="bg-accent/15 w-full py-6 z-10 overflow-hidden">
       <div className="container mx-auto px-4">
         <motion.div 
           className="flex items-center justify-center"

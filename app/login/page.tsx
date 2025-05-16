@@ -39,13 +39,7 @@ export default function LoginPage() {
           <FacebookSignIn />
         </CardContent>
 
-        <CardFooter className="flex flex-col bg-green-50 dark:bg-gray-700/50 p-6 mt-4">
-          <div className="flex items-center justify-center mb-4">
-            <div className="w-2 h-2 rounded-full bg-yellow-400 mx-1"></div>
-            <div className="w-2 h-2 rounded-full bg-green-500 mx-1"></div>
-            <div className="w-2 h-2 rounded-full bg-blue-500 mx-1"></div>
-            <div className="w-2 h-2 rounded-full bg-red-500 mx-1"></div>
-          </div>
+        <CardFooter className="flex flex-col bg-accent-foreground p-6 mt-4">
           <p className="text-gray-600 dark:text-gray-300 text-center">
             Học nói tiếng Anh mỗi ngày, tiến bộ mỗi ngày
           </p>
