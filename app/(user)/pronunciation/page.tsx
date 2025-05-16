@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition"
 import { useSpeechSynthesis } from "@/hooks/use-speech-synthesis"
 import { useAudioRecorder } from "@/hooks/use-audio-recorder"
-import Link from "next/link"
 import { SpeechFallback } from "@/components/speech-fallback"
 import { exercises } from "./data/exercises"
 import { ExerciseDisplay } from "./components/exercise-display"
@@ -16,7 +15,7 @@ import { ReplayButton } from "@/components/replay-button"
 import { Card } from "@/components/ui/card"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronLeft, Award, Mic } from "lucide-react"
+import { Mic } from "lucide-react"
 
 export default function PronunciationPage() {
     const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
@@ -275,11 +274,11 @@ export default function PronunciationPage() {
     return (
         <div className="container mx-auto px-4 ">
             <div className="max-w-4xl mx-auto">
-                <div className="flex items-center gap-3 mb-12">
+                <div className="flex items-center gap-3 mb-8">
                     <div className="bg-primary p-2 rounded-full">
                         <Mic className="h-5 w-5 sm:h-6 sm:w-6" />
                     </div>
-                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Pronunciation Practice</h1>
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Pronunciation Practice</h1>
                 </div>
                 <AnimatePresence mode="wait">
                     <ExerciseDisplay
@@ -289,7 +288,6 @@ export default function PronunciationPage() {
                         onPlayExample={handlePlayExample}
                     />
                 </AnimatePresence>
-
                 {useFallback ? (
                     <motion.div
                         className="mb-8"

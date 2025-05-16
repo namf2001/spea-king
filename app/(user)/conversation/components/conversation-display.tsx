@@ -25,8 +25,10 @@ export function ConversationDisplay({ conversation, isListening, scrollAreaRef, 
                                 <AvatarFallback>{message.role === "user" ? "U" : "AI"}</AvatarFallback>
                             </Avatar>
                             <div
-                                className={`rounded-lg px-4 py-2 ${message.role === "user" ? "bg-blue-500 text-white" : "bg-gray-100 dark:bg-gray-800"
-                                    }`}
+                                className={`rounded-lg px-4 py-2 ${message.role === "user"
+                                    ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+                                    : "bg-gradient-to-t from-primary/10 to-background dark:from-primary/20 dark:to-background"
+                                }`}
                             >
                                 <p>{message.content}</p>
                             </div>
@@ -41,7 +43,7 @@ export function ConversationDisplay({ conversation, isListening, scrollAreaRef, 
                             <Avatar>
                                 <AvatarFallback>U</AvatarFallback>
                             </Avatar>
-                            <div className="bg-blue-300 text-blue-900 rounded-lg px-4 py-2">
+                            <div className="bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-lg px-4 py-2">
                                 <p>{recognizedText} ...</p>
                             </div>
                         </div>
@@ -50,7 +52,7 @@ export function ConversationDisplay({ conversation, isListening, scrollAreaRef, 
 
                 {isListening && !recognizedText && (
                     <div className="flex justify-end">
-                        <div className="bg-gray-200 dark:bg-gray-700 rounded-lg px-4 py-2 text-sm">Đang nghe...</div>
+                        <div className="bg-gradient-to-t from-primary/10 to-background rounded-lg px-4 py-2 text-sm">Đang nghe...</div>
                     </div>
                 )}
             </div>

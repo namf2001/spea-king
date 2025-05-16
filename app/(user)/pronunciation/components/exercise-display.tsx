@@ -24,6 +24,7 @@ export function ExerciseDisplay({ exercise, currentIndex, totalExercises, onPlay
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             key={currentIndex}
+            className="mb-8"
         >
             <Card className="mb-8 border-2 shadow-md pt-0">
                 <CardHeader className="py-4 rounded-t-lg bg-gradient-to-b from-primary/20 to-background">
@@ -36,7 +37,7 @@ export function ExerciseDisplay({ exercise, currentIndex, totalExercises, onPlay
                         </Badge>
                     </div>
                 </CardHeader>
-                <CardContent className="pt-6">
+                <CardContent className="pb-2">
                     <div className="p-6 rounded-lg mb-6 text-center relative border-4 shadow-inner bg-primary/10">
                         <p className="text-2xl font-medium tracking-wide">{exercise.text}</p>
                         {onPlayExample && (

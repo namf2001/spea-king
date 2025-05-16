@@ -3,11 +3,10 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { RefreshCw } from "lucide-react"
+import { RefreshCw, Mic } from "lucide-react"
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition"
 import { useSpeechSynthesis } from "@/hooks/use-speech-synthesis"
 import { useAudioRecorder } from "@/hooks/use-audio-recorder"
-import Link from "next/link"
 import { SpeechFallback } from "@/components/speech-fallback"
 import { scenarios } from "./data/scenarios"
 import { ScenarioTabs } from "./components/scenario-tabs"
@@ -19,8 +18,8 @@ import { ReplayButton } from "@/components/replay-button"
 import { toast } from "sonner"
 
 interface Message {
-    role: "user" | "assistant"
-    content: string
+  role: "user" | "assistant"
+  content: string
 }
 
 export default function ConversationPage() {
@@ -81,32 +80,21 @@ export default function ConversationPage() {
 
   useEffect(() => {
     if (recognizedText) {
-      // Thêm tin nhắn người dùng vào conversation ngay lập tức khi có văn bản
-      // Điều này đảm bảo hiển thị ngay lập tức, không cần đợi dừng nghe
       const userMessage = { role: "user" as const, content: recognizedText };
-      
-      // Tìm và thay thế tin nhắn người dùng cuối cùng nếu đang nghe,
-      // hoặc thêm mới nếu đã dừng nghe
       if (isListening) {
-        // Nếu tin nhắn cuối cùng là của người dùng, cập nhật tin nhắn đó
-        // thay vì thêm mới, tránh hiển thị nhiều tin nhắn liên tiếp
         const lastMessage = conversation[conversation.length - 1];
         if (lastMessage && lastMessage.role === "user") {
           const updatedConversation = [...conversation.slice(0, -1), userMessage];
           setConversation(updatedConversation);
         } else {
-          // Thêm tin nhắn mới nếu tin nhắn cuối cùng không phải của người dùng
           setConversation([...conversation, userMessage]);
         }
       } else {
-        // Khi dừng nghe, lưu tin nhắn và tạo phản hồi
         setLastUserMessage(recognizedText);
-        
-        // Đảm bảo thêm tin nhắn mới vì đây là tin nhắn cuối cùng
+
         const updatedConversation = [...conversation, userMessage];
         setConversation(updatedConversation);
-        
-        // Tạo phản hồi AI sau một khoảng thời gian ngắn
+
         setTimeout(() => {
           handleGenerateResponse(recognizedText);
         }, 500);
@@ -224,7 +212,7 @@ export default function ConversationPage() {
   const handleGenerateResponse = async (userInput: string) => {
     // Use the Server Action to generate a response
     const result = await generateConversationResponse(userInput, activeScenario.id)
-    
+
     // Log the response from the server action
     console.log("Server Action Result:", {
       action: "generateConversationResponse",
@@ -264,17 +252,14 @@ export default function ConversationPage() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <Link href="/" className="text-blue-500 hover:underline mb-4 inline-block">
-            ← Back to Home
-          </Link>
-          <h1 className="text-3xl font-bold mb-2">Conversation Practice</h1>
-          <p className="text-gray-600 dark:text-gray-300">Practice your English in realistic conversation scenarios</p>
+        <div className="flex items-center gap-3 mb-8">
+          <div className="bg-primary p-2 rounded-full">
+            <Mic className="h-5 w-5 sm:h-6 sm:w-6" />
+          </div>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Pronunciation Practice</h1>
         </div>
-
         <ScenarioTabs scenarios={scenarios} activeScenario={activeScenario} onScenarioChange={handleScenarioChange} />
-
-        <Card className="mb-6">
+        <Card className="mb-6 bg-gradient-to-t from-primary/20 to-background">
           <CardHeader className="pb-3">
             <div className="flex justify-between items-center">
               <CardTitle>Conversation</CardTitle>
@@ -285,10 +270,10 @@ export default function ConversationPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <ConversationDisplay 
-              conversation={conversation} 
-              isListening={isListening} 
-              scrollAreaRef={scrollAreaRef as React.RefObject<HTMLDivElement>} 
+            <ConversationDisplay
+              conversation={conversation}
+              isListening={isListening}
+              scrollAreaRef={scrollAreaRef as React.RefObject<HTMLDivElement>}
               recognizedText={recognizedText}
             />
 

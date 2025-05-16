@@ -44,9 +44,9 @@ export default function ReflexPage() {
         error: recognitionError,
         audioData
     } = useSpeechRecognition()
-    
+
     const { speak, isSpeaking, error: synthesisError } = useSpeechSynthesis()
-    
+
     const {
         audioUrl,
         startRecording,
@@ -97,7 +97,7 @@ export default function ReflexPage() {
     // Tính giờ cho bài tập
     useEffect(() => {
         let timer: NodeJS.Timeout | null = null
-        
+
         if (isListening && timeRemaining > 0) {
             timer = setInterval(() => {
                 setTimeRemaining(prevTime => {
@@ -109,7 +109,7 @@ export default function ReflexPage() {
                 })
             }, 1000)
         }
-        
+
         return () => {
             if (timer) clearInterval(timer)
         }
@@ -122,7 +122,7 @@ export default function ReflexPage() {
         setTranscript("")
         setTimeRemaining(45)
         setResponseStartTime(Date.now())
-        
+
         try {
             // Bắt đầu nhận dạng giọng nói
             await startRecognition()
@@ -146,30 +146,30 @@ export default function ReflexPage() {
     // Dừng nghe
     const handleStopListening = () => {
         if (!isListening) return
-        
+
         setIsListening(false)
         stopRecognition()
         stopRecording()
-        
+
         // Tính toán kết quả
         if (responseStartTime) {
             const responseTime = (Date.now() - responseStartTime) / 1000 // chuyển đổi thành giây
-            
+
             // Lấy độ chính xác từ phân tích văn bản (giả định)
             // Trong thực tế, bạn sẽ lấy điều này từ AnswerFeedback component
             // Thông qua một callback
             const calculatedAccuracy = calculateAccuracy(transcript, currentQuestion.answer)
-            
+
             const result: ExerciseResult = {
                 questionId: currentQuestion.id,
                 accuracy: calculatedAccuracy,
                 responseTime: responseTime,
                 date: new Date().toISOString()
             }
-            
+
             setCurrentResult(result)
             setExerciseResults(prev => [...prev, result])
-            
+
             // Hiển thị thông báo kết quả
             toast.success("Đã hoàn thành câu hỏi", {
                 description: `Độ chính xác: ${calculatedAccuracy}%, Thời gian: ${responseTime.toFixed(1)}s`
@@ -180,30 +180,30 @@ export default function ReflexPage() {
     // Tính toán độ chính xác dựa trên khoảng cách Levenshtein
     const calculateAccuracy = (spoken: string, target: string): number => {
         if (!spoken) return 0
-        
+
         // Chuẩn hóa chuỗi
         const normalizedSpoken = spoken.toLowerCase().replace(/[.,?!]/g, "")
         const normalizedTarget = target.toLowerCase().replace(/[.,?!]/g, "")
-        
+
         // Tách thành các từ
         const spokenWords = normalizedSpoken.split(" ").filter(word => word.trim() !== "")
         const targetWords = normalizedTarget.split(" ").filter(word => word.trim() !== "")
-        
+
         // Đếm từ khớp
         let correctCount = 0
         let partialCount = 0
-        
+
         spokenWords.forEach(word => {
             if (targetWords.includes(word)) {
                 correctCount++
-            } else if (targetWords.some(targetWord => 
+            } else if (targetWords.some(targetWord =>
                 targetWord.includes(word) || word.includes(targetWord) ||
                 calculateLevenshteinDistance(word, targetWord) <= Math.min(2, Math.floor(targetWord.length / 3))
             )) {
                 partialCount++
             }
         })
-        
+
         // Tính toán độ chính xác
         const totalWords = Math.max(spokenWords.length, 1)
         return Math.round(((correctCount + (partialCount * 0.5)) / totalWords) * 100)
@@ -212,26 +212,26 @@ export default function ReflexPage() {
     // Hàm tính khoảng cách Levenshtein
     const calculateLevenshteinDistance = (a: string, b: string): number => {
         const matrix = Array(a.length + 1).fill(null).map(() => Array(b.length + 1).fill(null))
-        
+
         for (let i = 0; i <= a.length; i++) {
             matrix[i][0] = i
         }
-        
+
         for (let j = 0; j <= b.length; j++) {
             matrix[0][j] = j
         }
-        
+
         for (let i = 1; i <= a.length; i++) {
             for (let j = 1; j <= b.length; j++) {
                 const cost = a[i - 1] === b[j - 1] ? 0 : 1
                 matrix[i][j] = Math.min(
-                    matrix[i - 1][j] + 1, 
-                    matrix[i][j - 1] + 1, 
+                    matrix[i - 1][j] + 1,
+                    matrix[i][j - 1] + 1,
                     matrix[i - 1][j - 1] + cost
                 )
             }
         }
-        
+
         return matrix[a.length][b.length]
     }
 
@@ -242,12 +242,12 @@ export default function ReflexPage() {
             setSessionCompleted(true)
             return
         }
-        
+
         setCurrentQuestionIndex(prevIndex => prevIndex + 1)
         setTranscript("")
         setTimeRemaining(45)
         setCurrentResult(null)
-        
+
         // Nếu đang nghe thì dừng lại
         if (isListening) {
             stopRecognition()
@@ -270,17 +270,17 @@ export default function ReflexPage() {
     // Xử lý gửi văn bản từ fallback
     const handleFallbackSubmit = (text: string) => {
         setTranscript(text)
-        
+
         // Tính toán kết quả
         const calculatedAccuracy = calculateAccuracy(text, currentQuestion.answer)
-        
+
         const result: ExerciseResult = {
             questionId: currentQuestion.id,
             accuracy: calculatedAccuracy,
             responseTime: 0, // Không có thời gian phản ứng thực tế
             date: new Date().toISOString()
         }
-        
+
         setCurrentResult(result)
         setExerciseResults(prev => [...prev, result])
     }
@@ -313,210 +313,169 @@ export default function ReflexPage() {
     }
 
     return (
-        <motion.div 
-            className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-gray-950"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-        >
-            <div className="container mx-auto px-4 py-12">
-                <div className="max-w-4xl mx-auto">
-                    <motion.div 
-                        className="mb-8"
-                        initial={{ opacity: 0, y: -20 }}
+        <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+                <div className="flex items-center gap-3 mb-8">
+                    <div className="bg-green-100 dark:bg-green-900/50 p-2 rounded-full">
+                        <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
+                    </div>
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Luyện tập Phản xạ</h1>
+                </div>
+                {!sessionStarted && !sessionCompleted && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.1 }}
+                        transition={{ duration: 0.5 }}
+                        className="mb-8"
                     >
-                        <Link 
-                            href="/" 
-                            className="text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 
-                            hover:underline mb-4 inline-flex items-center gap-1 transition-colors"
-                        >
-                            <ChevronLeft className="h-4 w-4" />
-                            <span>Trở về Trang chủ</span>
-                        </Link>
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="bg-green-100 dark:bg-green-900/50 p-2 rounded-full">
-                                <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
-                            </div>
-                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Luyện tập Phản xạ</h1>
-                        </div>
-                        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 ml-10 sm:ml-12">
-                            Luyện tập trả lời các câu hỏi trong vòng 45 giây để cải thiện phản xạ giao tiếp.
-                            Nhận phản hồi ngay lập tức về độ chính xác của câu trả lời.
-                        </p>
-                    </motion.div>
-
-                    {!sessionStarted && !sessionCompleted && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className="mb-8"
-                        >
-                            <Card className="border-2 border-green-100 dark:border-green-900 bg-white dark:bg-gray-800 shadow-md">
-                                <CardHeader className="pb-2">
-                                    <CardTitle>Bắt đầu Luyện tập Phản xạ</CardTitle>
-                                </CardHeader>
-                                <CardContent className="pb-2">
-                                    <p className="text-gray-600 dark:text-gray-300 mb-4">
-                                        Bạn sẽ được hiển thị một câu hỏi và có 45 giây để trả lời.
-                                        Càng trả lời nhanh và chính xác, điểm của bạn càng cao!
-                                    </p>
-                                    <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-md border border-green-100 dark:border-green-800">
-                                        <h3 className="font-medium text-green-800 dark:text-green-300 mb-2">Hướng dẫn</h3>
-                                        <ul className="list-disc pl-5 text-sm text-green-700 dark:text-green-400 space-y-1">
-                                            <li>Nhấn nút "Trả lời" để bắt đầu ghi âm</li>
-                                            <li>Nói rõ ràng vào micrô câu trả lời của bạn</li>
-                                            <li>Bạn có thể dừng lại bất cứ lúc nào hoặc đợi hết 45 giây</li>
-                                            <li>Nhận phản hồi ngay lập tức về độ chính xác của câu trả lời</li>
-                                        </ul>
-                                    </div>
-                                </CardContent>
-                                <CardFooter className="pt-2">
-                                    <Button 
-                                        onClick={() => setSessionStarted(true)}
-                                        className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
-                                    >
-                                        Bắt đầu ngay
-                                    </Button>
-                                </CardFooter>
-                            </Card>
-                        </motion.div>
-                    )}
-
-                    {sessionCompleted ? (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className="mb-8"
-                        >
-                            <Card className="border-2 border-green-100 dark:border-green-900 bg-white dark:bg-gray-800 shadow-md">
-                                <CardHeader className="pb-2">
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Award className="h-5 w-5 text-yellow-500" />
-                                        Kết quả Luyện tập
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                                        <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-100 dark:border-green-800 flex flex-col items-center">
-                                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Điểm trung bình</p>
-                                            <p className="text-3xl font-bold text-green-600 dark:text-green-400">{calculateAverageScore()}%</p>
-                                        </div>
-                                        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 flex flex-col items-center">
-                                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Thời gian phản ứng trung bình</p>
-                                            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{calculateAverageResponseTime()}s</p>
-                                        </div>
-                                    </div>
-
-                                    <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-3">Kết quả từng câu</h3>
-                                    <div className="space-y-3 mb-6">
-                                        {exerciseResults.map((result, index) => {
-                                            const question = questions.find(q => q.id === result.questionId)
-                                            
-                                            return (
-                                                <div key={index} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-                                                    <div>
-                                                        <p className="font-medium">{question?.question || `Câu hỏi ${index + 1}`}</p>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                            Thời gian: {result.responseTime.toFixed(1)}s
-                                                        </p>
-                                                    </div>
-                                                    <div className={`px-2 py-1 rounded-full text-white font-medium ${
-                                                        result.accuracy >= 80 ? 'bg-green-500' : 
-                                                        result.accuracy >= 50 ? 'bg-yellow-500' : 'bg-red-500'
-                                                    }`}>
-                                                        {result.accuracy}%
-                                                    </div>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                </CardContent>
-                                <CardFooter className="pt-2">
-                                    <Button 
-                                        onClick={handleRestartSession}
-                                        className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
-                                    >
-                                        Thử lại
-                                    </Button>
-                                </CardFooter>
-                            </Card>
-                        </motion.div>
-                    ) : sessionStarted && (
-                        <AnimatePresence mode="wait">
-                            <QuestionDisplay
-                                key={currentQuestion.id}
-                                question={currentQuestion}
-                                currentIndex={currentQuestionIndex}
-                                totalQuestions={questions.length}
-                                timeRemaining={timeRemaining}
-                                isAnswering={isListening}
-                            />
-                        </AnimatePresence>
-                    )}
-
-                    {sessionStarted && !sessionCompleted && (
-                        <>
-                            {useFallback ? (
-                                <motion.div 
-                                    className="mb-8"
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ duration: 0.3 }}
+                        <Card className="mb-8 border-2 shadow-md pt-0">
+                            <CardHeader className="py-4 rounded-t-lg bg-gradient-to-b from-primary/20 to-background">
+                                <CardTitle>Bắt đầu Luyện tập Phản xạ</CardTitle>
+                            </CardHeader>
+                            <CardContent className="pb-2">
+                                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                                    Bạn sẽ được hiển thị một câu hỏi và có 45 giây để trả lời.
+                                    Càng trả lời nhanh và chính xác, điểm của bạn càng cao!
+                                </p>
+                                <div className="p-4 rounded-lg shadow-inner">
+                                    <h3 className="font-medium mb-2">Hướng dẫn</h3>
+                                    <ul className="list-disc pl-5 text-sm space-y-1">
+                                        <li>Nhấn nút "Trả lời" để bắt đầu ghi âm</li>
+                                        <li>Nói rõ ràng vào micrô câu trả lời của bạn</li>
+                                        <li>Bạn có thể dừng lại bất cứ lúc nào hoặc đợi hết 45 giây</li>
+                                        <li>Nhận phản hồi ngay lập tức về độ chính xác của câu trả lời</li>
+                                    </ul>
+                                </div>
+                            </CardContent>
+                            <CardFooter className="pt-2">
+                                <Button
+                                    onClick={() => setSessionStarted(true)}
+                                    className="w-full"
                                 >
-                                    <Card className="p-6 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
-                                        <h3 className="font-medium text-amber-700 dark:text-amber-300 mb-2">
-                                            Nhận dạng giọng nói không khả dụng
-                                        </h3>
-                                        <p className="text-amber-600 dark:text-amber-400 mb-4 text-sm">
-                                            Trình duyệt của bạn không hỗ trợ nhận dạng giọng nói hoặc quyền truy cập micrô bị từ chối.
-                                            Vui lòng nhập văn bản của bạn theo cách thủ công.
-                                        </p>
-                                        <SpeechFallback onTextSubmit={handleFallbackSubmit} type="recognition" />
-                                    </Card>
-                                </motion.div>
-                            ) : (
-                                <ReflexControls
-                                    isListening={isListening}
-                                    isRecognizing={isRecognizing}
-                                    onStartListening={handleStartListening}
-                                    onStopListening={handleStopListening}
-                                    onNextQuestion={handleNextQuestion}
-                                    timeRemaining={timeRemaining}
-                                    getAudioData={audioVisualizerEnabled ? safeGetAudioData : undefined}
-                                    disabled={currentResult !== null}
+                                    Bắt đầu ngay
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                    </motion.div>
+                )}
+
+                {sessionCompleted ? (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="mb-8"
+                    >
+                        <Card className="border-2 border-green-100 dark:border-green-900 bg-gradient-to-t from-primary/20 to-background shadow-md">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="flex items-center gap-2">
+                                    <Award className="h-5 w-5 text-yellow-500" />
+                                    Kết quả Luyện tập
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                    <div className="bg-gradient-to-t from-green-100/80 to-green-50/60 dark:from-green-900/20 dark:to-green-800/10 p-4 rounded-lg border border-green-100 dark:border-green-800 flex flex-col items-center">
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Điểm trung bình</p>
+                                        <p className="text-3xl font-bold text-green-600 dark:text-green-400">{calculateAverageScore()}%</p>
+                                    </div>
+                                    <div className="bg-gradient-to-t from-blue-100/80 to-blue-50/60 dark:from-blue-900/20 dark:to-blue-800/10 p-4 rounded-lg border border-blue-100 dark:border-blue-800 flex flex-col items-center">
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Thời gian phản ứng trung bình</p>
+                                        <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{calculateAverageResponseTime()}s</p>
+                                    </div>
+                                </div>
+
+                                <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-3">Kết quả từng câu</h3>
+                                <div className="space-y-3 mb-6">
+                                    {exerciseResults.map((result, index) => {
+                                        const question = questions.find(q => q.id === result.questionId)
+
+                                        return (
+                                            <div key={index} className="flex justify-between items-center p-3 bg-gradient-to-t from-primary/5 to-background dark:from-primary/10 rounded-lg">
+                                                <div>
+                                                    <p className="font-medium">{question?.question || `Câu hỏi ${index + 1}`}</p>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                        Thời gian: {result.responseTime.toFixed(1)}s
+                                                    </p>
+                                                </div>
+                                                <div className={`px-2 py-1 rounded-full text-white font-medium ${result.accuracy >= 80 ? 'bg-green-500' :
+                                                    result.accuracy >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                                                    }`}>
+                                                    {result.accuracy}%
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </CardContent>
+                            <CardFooter className="pt-2">
+                                <Button
+                                    onClick={handleRestartSession}
+                                    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                                >
+                                    Thử lại
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                    </motion.div>
+                ) : sessionStarted && (
+                    <AnimatePresence mode="wait">
+                        <QuestionDisplay
+                            key={currentQuestion.id}
+                            question={currentQuestion}
+                            currentIndex={currentQuestionIndex}
+                            totalQuestions={questions.length}
+                            timeRemaining={timeRemaining}
+                            isAnswering={isListening}
+                        />
+                    </AnimatePresence>
+                )}
+
+                {sessionStarted && !sessionCompleted && (
+                    <>
+                        {useFallback ? (
+                            <motion.div
+                                className="mb-8"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                <Card className="p-6 border-amber-200 dark:border-amber-800 bg-gradient-to-t from-amber-100/50 to-amber-50/30 dark:from-amber-900/20 dark:to-background">
+                                    <h3 className="font-medium text-amber-700 dark:text-amber-300 mb-2">
+                                        Nhận dạng giọng nói không khả dụng
+                                    </h3>
+                                    <p className="text-amber-600 dark:text-amber-400 mb-4 text-sm">
+                                        Trình duyệt của bạn không hỗ trợ nhận dạng giọng nói hoặc quyền truy cập micrô bị từ chối.
+                                        Vui lòng nhập văn bản của bạn theo cách thủ công.
+                                    </p>
+                                    <SpeechFallback onTextSubmit={handleFallbackSubmit} type="recognition" />
+                                </Card>
+                            </motion.div>
+                        ) : (
+                            <ReflexControls
+                                isListening={isListening}
+                                isRecognizing={isRecognizing}
+                                onStartListening={handleStartListening}
+                                onStopListening={handleStopListening}
+                                onNextQuestion={handleNextQuestion}
+                                timeRemaining={timeRemaining}
+                                getAudioData={audioVisualizerEnabled ? safeGetAudioData : undefined}
+                                disabled={currentResult !== null}
+                            />
+                        )}
+
+                        <AnimatePresence>
+                            {transcript && (
+                                <AnswerFeedback
+                                    transcript={transcript}
+                                    targetAnswerText={currentQuestion.answer}
+                                    isActive={isListening}
                                 />
                             )}
-
-                            <AnimatePresence>
-                                {transcript && (
-                                    <AnswerFeedback
-                                        transcript={transcript}
-                                        targetAnswerText={currentQuestion.answer}
-                                        isActive={isListening}
-                                    />
-                                )}
-                            </AnimatePresence>
-                        </>
-                    )}
-                    
-                    <motion.div 
-                        className="mt-12 text-center"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.5, delay: 0.7 }}
-                    >
-                        <div className="inline-flex items-center gap-2 text-gray-500 dark:text-gray-400 
-                        text-sm bg-gray-50 dark:bg-gray-800 py-2 px-4 rounded-full">
-                            <Clock className="h-4 w-4 text-green-500" />
-                            <span>Luyện tập hàng ngày để cải thiện phản xạ giao tiếp của bạn</span>
-                        </div>
-                    </motion.div>
-                </div>
+                        </AnimatePresence>
+                    </>
+                )}
             </div>
-        </motion.div>
+        </div>
     )
 }

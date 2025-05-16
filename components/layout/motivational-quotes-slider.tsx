@@ -29,7 +29,7 @@ export function MotivationalQuotesSlider() {
           {motivationalQuotes.map((quote, index) => (
             <motion.div
               key={index}
-              className="text-white font-bold text-xl mx-8 whitespace-nowrap"
+              className="font-bold text-xl mx-8 whitespace-nowrap"
               initial={{ opacity: 0.7 }}
               whileHover={{ opacity: 1, scale: 1.05 }}
             >
