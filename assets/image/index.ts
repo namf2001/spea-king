@@ -9,10 +9,6 @@ import image8 from './8.svg';
 import image9 from './9.svg';
 import logo from './logo.svg';
 
-// Import logo PNG images
-import logoLight from './spea_king_logo_light.png';
-import logoDark from './spea_king_logo_dark.png';
-
 // Export all images
 export {
   image1,
@@ -24,8 +20,6 @@ export {
   image8,
   image9,
   logo,
-  logoLight,
-  logoDark,
 };
 
 // Export images as an object for easier access
@@ -39,6 +33,4 @@ export const images = {
   image8,
   image9,
   logo,
-  logoLight,
-  logoDark,
 };
