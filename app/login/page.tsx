@@ -12,8 +12,7 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
-
-export default function LoginPage() {
+export default  function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md overflow-hidden pb-0">
