@@ -16,6 +16,7 @@ import { Card } from "@/components/ui/card"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
 import { Mic } from "lucide-react"
+import { RippleEffect } from "@/components/animations/ripple-effect"
 
 export default function PronunciationPage() {
     const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
@@ -273,13 +274,26 @@ export default function PronunciationPage() {
 
     return (
         <div className="container mx-auto px-4 py-12">
-            <div className="max-w-4xl mx-auto">
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="bg-primary p-2 rounded-full">
-                        <Mic className="h-5 w-5 sm:h-6 sm:w-6" />
+            <motion.div
+                className="max-w-4xl mx-auto"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+            >
+                <motion.div
+                    className="flex items-center gap-3 mb-8"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                    <div className="bg-primary p-2 rounded-full relative overflow-hidden">
+                        <Mic className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
+                        <div className="absolute inset-0">
+                            <RippleEffect color="white" />
+                        </div>
                     </div>
                     <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Pronunciation Practice</h1>
-                </div>
+                </motion.div>
                 <AnimatePresence mode="wait">
                     <ExerciseDisplay
                         exercise={currentExercise}
@@ -318,7 +332,6 @@ export default function PronunciationPage() {
                         getAudioData={audioVisualizerEnabled ? safeGetAudioData : undefined}
                     />
                 )}
-
                 <AnimatePresence>
                     {transcript && (
                         <motion.div
@@ -353,7 +366,7 @@ export default function PronunciationPage() {
                 <AnimatePresence>
                     {score !== null && <FeedbackDisplay score={score} feedback={feedback} details={details} />}
                 </AnimatePresence>
-            </div>
+            </motion.div >
         </div>
     )
 }

@@ -13,7 +13,6 @@ import { ScenarioTabs } from "./components/scenario-tabs"
 import { ConversationDisplay } from "./components/conversation-display"
 import { ConversationControls } from "./components/conversation-controls"
 import { generateConversationResponse } from "@/app/actions/speech"
-import { AudioVisualizer } from "@/components/audio-visualizer"
 import { ReplayButton } from "@/components/replay-button"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
@@ -304,28 +303,6 @@ export default function ConversationPage() {
                 scrollAreaRef={scrollAreaRef as React.RefObject<HTMLDivElement>}
                 recognizedText={recognizedText}
               />
-
-              <AnimatePresence>
-                {isListening && !useFallback && audioVisualizerEnabled && (
-                  <motion.div 
-                    className="mt-4"
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <AudioVisualizer
-                      getAudioData={safeGetAudioData}
-                      isActive={isListening}
-                      height={60}
-                      barColor="#3b82f6"
-                      backgroundColor="rgba(248, 250, 252, 0.8)"
-                      className="rounded-lg overflow-hidden"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg pointer-events-none"></div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
 
               <AnimatePresence>
                 {audioUrl && lastUserMessage && (

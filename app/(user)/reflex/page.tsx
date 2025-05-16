@@ -15,6 +15,7 @@ import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronLeft, Award, Zap, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { RippleEffect } from "@/components/animations/ripple-effect"
 
 interface ExerciseResult {
     questionId: number
@@ -314,13 +315,26 @@ export default function ReflexPage() {
 
     return (
         <div className="container mx-auto px-4 py-12">
-            <div className="max-w-4xl mx-auto">
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="bg-green-100 dark:bg-green-900/50 p-2 rounded-full">
-                        <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
+            <motion.div
+                className="max-w-4xl mx-auto"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+            >
+                <motion.div
+                    className="flex items-center gap-3 mb-8"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                    <div className="bg-green-100 dark:bg-green-900/50 p-2 rounded-full relative overflow-hidden">
+                        <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400 relative z-10" />
+                        <div className="absolute inset-0">
+                            <RippleEffect color="green" />
+                        </div>
                     </div>
                     <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Luyện tập Phản xạ</h1>
-                </div>
+                </motion.div>
                 {!sessionStarted && !sessionCompleted && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -475,7 +489,7 @@ export default function ReflexPage() {
                         </AnimatePresence>
                     </>
                 )}
-            </div>
+            </motion.div>
         </div>
     )
 }
