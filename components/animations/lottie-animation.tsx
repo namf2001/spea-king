@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, memo, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
 
@@ -59,6 +59,28 @@ export interface LottieAnimationProps extends Omit<React.ComponentProps<typeof L
   showPlaceholder?: boolean;
 }
 
+// Tạo một component memoized để tránh re-render không cần thiết
+const MemoizedLottie = memo(({ 
+  lottieRef, 
+  animationData, 
+  loop, 
+  autoplay, 
+  onComplete, 
+  rendererSettings,
+  ...props 
+}: any) => (
+  <Lottie
+    lottieRef={lottieRef}
+    animationData={animationData}
+    loop={loop}
+    autoplay={autoplay}
+    onComplete={onComplete}
+    rendererSettings={rendererSettings}
+    {...props}
+  />
+));
+MemoizedLottie.displayName = 'MemoizedLottie';
+
 export const LottieAnimation = ({
   src,
   size = "md",
@@ -75,8 +97,8 @@ export const LottieAnimation = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Kích thước animation dựa trên prop size
-  const sizeMap = {
+  // Kích thước animation dựa trên prop size - Memoize để tránh tính toán lại
+  const sizeMap = useMemo(() => ({
     xs: "w-4 h-4",
     sm: "w-6 h-6",
     md: "w-10 h-10",
@@ -85,19 +107,33 @@ export const LottieAnimation = ({
     "2xl": "w-32 h-32",
     "3xl": "w-40 h-40",
     full: "w-full h-full",
-  };
+  }), []);
 
-  // Xác định style kích thước
-  const sizeStyle = typeof size === "number" 
-    ? { width: size, height: size } 
-    : undefined;
+  // Xác định style kích thước - Memoize để tránh tính toán lại
+  const sizeStyle = useMemo(() => 
+    typeof size === "number" ? { width: size, height: size } : undefined, 
+    [size]
+  );
   
-  const sizeClass = typeof size === "string" 
-    ? sizeMap[size as keyof typeof sizeMap] || "w-10 h-10" 
-    : "w-10 h-10";
+  const sizeClass = useMemo(() => 
+    typeof size === "string" 
+      ? sizeMap[size as keyof typeof sizeMap] || "w-10 h-10" 
+      : "w-10 h-10", 
+    [size, sizeMap]
+  );
+
+  // Tối ưu renderer settings
+  const rendererSettings = useMemo(() => ({
+    preserveAspectRatio: 'xMidYMid slice',
+    progressiveLoad: true,
+    clearCanvas: false,
+    hideOnTransparent: true,  // Tăng hiệu suất bằng cách ẩn nền trong suốt
+  }), []);
 
   // Tải animation JSON nếu src là string (đường dẫn), hoặc sử dụng trực tiếp nếu là object
   useEffect(() => {
+    let isMounted = true;
+    
     // Nếu src là object (đã import trực tiếp), sử dụng luôn
     if (typeof src !== 'string') {
       setAnimationData(src);
@@ -109,6 +145,22 @@ export const LottieAnimation = ({
     setIsLoading(true);
     setError(null);
     
+    // Cache mechanism to avoid refetching
+    const cachedAnimation = sessionStorage.getItem(`lottie-${src}`);
+    if (cachedAnimation) {
+      try {
+        const parsedData = JSON.parse(cachedAnimation);
+        if (isMounted) {
+          setAnimationData(parsedData);
+          setIsLoading(false);
+        }
+        return;
+      } catch (e) {
+        // If parsing fails, fetch again
+        console.warn('Failed to parse cached animation, fetching again...');
+      }
+    }
+    
     fetch(src)
       .then(response => {
         if (!response.ok) {
@@ -117,14 +169,29 @@ export const LottieAnimation = ({
         return response.json();
       })
       .then(data => {
-        setAnimationData(data);
-        setIsLoading(false);
+        if (isMounted) {
+          // Cache the animation data
+          try {
+            sessionStorage.setItem(`lottie-${src}`, JSON.stringify(data));
+          } catch (e) {
+            console.warn('Failed to cache animation data', e);
+          }
+          
+          setAnimationData(data);
+          setIsLoading(false);
+        }
       })
       .catch(err => {
-        console.error("Failed to load Lottie animation:", err);
-        setError(err.message);
-        setIsLoading(false);
+        if (isMounted) {
+          console.error("Failed to load Lottie animation:", err);
+          setError(err.message);
+          setIsLoading(false);
+        }
       });
+      
+    return () => {
+      isMounted = false;
+    };
   }, [src]);
 
   // Đặt tốc độ animation
@@ -183,19 +250,19 @@ export const LottieAnimation = ({
       style={sizeStyle}
     >
       {animationData && (
-        <Lottie
+        <MemoizedLottie
           lottieRef={lottieRef}
           animationData={animationData}
           loop={loop}
           autoplay={autoplay}
           onComplete={handleComplete}
-          rendererSettings={{
-            preserveAspectRatio: 'xMidYMid slice',
-            progressiveLoad: true,
-          }}
+          rendererSettings={rendererSettings}
           {...props}
         />
       )}
     </div>
   );
-}
+};
+
+// Memoize toàn bộ component để tránh render lại không cần thiết
+export default memo(LottieAnimation);

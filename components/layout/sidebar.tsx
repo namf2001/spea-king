@@ -18,6 +18,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { ThemeSwitcher } from "./theme-switcher"
 
 interface NavigationItem {
   label: string
@@ -54,49 +55,49 @@ export function AppSidebar() {
       label: "HỌC",
       href: "/",
       icon: <Home className="h-6 w-6" />,
-      iconColor: "text-yellow-500",
+      iconColor: "text-primary",
     },
     {
       label: "PHÁT ÂM",
       href: "/pronunciation",
       icon: <Mic className="h-6 w-6" />,
-      iconColor: "text-blue-500",
+      iconColor: "text-primary",
     },
     {
       label: "LUYỆN TẬP",
       href: "/reflex",
       icon: <BarChart2 className="h-6 w-6" />,
-      iconColor: "text-cyan-500",
+      iconColor: "text-primary",
     },
     {
       label: "BẢNG XẾP HẠNG",
       href: "/progress",
       icon: <Award className="h-6 w-6" />,
-      iconColor: "text-yellow-500",
+      iconColor: "text-primary",
     },
     {
       label: "NHIỆM VỤ",
       href: "/conversation",
       icon: <MessageSquare className="h-6 w-6" />,
-      iconColor: "text-orange-500",
+      iconColor: "text-primary",
     },
     {
       label: "CỬA HÀNG",
       href: "/store",
       icon: <ShoppingBag className="h-6 w-6" />,
-      iconColor: "text-red-500",
+      iconColor: "text-primary",
     },
     {
       label: "HỒ SƠ",
       href: "/settings",
       icon: <User className="h-6 w-6" />,
-      iconColor: "text-purple-500",
+      iconColor: "text-primary",
     },
     {
       label: "XEM THÊM",
       href: "/more",
       icon: <MoreHorizontal className="h-6 w-6" />,
-      iconColor: "text-gray-500",
+      iconColor: "text-primary",
     },
   ]
 
@@ -139,27 +140,26 @@ export function AppSidebar() {
                       asChild
                       isActive={isActive(item.href)}
                       className={cn(
-                        "w-full h-14 flex items-center rounded-xl border-2 transition-all",
+                        "w-full h-14 flex items-center rounded-xl transition-all",
                         isIpad ? "justify-center" : "justify-center md:justify-start",
+                        isActive(item.href)
+                          ? "bg-primary border-primary/60"
+                          : "border-transparent",
                       )}
                       data-active={isActive(item.href)}
                     >
                       <Link
                         href={item.href}
                         className={cn(
-                          "flex items-center justify-center",
+                          "flex items-center justify-bg",
                           isActive(item.href)
-                            ? "text-green-600 dark:text-green-400 bg-green-100 border-green-400 dark:bg-green-900/30 dark:border-green-700"
-                            : "text-gray-700 dark:text-gray-300 border-transparent",
+                            ? "bg-primary border-primary/60"
+                            : "border-transparent",
                         )}
                       >
                         <div
                           className={cn(
                             isIpad ? "mx-auto" : "ml-2 mr-5",
-                            isActive(item.href)
-                              ? "text-green-600 dark:text-green-400"
-                              : "text-gray-700 dark:text-gray-300",
-                            item.iconColor,
                           )}
                         >
                           {item.icon}
@@ -168,7 +168,6 @@ export function AppSidebar() {
                           <span
                             className={cn(
                               "text-xs font-bold hidden md:block",
-                              isActive(item.href) && "text-green-600 dark:text-green-400",
                             )}
                           >
                             {item.label}
@@ -179,6 +178,7 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
+              <ThemeSwitcher/>
             </SidebarContent>
           </Sidebar>
         </motion.div>
@@ -187,31 +187,24 @@ export function AppSidebar() {
 
   // Mobile sidebar (bottom navigation)
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow-lg">
-      <div className="flex justify-between items-center px-1 pb-1 pt-2">
+    <motion.div 
+      initial={{ y: 50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-secondary border-t border-gray-200 dark:border-gray-800 shadow-lg"
+    >
+      <div className="flex justify-between items-center px-1 py-2">
         {navigation.slice(0, 5).map((item) => (
           <Link key={item.href} href={item.href} className="w-full">
-            <div
-              className={cn(
-                "flex items-center py-1 px-2 rounded-lg transition-all",
-                isActive(item.href) ? "text-green-600 dark:text-green-400" : "text-gray-700 dark:text-gray-300",
-              )}
-            >
+            <div className="flex flex-col items-center">
               <div
                 className={cn(
-                  "w-full h-14 flex items-center justify-center rounded-xl border-2",
+                  "w-12 h-12 flex items-center justify-center rounded-xl transition-all",
                   isActive(item.href)
-                    ? "bg-green-100 border-green-400 dark:bg-green-900/30 dark:border-green-700"
-                    : "border-transparent",
+                    ? "bg-primary text-white"
+                    : "text-muted-foreground"
                 )}
               >
-                <div
-                  className={cn(
-                    "text-gray-700 dark:text-gray-300",
-                    isActive(item.href) && "text-green-600 dark:text-green-400",
-                    item.iconColor,
-                  )}
-                >
+                <div className={isActive(item.href) ? "text-white" : item.iconColor}>
                   {item.icon}
                 </div>
               </div>
@@ -219,6 +212,6 @@ export function AppSidebar() {
           </Link>
         ))}
       </div>
-    </div>
+    </motion.div>
   )
 }

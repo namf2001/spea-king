@@ -11,21 +11,20 @@ export function TranscriptDisplay({ transcript }: TranscriptDisplayProps) {
     return (
         <motion.div 
             className="mb-6"
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.5 }}
         >
-            <h3 className="text-sm font-medium flex items-center gap-2 mb-2 text-blue-600 dark:text-blue-400">
+            <h3 className="text-sm font-medium flex items-center gap-2 mb-2 text-gray-700 dark:text-gray-300">
                 <Mic className="h-4 w-4" />
                 Your recording:
             </h3>
             <motion.div 
-                className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-blue-100 dark:border-blue-900 shadow-sm relative"
+                className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm relative"
                 initial={{ scale: 0.98 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.3 }}
             >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-purple-500 rounded-t-lg" />
                 <div className="flex flex-wrap gap-2 py-1">
                     {words.map((word, index) => (
                         <motion.span

@@ -25,25 +25,19 @@ export function ExerciseDisplay({ exercise, currentIndex, totalExercises, onPlay
             transition={{ duration: 0.5 }}
             key={currentIndex}
         >
-            <Card className="mb-8 border-2 border-blue-100 dark:border-blue-900 shadow-md pt-0">
-                <CardHeader className="bg-gradient-to-r from-blue-50 to-white dark:from-gray-800 dark:to-gray-900 py-4 rounded-t-lg">
+            <Card className="mb-8 border-2 shadow-md pt-0">
+                <CardHeader className="py-4 rounded-t-lg bg-gradient-to-b from-primary/20 to-background">
                     <div className="flex justify-between items-center">
-                        <CardTitle className="text-blue-800 dark:text-blue-300">
+                        <CardTitle>
                             Exercise {currentIndex + 1}/{totalExercises}
                         </CardTitle>
                         <Badge variant={getBadgeVariant(exercise.difficulty)} className="text-sm font-medium">
                             {exercise.difficulty.charAt(0).toUpperCase() + exercise.difficulty.slice(1)}
                         </Badge>
                     </div>
-                    <CardDescription className="text-blue-600 dark:text-blue-400 font-medium">
-                        Focus on the <span className="text-blue-800 dark:text-blue-200 font-bold">"{exercise.focusSound}"</span> sound
-                    </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
-                    <div 
-                        className="bg-blue-50 dark:bg-blue-900/30 p-6 rounded-lg mb-6 text-center relative
-                        border border-blue-100 dark:border-blue-800 shadow-inner"
-                    >
+                    <div className="p-6 rounded-lg mb-6 text-center relative border-4 shadow-inner bg-primary/10">
                         <p className="text-2xl font-medium tracking-wide">{exercise.text}</p>
                         {onPlayExample && (
                             <button 
@@ -56,12 +50,6 @@ export function ExerciseDisplay({ exercise, currentIndex, totalExercises, onPlay
                                 <Volume2 className="w-5 h-5" />
                             </button>
                         )}
-                    </div>
-                    <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-md border border-yellow-100 dark:border-yellow-800">
-                        <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                            <span className="font-bold">Tip:</span> Pay close attention to how your mouth and tongue position 
-                            changes when making the "{exercise.focusSound}" sound.
-                        </p>
                     </div>
                 </CardContent>
             </Card>

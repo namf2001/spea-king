@@ -71,7 +71,7 @@ export function FeedbackDisplay({ score, feedback, details }: FeedbackDisplayPro
             animate="visible"
             variants={feedbackVariants}
         >
-            <motion.div variants={itemVariants} className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md border border-gray-200 dark:border-gray-700">
+            <motion.div variants={itemVariants} className="bg-gradient-to-t from-primary/20 to-background rounded-lg p-6 shadow-md border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-4 mb-4">
                     <div className={`text-4xl font-bold ${getScoreColor(score)}`}>
                         {score}%
@@ -104,7 +104,7 @@ export function FeedbackDisplay({ score, feedback, details }: FeedbackDisplayPro
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <motion.div 
                             variants={itemVariants}
-                            className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+                            className="bg-gradient-to-t from-primary/10 to-background p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
                         >
                             <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
                                 <div className="flex items-center gap-2">
@@ -129,7 +129,7 @@ export function FeedbackDisplay({ score, feedback, details }: FeedbackDisplayPro
                         </motion.div>
                         <motion.div 
                             variants={itemVariants}
-                            className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+                            className="bg-gradient-to-t from-primary/10 to-background p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
                         >
                             <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
                                 <span className="w-3 h-3 rounded-full bg-blue-500"></span>
@@ -152,7 +152,7 @@ export function FeedbackDisplay({ score, feedback, details }: FeedbackDisplayPro
                         </motion.div>
                         <motion.div 
                             variants={itemVariants}
-                            className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+                            className="bg-gradient-to-t from-primary/10 to-background p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
                         >
                             <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
                                 <div className="flex items-center">
@@ -179,7 +179,7 @@ export function FeedbackDisplay({ score, feedback, details }: FeedbackDisplayPro
 
                     <motion.div 
                         variants={itemVariants}
-                        className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+                        className="bg-gradient-to-t from-primary/10 to-background p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
                     >
                         <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
                             <Volume2 className="h-4 w-4 text-indigo-500" />
@@ -203,7 +203,7 @@ export function FeedbackDisplay({ score, feedback, details }: FeedbackDisplayPro
 
                     <motion.div 
                         variants={itemVariants}
-                        className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+                        className="bg-gradient-to-t from-primary/10 to-background p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
                     >
                         <h4 className="text-sm font-medium mb-3">Word-by-Word Assessment</h4>
                         <ScrollArea className="h-[180px] pr-4">
@@ -216,8 +216,8 @@ export function FeedbackDisplay({ score, feedback, details }: FeedbackDisplayPro
                                         transition={{ delay: index * 0.05 }}
                                         className={`p-3 rounded-md border ${
                                             word.errorType 
-                                                ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' 
-                                                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                                                ? 'bg-red-50/80 dark:bg-red-900/20 border-red-200 dark:border-red-800' 
+                                                : 'bg-gradient-to-t from-background to-background/80 border-gray-200 dark:border-gray-700'
                                         }`}
                                     >
                                         <div className="flex justify-between items-center">
