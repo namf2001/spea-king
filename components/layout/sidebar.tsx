@@ -110,12 +110,11 @@ export function AppSidebar() {
   // Desktop or iPad sidebar
   if (!isMobile) {
     return (
-
         <motion.div initial={{ x: -100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="h-screen">
           <Sidebar
             collapsible="none"
             className={cn(
-              "py-4 border-r border-gray-200 dark:border-gray-800 shadow-sm",
+              "py-4 border-r shadow-sm bg-secondary",
               isIpad ? "w-28" : "min-w-28 md:min-w-64",
             )}
           >
