@@ -27,7 +27,7 @@ export default function Home() {
       </div>
 
       {/* Header */}
-      <header className="container mx-auto px-4 py-12 flex justify-between items-center z-10">
+      <header className="container mx-auto px-4 py-4 md-py-12 flex justify-between items-center z-10">
         <div className="flex items-center space-x-2">
           <Image
             src={logo}
@@ -63,8 +63,8 @@ export default function Home() {
         </div>
 
         {/* Text and CTA */}
-        <div className="mt-10 md:mt-0 text-center md:text-right max-w-xl w-full">
-          <h1 className=" text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+        <div className="mb-10 md:mt-0 text-center md:text-right max-w-xl w-full">
+          <h1 className=" text-2xl md:text-5xl lg:text-6xl font-bold leading-tight">
             The free, fun, and effective way to learn a language!
           </h1>
 
