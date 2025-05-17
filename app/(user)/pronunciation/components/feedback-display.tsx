@@ -1,7 +1,7 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { motion } from "framer-motion"
-import { CheckCircle2, XCircle, AlertTriangle, Volume2, Info } from "lucide-react"
+import { CheckCircle2, XCircle, AlertTriangle, Info } from "lucide-react"
 
 interface WordAssessment {
     word: string
@@ -108,7 +108,9 @@ export function FeedbackDisplay({ score, feedback, details }: FeedbackDisplayPro
                         >
                             <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
                                 <div className="flex items-center gap-2">
-                                    <span className="w-3 h-3 rounded-full bg-purple-500"></span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-3 h-3 rounded-full bg-purple-500"></span>
+                                    </div>
                                     Pronunciation
                                 </div>
                             </h4>
@@ -132,7 +134,9 @@ export function FeedbackDisplay({ score, feedback, details }: FeedbackDisplayPro
                             className="bg-gradient-to-t from-primary/10 to-background p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
                         >
                             <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                                <span className="w-3 h-3 rounded-full bg-blue-500"></span>
+                                <div className="flex items-center">
+                                    <span className="w-3 h-3 rounded-full bg-blue-500"></span>
+                                </div>
                                 Fluency
                             </h4>
                             <div className="relative h-3 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 mb-2">
@@ -177,7 +181,7 @@ export function FeedbackDisplay({ score, feedback, details }: FeedbackDisplayPro
                         </motion.div>
                     </div>
 
-                    <motion.div 
+                    {/* <motion.div 
                         variants={itemVariants}
                         className="bg-gradient-to-t from-primary/10 to-background p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
                     >
@@ -199,7 +203,7 @@ export function FeedbackDisplay({ score, feedback, details }: FeedbackDisplayPro
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                             This is how accurately you pronounced the focus sound of this exercise.
                         </p>
-                    </motion.div>
+                    </motion.div> */}
 
                     <motion.div 
                         variants={itemVariants}

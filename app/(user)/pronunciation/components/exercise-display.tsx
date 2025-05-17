@@ -1,14 +1,8 @@
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Exercise } from "../data/exercises"
 import { motion } from "framer-motion"
 import { Volume2 } from "lucide-react"
 
-const getBadgeVariant = (difficulty: Exercise["difficulty"]) => {
-    if (difficulty === "easy") return "outline"
-    if (difficulty === "medium") return "secondary"
-    return "destructive"
-}
 
 interface ExerciseDisplayProps {
     readonly exercise: Exercise
@@ -32,9 +26,6 @@ export function ExerciseDisplay({ exercise, currentIndex, totalExercises, onPlay
                         <CardTitle>
                             Exercise {currentIndex + 1}/{totalExercises}
                         </CardTitle>
-                        <Badge variant={getBadgeVariant(exercise.difficulty)} className="text-sm font-medium">
-                            {exercise.difficulty.charAt(0).toUpperCase() + exercise.difficulty.slice(1)}
-                        </Badge>
                     </div>
                 </CardHeader>
                 <CardContent className="pb-2">

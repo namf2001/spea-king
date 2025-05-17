@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Mic, SkipForward, VolumeX, Volume2, Headphones, Sparkles } from "lucide-react"
+import { Mic, SkipForward, VolumeX, Volume2, Headphones } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { AudioVisualizer } from "@/components/audio-visualizer"
 import { useState, useEffect } from "react"
@@ -28,7 +28,6 @@ export function ExerciseControls({
     getAudioData,
 }: ExerciseControlsProps) {
     const [recordingTime, setRecordingTime] = useState(0);
-    const [showTip, setShowTip] = useState(false);
 
     // Recording timer
     useEffect(() => {
@@ -45,15 +44,6 @@ export function ExerciseControls({
             if (interval) clearInterval(interval);
         };
     }, [isListening]);
-
-    // Show tip randomly
-    useEffect(() => {
-        const tipTimeout = setTimeout(() => {
-            setShowTip(true);
-        }, 3000);
-
-        return () => clearTimeout(tipTimeout);
-    }, []);
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
