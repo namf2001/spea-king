@@ -1,10 +1,9 @@
 "use client";
 
 import React from "react";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { LottieAnimation, LottieSize } from "@/components/animations/lottie-animation";
 import { cn } from "@/lib/utils";
-import { type VariantProps } from "class-variance-authority";
 
 // Định nghĩa type cho LottieButtonProps bằng cách mở rộng từ props của Button
 export interface LottieButtonProps
