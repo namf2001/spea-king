@@ -44,146 +44,20 @@ model Session {
 }
 
 model User {
-  id               String            @id @default(cuid())
-  name             String?
-  email            String?           @unique
-  emailVerified    DateTime?         @map("email_verified")
-  image            String?
-  role             Role              @default(USER)
-  accounts         Account[]
-  sessions         Session[]
-  exerciseResults  ExerciseResult[]
-  customLessons    CustomLesson[]
-  progress         Progress[]
-  achievements     UserAchievement[]
-  createdExercises Exercise[]        @relation("CreatedExercises")
-  studySessions    StudySession[]
+  id                 String               @id @default(cuid())
+  name               String?
+  email              String?              @unique
+  emailVerified      DateTime?            @map("email_verified")
+  image              String?
+  role               Role                 @default(USER)
+  accounts           Account[]
+  sessions           Session[]
+  pronunciationLessons PronunciationLesson[]
+  communicationTopics CommunicationTopic[]
+  reflexQuestions    ReflexQuestion[]
+  speakingRecords    UserSpeakingRecord[]
 
   @@map("users")
-}
-
-model ExerciseResult {
-  id           String       @id @default(cuid())
-  exerciseType ExerciseType // "reflex", "pronunciation", etc.
-  questionId   Int
-  accuracy     Float
-  responseTime Float?
-  date         DateTime     @default(now())
-  userId       String
-  exerciseId   String?
-
-  // Relationships
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  exercise Exercise? @relation(fields: [exerciseId], references: [id], onDelete: SetNull)
-}
-
-model CustomLesson {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  content     Json // Lưu nội dung của bài học
-  isPublic    Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  userId      String
-
-  // Relationships
-  user User @relation(fields: [userId], references: [id])
-}
-
-model Exercise {
-  id          String       @id @default(cuid())
-  title       String
-  description String?
-  type        ExerciseType
-  difficulty  Difficulty   @default(MEDIUM)
-  content     Json
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  createdBy   String?
-  isPublic    Boolean      @default(true)
-
-  // Relationships
-  author    User?            @relation("CreatedExercises", fields: [createdBy], references: [id], onDelete: Cascade)
-  questions Question[]
-  results   ExerciseResult[]
-  progress  Progress[]
-}
-
-model Question {
-  id         String @id @default(cuid())
-  exerciseId String
-  content    String
-  answer     String
-  options    Json? // Cho câu hỏi trắc nghiệm
-
-  // Relationships
-  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
-}
-
-model Progress {
-  id              String   @id @default(cuid())
-  userId          String
-  exerciseId      String
-  completedAt     DateTime @default(now())
-  score           Float
-  bestScore       Float    @default(0)
-  completionCount Int      @default(1)
-
-  // Relationships
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, exerciseId])
-}
-
-model Achievement {
-  id          String  @id @default(cuid())
-  name        String
-  description String
-  criteria    Json // Điều kiện đạt được
-  image       String? // URL hình ảnh huy hiệu
-
-  // Relationships
-  userAchievements UserAchievement[]
-}
-
-model UserAchievement {
-  id            String   @id @default(cuid())
-  userId        String
-  achievementId String
-  unlockedAt    DateTime @default(now())
-
-  // Relationships
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement Achievement @relation(fields: [achievementId], references: [id])
-
-  @@unique([userId, achievementId])
-}
-
-model StudySession {
-  id        String    @id @default(cuid())
-  userId    String
-  startTime DateTime  @default(now())
-  endTime   DateTime?
-  duration  Int? // Thời gian học tập tính bằng giây
-
-  // Relationships
-  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  activities ActivityLog[]
-}
-
-model ActivityLog {
-  id           String   @id @default(cuid())
-  sessionId    String
-  activityType String // "exercise_start", "exercise_complete", "lesson_view", etc.
-  entityId     String? // ID của bài tập, bài học liên quan
-  entityType   String? // "exercise", "lesson", etc.
-  timestamp    DateTime @default(now())
-  metadata     Json? // Dữ liệu bổ sung
-
-  // Relationships
-  studySession StudySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
@@ -195,22 +69,70 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
+model PronunciationLesson {
+  id        String         @id @default(cuid())
+  title     String
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  words     PronunciationWord[]
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  @@map("pronunciation_lessons")
+}
+
+model PronunciationWord {
+  id        String             @id @default(cuid())
+  word      String
+  lessonId  String
+  lesson    PronunciationLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
+  @@unique([word, lessonId])
+  @@index([word])
+  
+  @@map("pronunciation_words")
+}
+
+model CommunicationTopic {
+  id        String             @id @default(cuid())
+  title     String
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  speakingRecords UserSpeakingRecord[]
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
+
+  @@map("communication_topics")
+}
+
+model ReflexQuestion {
+  id        String             @id @default(cuid())
+  question  String
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  speakingRecords UserSpeakingRecord[]
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
+
+  @@map("reflex_questions")
+}
+
+model UserSpeakingRecord {
+  id                  String             @id @default(cuid())
+  userId              String
+  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  communicationTopicId String?
+  communicationTopic  CommunicationTopic? @relation(fields: [communicationTopicId], references: [id], onDelete: SetNull)
+  reflexQuestionId    String?
+  reflexQuestion      ReflexQuestion?    @relation(fields: [reflexQuestionId], references: [id], onDelete: SetNull)
+  duration            Int                @default(0) // Duration in seconds
+  createdAt           DateTime           @default(now()) @map("created_at")
+
+  @@map("user_speaking_records")
+}
+
 enum Role {
   USER
   ADMIN
-}
-
-enum ExerciseType {
-  REFLEX
-  PRONUNCIATION
-  VOCABULARY
-  GRAMMAR
-  LISTENING
-  SPEAKING
-}
-
-enum Difficulty {
-  EASY
-  MEDIUM
-  HARD
 }
