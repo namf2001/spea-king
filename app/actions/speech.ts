@@ -56,7 +56,7 @@ export async function getSpeechToken() {
 }
 
 // Server Action to evaluate pronunciation
-export async function evaluatePronunciation(spokenText: string, targetText: string, focusSound: string) {
+export async function evaluatePronunciation(spokenText: string, targetText: string) {
     try {
         const speechKey = process.env.AZURE_SPEECH_KEY
         const speechRegion = process.env.AZURE_SPEECH_REGION
@@ -126,9 +126,9 @@ export async function evaluatePronunciation(spokenText: string, targetText: stri
         if (calculatedScore >= 90) {
             feedback = "Excellent pronunciation! You've mastered this phrase."
         } else if (calculatedScore >= 70) {
-            feedback = `Good job! Try to focus more on the '${focusSound}' sound.`
+            feedback = `Good job! Try to focus more`
         } else if (calculatedScore >= 50) {
-            feedback = `Keep practicing. Pay special attention to the '${focusSound}' sound.`
+            feedback = `Keep practicing.`
         } else {
             feedback = "Let's try again. Listen to the example and focus on each word carefully."
         }
@@ -151,10 +151,7 @@ export async function evaluatePronunciation(spokenText: string, targetText: stri
                         errorType: mispronounced ? "Mispronunciation" : null
                     }
                 }),
-                focusSound: {
-                    sound: focusSound,
-                    accuracyScore: Math.floor(Math.random() * 40) + 60
-                }
+
             }
         }
 
@@ -189,57 +186,80 @@ export async function evaluatePronunciation(spokenText: string, targetText: stri
 // Server Action to generate conversation response
 export async function generateConversationResponse(userInput: string, scenarioId: string) {
     try {
-        let response = ""
-        const lowerInput = userInput.toLowerCase()
+        const API_KEY = process.env.GROQ_API_KEY;
+        const API_ENDPOINT = process.env.GROQ_API_ENDPOINT;
 
-        // Restaurant scenario responses
+        if (!API_KEY || !API_ENDPOINT) {
+            throw new Error("AI service credentials are not configured");
+        }
+
+        // Prepare context based on scenario
+        let systemPrompt = "You are a helpful conversational assistant.";
+        let scenarioContext = "";
+
+        // Set up specific persona and context based on scenario
         if (scenarioId === "restaurant") {
-            if (lowerInput.includes("reservation") || lowerInput.includes("book")) {
-                response = "I see. What time would you like to dine with us today?"
-            } else if (lowerInput.includes("menu") || lowerInput.includes("recommend")) {
-                response = "Our chef's special today is grilled salmon with seasonal vegetables. Would you like to try that?"
-            } else if (lowerInput.includes("order") || lowerInput.includes("like")) {
-                response = "Excellent choice! Would you like any appetizers or drinks with that?"
-            } else {
-                response = "Of course. Let me show you to your table. Would you prefer a window seat?"
-            }
-        }
-        // Interview scenario responses
+            systemPrompt = "You are a helpful restaurant host. Be polite, friendly, and knowledgeable about the menu. Keep responses under 3 sentences.";
+            scenarioContext = "The user is at your fine dining restaurant and may ask about reservations, menu options, or other restaurant-related questions.";
+        } 
         else if (scenarioId === "interview") {
-            if (lowerInput.includes("experience") || lowerInput.includes("work")) {
-                response = "That's impressive experience. What would you say is your greatest professional achievement?"
-            } else if (lowerInput.includes("strength") || lowerInput.includes("good at")) {
-                response = "Those are valuable strengths. How about challenges or areas you're working to improve?"
-            } else if (lowerInput.includes("question") || lowerInput.includes("ask")) {
-                response =
-                    "Great question. Our company culture emphasizes collaboration and innovation. How do you feel about working in team environments?"
-            } else {
-                response =
-                    "Thank you for sharing that. Could you tell me about a time when you faced a difficult challenge at work and how you handled it?"
-            }
-        }
-        // Shopping scenario responses
+            systemPrompt = "You are a job interviewer. Ask professional questions and respond to the candidate's answers. Keep responses under 3 sentences.";
+            scenarioContext = "You are interviewing the user for a job position. Maintain a professional yet approachable tone.";
+        } 
         else if (scenarioId === "shopping") {
-            if (lowerInput.includes("looking") || lowerInput.includes("find")) {
-                response = "I can help you find that. What size and color are you looking for?"
-            } else if (lowerInput.includes("price") || lowerInput.includes("cost") || lowerInput.includes("expensive")) {
-                response = "That item is $49.99. We also have a sale on similar items if you're interested."
-            } else if (lowerInput.includes("try") || lowerInput.includes("fitting")) {
-                response = "The fitting rooms are just over there to your right. Let me know if you need a different size."
-            } else {
-                response = "Is there anything else I can help you with today?"
-            }
+            systemPrompt = "You are a helpful retail sales associate. Assist customers with finding products, sizing, and pricing. Keep responses under 3 sentences.";
+            scenarioContext = "The user is shopping in your retail store and may ask about products, prices, or store policies.";
         }
 
+        // Create messages for the AI
+        const messages = [
+            {
+                role: "system",
+                content: `${systemPrompt} ${scenarioContext} Focus on helping the user practice English conversation in this specific scenario.`
+            },
+            {
+                role: "user",
+                content: userInput
+            }
+        ];
+
+        // Call the Groq API
+        const response = await fetch(API_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "meta-llama/llama-4-scout-17b-16e-instruct", // Using Llama 4 Scout model from Groq
+                messages: messages,
+                max_tokens: 150, // Limiting response length
+                temperature: 0.7 // Slightly creative but mostly focused responses
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`AI API error: ${response.status} ${JSON.stringify(errorData)}`);
+        }
+
+        const data = await response.json();
+        const aiResponse = data.choices[0].message.content;
+        console.log("AI Response:", aiResponse);
         return {
             success: true,
-            response,
-        }
+            response: aiResponse,
+        };
     } catch (error) {
-        console.error("Error generating conversation response:", error)
+        console.error("Error generating conversation response:", error);
+        
+        // Fallback to basic responses if AI fails
+        let fallbackResponse = "I'm sorry, I'm having trouble connecting. Could you please repeat that?";
+        
         return {
             success: false,
+            response: fallbackResponse,
             error: error instanceof Error ? error.message : "Failed to generate response",
-        }
+        };
     }
 }

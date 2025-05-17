@@ -156,7 +156,7 @@ export default function PronunciationPage() {
             if (!audioData) {
                 console.warn("No audio data available for pronunciation assessment");
                 // Nếu không có dữ liệu âm thanh, sử dụng server action hiện tại
-                const result = await evaluatePronunciation(text, currentExercise.text, currentExercise.focusSound);
+                const result = await evaluatePronunciation(text, currentExercise.text,);
                 handleEvaluationResult(result);
                 return;
             }
@@ -172,7 +172,6 @@ export default function PronunciationPage() {
             formData.append('audio', audioData, 'recording.wav');
             formData.append('text', text);
             formData.append('targetText', currentExercise.text);
-            formData.append('focusSound', currentExercise.focusSound);
 
             // Gọi API route để đánh giá phát âm
             const response = await fetch('/api/evaluate-pronunciation', {
@@ -193,7 +192,7 @@ export default function PronunciationPage() {
             // Nếu API gặp lỗi, thử sử dụng server action hiện tại
             try {
                 toast.warning("Using fallback pronunciation assessment method");
-                const result = await evaluatePronunciation(text, currentExercise.text, currentExercise.focusSound);
+                const result = await evaluatePronunciation(text, currentExercise.text);
                 handleEvaluationResult(result);
             } catch (fallbackErr) {
                 console.error("Fallback evaluation also failed:", fallbackErr);
