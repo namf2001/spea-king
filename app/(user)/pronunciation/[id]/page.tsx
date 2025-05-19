@@ -78,9 +78,15 @@ export default function PronunciationPage() {
     useEffect(() => {
         if (recognizedText) {
             setTranscript(recognizedText)
-            handleEvaluatePronunciation(recognizedText)
+            // Only evaluate pronunciation if we have both text and audio data
+            if (audioData) {
+                handleEvaluatePronunciation(recognizedText, audioData)
+            } else {
+                // If no audio data, use text-only evaluation
+                handleEvaluatePronunciation(recognizedText)
+            }
         }
-    }, [recognizedText])
+    }, [recognizedText, audioData])
 
     const handleStartListening = async () => {
         setIsListening(true)
@@ -146,60 +152,43 @@ export default function PronunciationPage() {
         handleEvaluatePronunciation(text)
     }
 
-    const handleEvaluatePronunciation = async (text: string) => {
+    const handleEvaluatePronunciation = async (text: string, audioData?: Blob) => {
         // Hiển thị trạng thái đang đánh giá
         toast.info("Evaluating pronunciation...");
 
-        // Chuẩn bị dữ liệu để gửi đến server
         try {
-            // Kiểm tra xem có dữ liệu âm thanh không
-            if (!audioData) {
-                console.warn("No audio data available for pronunciation assessment");
-                // Nếu không có dữ liệu âm thanh, sử dụng server action hiện tại
-                const result = await evaluatePronunciation(text, currentExercise.text,);
-                handleEvaluationResult(result);
-                return;
+            let result;
+            
+            if (audioData) {
+                // Create FormData for audio-based evaluation
+                const formData = new FormData();
+                formData.append('audio', audioData, 'recording.wav');
+                formData.append('text', text);
+                formData.append('targetText', currentExercise.text);
+
+                // Call API route for audio-based evaluation
+                const response = await fetch('/api/evaluate-pronunciation', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error ?? `Server error: ${response.status}`);
+                }
+
+                result = await response.json();
+            } else {
+                // Fallback to text-only evaluation
+                result = await evaluatePronunciation(text, currentExercise.text);
             }
 
-            console.log("Audio data available for pronunciation assessment:", {
-                type: audioData.type,
-                size: audioData.size,
-                hasAudio: !!audioData
-            });
-
-            // Chuyển đổi Blob thành FormData và gửi đến API route
-            const formData = new FormData();
-            formData.append('audio', audioData, 'recording.wav');
-            formData.append('text', text);
-            formData.append('targetText', currentExercise.text);
-
-            // Gọi API route để đánh giá phát âm
-            const response = await fetch('/api/evaluate-pronunciation', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error ?? `Server error: ${response.status}`);
-            }
-
-            const result = await response.json();
             handleEvaluationResult(result);
         } catch (err) {
             console.error("Error during pronunciation evaluation:", err);
-
-            // Nếu API gặp lỗi, thử sử dụng server action hiện tại
-            try {
-                toast.warning("Using fallback pronunciation assessment method");
-                const result = await evaluatePronunciation(text, currentExercise.text);
-                handleEvaluationResult(result);
-            } catch (fallbackErr) {
-                console.error("Fallback evaluation also failed:", fallbackErr);
-                toast.error("Evaluation Error", {
-                    description: err instanceof Error ? err.message : "An unexpected error occurred",
-                });
-            }
+            toast.error("Evaluation Error", {
+                description: err instanceof Error ? err.message : "An unexpected error occurred",
+            });
         }
     };
 
