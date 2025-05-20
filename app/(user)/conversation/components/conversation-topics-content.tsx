@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { Plus, AlertCircle, MessageSquare, Trash2 } from "lucide-react"
 import { motion } from "framer-motion"
@@ -24,6 +24,22 @@ export default function ConversationTopicsContent(
   const [deletingTopic, setDeletingTopic] = useState<ConversationTopic | null>(null);
   // Determine if we're in edit mode
   const isEditMode = !!editingTopic;
+  
+  // Refs to store timeout IDs for cleanup
+  const modalTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const deleteModalTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeouts when component unmounts
+  useEffect(() => {
+    return () => {
+      if (modalTimeoutRef.current) {
+        clearTimeout(modalTimeoutRef.current);
+      }
+      if (deleteModalTimeoutRef.current) {
+        clearTimeout(deleteModalTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Function to handle opening the edit modal
   const handleEditTopic = (topic: ConversationTopic) => {
@@ -40,8 +56,12 @@ export default function ConversationTopicsContent(
   // Function to handle closing the modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    // Clear any existing timeout
+    if (modalTimeoutRef.current) {
+      clearTimeout(modalTimeoutRef.current);
+    }
     // Reset editing state after modal is closed
-    setTimeout(() => {
+    modalTimeoutRef.current = setTimeout(() => {
       setEditingTopic(null);
     }, 300); // Small delay to avoid flickering during modal animation
   };
@@ -49,7 +69,12 @@ export default function ConversationTopicsContent(
   // Function to handle closing the delete confirmation dialog
   const handleCloseDeleteModal = () => {
     setIsDeleteModalOpen(false);
-    setTimeout(() => {
+    // Clear any existing timeout
+    if (deleteModalTimeoutRef.current) {
+      clearTimeout(deleteModalTimeoutRef.current);
+    }
+    // Store the timeout ID in the ref for cleanup on unmount
+    deleteModalTimeoutRef.current = setTimeout(() => {
       setDeletingTopic(null);
     }, 300);
   };
