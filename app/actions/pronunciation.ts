@@ -68,7 +68,7 @@ export async function createPronunciationLesson(
 /**
  * Get all pronunciation lessons for a specific user
  * @param params - Object containing userId
- * @returns Array of pronunciation lessons with their words
+ * @returns Object containing lessons array and/or error message
  */
 export async function getPronunciationLessonsByUserId({
   userId,
@@ -88,9 +88,16 @@ export async function getPronunciationLessonsByUserId({
       },
     })
 
-    return lessons
+    return {
+      success: true,
+      data: lessons
+    }
   } catch (error) {
     console.error("Error fetching pronunciation lessons:", error)
-    return []
+    return {
+      success: false,
+      error: "Failed to fetch pronunciation lessons. Please try again later.",
+      data: []
+    }
   }
 }

@@ -40,7 +40,6 @@ export default {
             return token;
         },
         authorized({ auth, request: { nextUrl } }) {
-            // Add null check for auth and auth.user
             const isLoggedIn = auth?.user?.role === Role.ADMIN;
             const isOnDashboard = nextUrl.pathname.startsWith('/admin');
             if (isOnDashboard) {

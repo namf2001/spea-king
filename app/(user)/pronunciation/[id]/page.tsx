@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition"
 import { useSpeechSynthesis } from "@/hooks/use-speech-synthesis"
 import { useAudioRecorder } from "@/hooks/use-audio-recorder"
@@ -27,6 +27,7 @@ export default function PronunciationPage() {
     const [details, setDetails] = useState<any>(null)
     const [useFallback, setUseFallback] = useState(false)
     const [audioVisualizerEnabled, setAudioVisualizerEnabled] = useState(true)
+    const evaluationProcessedRef = useRef<boolean>(false)
     const {
         startRecognition,
         stopRecognition,
@@ -76,17 +77,28 @@ export default function PronunciationPage() {
     }, [recordingError])
 
     useEffect(() => {
-        if (recognizedText) {
-            setTranscript(recognizedText)
-            // Only evaluate pronunciation if we have both text and audio data
-            if (audioData) {
-                handleEvaluatePronunciation(recognizedText, audioData)
-            } else {
-                // If no audio data, use text-only evaluation
-                handleEvaluatePronunciation(recognizedText)
-            }
+        // Reset the evaluation status when starting a new recognition
+        if (!recognizedText) {
+            evaluationProcessedRef.current = false;
+            return;
         }
-    }, [recognizedText, audioData])
+
+        setTranscript(recognizedText);
+
+        // Only evaluate if we haven't already processed this input
+        if (!evaluationProcessedRef.current) {
+            if (audioData) {
+                // Both text and audio are available
+                handleEvaluatePronunciation(recognizedText, audioData);
+                evaluationProcessedRef.current = true;
+            } else if (!isRecognizing) {
+                // Recognition ended but no audio data, fall back to text-only
+                handleEvaluatePronunciation(recognizedText);
+                evaluationProcessedRef.current = true;
+            }
+            // If still recognizing and no audio yet, wait for more data
+        }
+    }, [recognizedText, audioData, isRecognizing]);
 
     const handleStartListening = async () => {
         setIsListening(true)
@@ -94,6 +106,7 @@ export default function PronunciationPage() {
         setScore(null)
         setFeedback("")
         setDetails(null)
+        evaluationProcessedRef.current = false; // Reset evaluation status when starting new listening
         try {
             // Start speech recognition
             await startRecognition()

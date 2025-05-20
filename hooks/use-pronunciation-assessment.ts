@@ -7,6 +7,7 @@ export function usePronunciationAssessment() {
   const [results, setResults] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const mediaStreamRef = useRef<MediaStream | null>(null) // Added ref to store MediaStream separately
   const audioChunksRef = useRef<Blob[]>([])
   const wordsRef = useRef<any[]>([])
   const phonemesRef = useRef<any[]>([])
@@ -16,6 +17,7 @@ export function usePronunciationAssessment() {
     try {
       audioChunksRef.current = []
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      mediaStreamRef.current = stream // Store stream in separate ref
       mediaRecorderRef.current = new MediaRecorder(stream)
 
       mediaRecorderRef.current.ondataavailable = (event) => {
@@ -44,8 +46,11 @@ export function usePronunciationAssessment() {
       mediaRecorderRef.current.onstop = () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" })
 
-        // Stop all tracks in the stream using optional chaining
-        mediaRecorderRef.current?.stream?.getTracks().forEach((track) => track.stop())
+        // Stop all tracks using the stored mediaStream reference
+        if (mediaStreamRef.current) {
+          mediaStreamRef.current.getTracks().forEach((track) => track.stop())
+          mediaStreamRef.current = null // Clean up reference
+        }
 
         resolve(audioBlob)
       }

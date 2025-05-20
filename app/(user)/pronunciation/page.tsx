@@ -1,5 +1,3 @@
-"use client"
-
 import { Suspense } from "react"
 import PronunciationLessonsContent from "./components/pronunciation-lessons-content"
 import LessonsSkeleton from "./loading"
@@ -17,7 +15,9 @@ export default async function PronunciationPage() {
         notFound();
     }
 
-    const lessons = await getPronunciationLessonsByUserId({ userId })
+    const response = await getPronunciationLessonsByUserId({ userId })
+    const lessons = response.data || []
+    const error = response.success ? undefined : response.error
 
     return (
         <Suspense fallback={<LessonsSkeleton />}>
@@ -33,7 +33,7 @@ export default async function PronunciationPage() {
                         </div>
                         <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Pronunciation Practice</h1>
                     </div>
-                    <PronunciationLessonsContent lessons={lessons} userId={userId} />
+                    <PronunciationLessonsContent lessons={lessons} userId={userId} error={error} />
                 </div>
             </div>
         </Suspense>
