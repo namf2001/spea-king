@@ -14,7 +14,6 @@ import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
 import {  Award, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { RippleEffect } from "@/components/animations/ripple-effect"
 
 interface ExerciseResult {
     questionId: number
@@ -325,9 +324,6 @@ export default function ReflexPage() {
                 >
                     <div className="bg-green-100 dark:bg-green-900/50 p-2 rounded-full relative overflow-hidden">
                         <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400 relative z-10" />
-                        <div className="absolute inset-0">
-                            <RippleEffect color="green" />
-                        </div>
                     </div>
                     <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Luyện tập Phản xạ</h1>
                 </motion.div>

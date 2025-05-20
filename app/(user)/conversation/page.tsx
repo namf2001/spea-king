@@ -3,38 +3,61 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { RefreshCw, Mic } from "lucide-react"
+import { RefreshCw, Mic, ListPlus } from "lucide-react"
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition"
 import { useSpeechSynthesis } from "@/hooks/use-speech-synthesis"
 import { useAudioRecorder } from "@/hooks/use-audio-recorder"
 import { SpeechFallback } from "@/components/speech-fallback"
-import { scenarios } from "./data/scenarios"
-import { ScenarioTabs } from "./components/scenario-tabs"
+import { defaultTopics } from "./data/topics"
+import { TopicTabs } from "./components/topic-tabs"
 import { ConversationDisplay } from "./components/conversation-display"
 import { ConversationControls } from "./components/conversation-controls"
-import { generateConversationResponse } from "@/app/actions/speech"
-import { ReplayButton } from "@/components/replay-button"
+import { generateConversationResponse, initializeConversation } from "@/app/actions/speech"
+import { getConversationTopicById } from "@/app/actions/conversation"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
-import { RippleEffect } from "@/components/animations/ripple-effect"
+import { useSearchParams } from "next/navigation"
+import Link from "next/link"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface Message {
   role: "user" | "assistant"
   content: string
 }
 
+interface Topic {
+  id: string
+  title: string
+  description: string
+}
+
+// Helper function for adding custom topic to state
+const addCustomTopicToList = (
+  prevTopics: Topic[], 
+  customTopic: Topic
+): Topic[] => {
+  const exists = prevTopics.some(t => t.id === customTopic.id);
+  return exists ? prevTopics : [...prevTopics, customTopic];
+};
+
 export default function ConversationPage() {
-  const [activeScenario, setActiveScenario] = useState(scenarios[0])
-  const [conversation, setConversation] = useState<Message[]>(activeScenario.conversation)
+  const [topics, setTopics] = useState<Topic[]>(defaultTopics)
+  const [activeTopic, setActiveTopic] = useState<Topic>(defaultTopics[0])
+  const [conversation, setConversation] = useState<Message[]>([])
   const [isListening, setIsListening] = useState(false)
   const [useFallback, setUseFallback] = useState(false)
-  const [lastUserMessage, setLastUserMessage] = useState<string | null>(null)
   const [audioVisualizerEnabled, setAudioVisualizerEnabled] = useState(true)
+  const [hasStarted, setHasStarted] = useState(false)
+  // Trạng thái để biết khi nào đang chờ AI trả lời
+  const [isWaitingForResponse, setIsWaitingForResponse] = useState(false)
+  // Thêm state mới để theo dõi khi nào nên reset UI về trạng thái nút microphone
+  const [resetUIState, setResetUIState] = useState(false)
+  const searchParams = useSearchParams()
+  
   const {
     startRecognition,
     stopRecognition,
     recognizedText,
-    isRecognizing,
     error: recognitionError,
   } = useSpeechRecognition()
   const { speak, isSpeaking, error: synthesisError } = useSpeechSynthesis()
@@ -47,6 +70,44 @@ export default function ConversationPage() {
     error: recordingError,
   } = useAudioRecorder()
   const scrollAreaRef = useRef<HTMLDivElement>(null)
+
+  // Load custom topic if specified in URL
+  useEffect(() => {
+    const topicId = searchParams.get('topic');
+    
+    if (topicId && !defaultTopics.some(t => t.id === topicId)) {
+      const loadCustomTopic = async () => {
+        try {
+          const response = await getConversationTopicById(topicId);
+          
+          if (response.success && response.data) {
+            // Convert the DB topic to the expected format
+            const customTopic: Topic = {
+              id: response.data.id,
+              title: response.data.title,
+              description: response.data.description
+            };
+            
+            // Add to topics if not already included
+            setTopics(prev => addCustomTopicToList(prev, customTopic));
+            
+            // Set as active topic
+            setActiveTopic(customTopic);
+          } else {
+            toast.error("Failed to load topic", {
+              description: response.error || "Topic not found"
+            });
+          }
+        } catch (err) {
+          toast.error("Error loading topic", {
+            description: err instanceof Error ? err.message : "An unexpected error occurred"
+          });
+        } 
+      }
+      
+      loadCustomTopic()
+    }
+  }, [searchParams])
 
   // Check for errors and enable fallback if needed
   useEffect(() => {
@@ -68,9 +129,15 @@ export default function ConversationPage() {
   }, [recordingError])
 
   useEffect(() => {
-    // Reset conversation when scenario changes
-    setConversation(activeScenario.conversation)
-  }, [activeScenario])
+    // Reset conversation when topic changes
+    if (hasStarted && activeTopic) {
+      handleResetConversation();
+    } else {
+      // Clear conversation when topic changes and hasn't started yet
+      setConversation([]);
+      setHasStarted(false);
+    }
+  }, [activeTopic])
 
   useEffect(() => {
     // Scroll to bottom when conversation updates
@@ -80,28 +147,92 @@ export default function ConversationPage() {
   }, [conversation])
 
   useEffect(() => {
-    if (recognizedText) {
-      const userMessage = { role: "user" as const, content: recognizedText };
-      if (isListening) {
-        const lastMessage = conversation[conversation.length - 1];
-        if (lastMessage && lastMessage.role === "user") {
-          const updatedConversation = [...conversation.slice(0, -1), userMessage];
-          setConversation(updatedConversation);
-        } else {
-          setConversation([...conversation, userMessage]);
-        }
-      } else {
-        setLastUserMessage(recognizedText);
-
-        const updatedConversation = [...conversation, userMessage];
+    if (recognizedText && isListening) {
+      // When we're listening continuously, update the recognized text display
+      // but don't submit automatically
+      const lastMessage = conversation[conversation.length - 1];
+      if (lastMessage && lastMessage.role === "user") {
+        const updatedConversation = [...conversation.slice(0, -1), { 
+          role: "user" as const, 
+          content: recognizedText 
+        }];
         setConversation(updatedConversation);
-
-        setTimeout(() => {
-          handleGenerateResponse(recognizedText);
-        }, 500);
+      } else {
+        // Only add a new user message if there's no user message at the end
+        // This is just for displaying what's being recognized
+        setConversation([...conversation, { 
+          role: "user" as const, 
+          content: recognizedText 
+        }]);
       }
     }
   }, [recognizedText, isListening]);
+
+  // Handler for the start conversation button
+  const handleStartConversation = async () => {
+    try {
+      const result = await initializeConversation(activeTopic.id);
+      
+      if (result.success && result.response) {
+        // Add AI greeting to conversation
+        setConversation([{ 
+          role: "assistant" as const, 
+          content: result.response
+        }]);
+        
+        setHasStarted(true);
+        
+        // Speak the greeting if not using fallback
+        if (!useFallback) {
+          try {
+            await speak(result.response);
+          } catch (err) {
+            setUseFallback(true);
+            toast.error("Speech Synthesis Error", {
+              description: err instanceof Error ? err.message : "Unable to play audio. Text will be displayed instead.",
+            });
+          }
+        }
+      } else {
+        toast.error("Failed to start conversation", {
+          description: result.error || "Please try again"
+        });
+      }
+    } catch (err) {
+      toast.error("Error starting conversation", {
+        description: err instanceof Error ? err.message : "An unexpected error occurred"
+      });
+    }
+  };
+
+  // Handler for submitting recognized speech
+  const handleSubmitResponse = () => {
+    if (!recognizedText) return;
+    
+    // Store the user message for display
+    const currentText = recognizedText;
+    
+    // Stop listening
+    handleStopListening();
+    
+    // Add user message to conversation
+    const updatedConversation = [...conversation, { 
+      role: "user" as const, 
+      content: currentText 
+    }];
+    setConversation(updatedConversation);
+    
+    // Bật trạng thái đang chờ phản hồi
+    setIsWaitingForResponse(true);
+    
+    // Đặt resetUIState thành true
+    setResetUIState(true);
+    
+    // Generate AI response with a small delay
+    setTimeout(() => {
+      handleGenerateResponse(currentText);
+    }, 500);
+  };
 
   const handleStartListening = async () => {
     setIsListening(true)
@@ -139,44 +270,49 @@ export default function ConversationPage() {
     }
   }
 
-  const handleScenarioChange = (scenarioId: string) => {
-    const newScenario = scenarios.find((s) => s.id === scenarioId) || scenarios[0]
-    setActiveScenario(newScenario)
-    setLastUserMessage(null)
+  const handleTopicChange = (topicId: string) => {
+    const newTopic = topics.find((t) => t.id === topicId) || topics[0]
+    setActiveTopic(newTopic)
   }
 
   const handleResetConversation = () => {
-    setConversation(activeScenario.conversation)
-    setLastUserMessage(null)
+    setConversation([])
+    setHasStarted(false)
     toast.success("Conversation Reset", {
-      description: "Starting a new conversation for this scenario.",
+      description: "Starting a new conversation for this topic.",
     })
   }
 
   const handleFallbackSubmit = (text: string) => {
-    // Store the user message for display
-    setLastUserMessage(text)
+    if (!hasStarted) {
+      // If conversation hasn't started yet, initialize it first
+      handleStartConversation().then(() => {
+        // Then handle the user input after a delay
+        setTimeout(() => {
+          // Store the user message for display
 
-    // Add user message to conversation
-    const updatedConversation = [...conversation, { role: "user" as const, content: text }]
-    setConversation(updatedConversation)
+          // Add user message to conversation
+          const updatedConversation = [...conversation, { role: "user" as const, content: text }]
+          setConversation(updatedConversation)
 
-    // Generate AI response after a short delay
-    setTimeout(() => {
+          // Bật trạng thái đang chờ phản hồi
+          setIsWaitingForResponse(true);
+
+          // Generate AI response
+          handleGenerateResponse(text)
+        }, 1000)
+      })
+    } else {
+
+      // Add user message to conversation
+      const updatedConversation = [...conversation, { role: "user" as const, content: text }]
+      setConversation(updatedConversation)
+
+      // Bật trạng thái đang chờ phản hồi
+      setIsWaitingForResponse(true);
+
+      // Generate AI response
       handleGenerateResponse(text)
-    }, 1000)
-  }
-
-  const handleRepeatLast = async () => {
-    if (conversation.length > 1) {
-      try {
-        await speak(conversation[conversation.length - 1].content)
-      } catch (err) {
-        setUseFallback(true)
-        toast.error("Speech Synthesis Error", {
-          description: err instanceof Error ? err.message : "Unable to play audio. Text will be displayed instead.",
-        })
-      }
     }
   }
 
@@ -212,25 +348,18 @@ export default function ConversationPage() {
 
   const handleGenerateResponse = async (userInput: string) => {
     // Use the Server Action to generate a response
-    const result = await generateConversationResponse(userInput, activeScenario.id)
+    const result = await generateConversationResponse(userInput, activeTopic.id)
 
-    // Log the response from the server action
-    console.log("Server Action Result:", {
-      action: "generateConversationResponse",
-      input: {
-        userInput,
-        scenarioId: activeScenario.id
-      },
-      result: result,
-      success: result.success,
-      response: result.response,
-      error: result.error
-    });
+    // Tắt trạng thái đang chờ phản hồi
+    setIsWaitingForResponse(false);
 
     if (result.success && result.response) {
       // Add AI response to conversation
       const updatedConversation = [...conversation, { role: "assistant" as const, content: result.response }]
       setConversation(updatedConversation)
+
+      // Đặt lại resetUIState về false sau khi đã reset UI
+      setResetUIState(false);
 
       // Speak the response if not using fallback
       if (!useFallback) {
@@ -259,28 +388,37 @@ export default function ConversationPage() {
         transition={{ duration: 0.5 }}
       >
         <motion.div 
-          className="flex items-center gap-3 mb-8"
+          className="flex items-center justify-between gap-3 mb-8"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <div className="bg-primary p-2 rounded-full relative overflow-hidden">
-            <Mic className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
-            <div className="absolute inset-0">
-              <RippleEffect color="white" />
+          <div className="flex items-center gap-3">
+            <div className="bg-primary p-2 rounded-full relative overflow-hidden">
+              <Mic className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
             </div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Conversation Practice</h1>
           </div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Conversation Practice</h1>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button asChild variant="outline" className="flex items-center gap-2">
+                <Link href="/conversation/topics">
+                  <ListPlus className="h-4 w-4" /> My Topics
+                </Link>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              Manage your custom conversation topics
+            </TooltipContent>
+          </Tooltip>
         </motion.div>
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <ScenarioTabs scenarios={scenarios} activeScenario={activeScenario} onScenarioChange={handleScenarioChange} />
+          <TopicTabs topics={topics} activeTopic={activeTopic} onTopicChange={handleTopicChange} />
         </motion.div>
-
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -290,10 +428,12 @@ export default function ConversationPage() {
             <CardHeader className="pb-3">
               <div className="flex justify-between items-center">
                 <CardTitle>Conversation</CardTitle>
-                <Button variant="outline" size="sm" onClick={handleResetConversation} className="flex items-center gap-1">
-                  <RefreshCw className="h-3 w-3" />
-                  Reset
-                </Button>
+                {hasStarted && (
+                  <Button variant="outline" size="sm" onClick={handleResetConversation} className="flex items-center gap-1">
+                    <RefreshCw className="h-3 w-3" />
+                    Reset
+                  </Button>
+                )}
               </div>
             </CardHeader>
             <CardContent>
@@ -302,21 +442,9 @@ export default function ConversationPage() {
                 isListening={isListening}
                 scrollAreaRef={scrollAreaRef as React.RefObject<HTMLDivElement>}
                 recognizedText={recognizedText}
+                hasStarted={hasStarted}
+                isWaitingForResponse={isWaitingForResponse}
               />
-
-              <AnimatePresence>
-                {audioUrl && lastUserMessage && (
-                  <motion.div 
-                    className="flex justify-end mt-4"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <ReplayButton onReplay={handleReplayRecording} disabled={isSpeaking || isListening} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </CardContent>
             <CardFooter>
               <AnimatePresence mode="wait">
@@ -341,11 +469,14 @@ export default function ConversationPage() {
                     <ConversationControls
                       isListening={isListening}
                       isSpeaking={isSpeaking}
-                      isRecognizing={isRecognizing}
-                      hasConversation={conversation.length > 1}
+                      hasStarted={hasStarted}
+                      recognizedText={recognizedText}
+                      resetUIState={resetUIState}
                       onStartListening={handleStartListening}
                       onStopListening={handleStopListening}
-                      onRepeatLast={handleRepeatLast}
+                      onStartConversation={handleStartConversation}
+                      onSubmitResponse={handleSubmitResponse}
+                      onReplayRecording={handleReplayRecording}
                       getAudioData={audioVisualizerEnabled ? safeGetAudioData : undefined}
                     />
                   </motion.div>

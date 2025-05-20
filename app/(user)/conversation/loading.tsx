@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
 
 export default function ConversationLoading() {
   return (
@@ -12,9 +12,7 @@ export default function ConversationLoading() {
       
       {/* Khung hội thoại */}
       <Card className="min-h-[500px]">
-        <CardHeader>
-          <Skeleton className="h-6 w-1/3" />
-        </CardHeader>
+
         <CardContent className="space-y-4">
           {/* Tin nhắn người dùng và bot */}
           {[1, 2, 3, 4].map((index) => (
