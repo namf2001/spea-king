@@ -59,7 +59,7 @@ export default function TopicForm({
     if (topic) {
       form.reset({
         title: topic.title,
-        description: topic.description,
+        description: topic.description ?? "", // Convert null to empty string
       });
     }
   }, [topic, form]);
@@ -71,41 +71,15 @@ export default function TopicForm({
       let response;
       
       if (isEditMode && topic) {
-        response = await updateConversationTopic(topic.id, data);
+        response = await updateConversationTopic(topic.id, data, userId);
       } else {
         response = await createConversationTopic(userId, data);
       }
 
       if (response.success) {
-        toast.success(response.message || "Success", {
-          description: isEditMode 
-            ? "Topic updated successfully" 
-            : "Topic created successfully. Redirecting..."
-        });
-
-        // Reset the form
-        form.reset();
-
-        // Call onSuccess callback if provided
-        if (onSuccess) {
-          onSuccess();
-        }
-
-        // In create mode, redirect to the topics page after a short delay
-        if (!isEditMode) {
-          router.push("/conversation/topics");
-        }
+        handleSuccess(isEditMode);
       } else {
-        // Handle specific error types
-        if (response.error?.includes("already exists")) {
-          toast.error("Topic already exists", {
-            description: "Please use a different title for this topic"
-          });
-        } else {
-          toast.error("Failed to save topic", {
-            description: response.error || "An unknown error occurred"
-          });
-        }
+        handleError(response.error);
       }
     } catch (error) {
       toast.error("Error submitting form", {
@@ -114,6 +88,46 @@ export default function TopicForm({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Handle successful form submission
+  const handleSuccess = (isEdit: boolean) => {
+    toast.success(isEdit ? "Topic updated successfully" : "Topic created successfully", {
+      description: isEdit 
+        ? "Your changes have been saved" 
+        : "Redirecting to topics page..."
+    });
+
+    // Reset the form
+    form.reset();
+
+    // Call onSuccess callback if provided
+    if (onSuccess) {
+      onSuccess();
+    }
+
+    // In create mode, redirect to the topics page after a short delay
+    if (!isEdit) {
+      router.push("/conversation/topics");
+    }
+  };
+
+  // Handle form submission errors
+  const handleError = (error?: string) => {
+    const errorMessage = "Failed to save topic";
+    const errorDescription = error || "An unknown error occurred";
+    
+    // Display different error message for "already exists" error
+    if (error && error.includes("already exists")) {
+      toast.error("Topic already exists", {
+        description: "Please use a different title for this topic"
+      });
+      return;
+    }
+    
+    toast.error(errorMessage, {
+      description: errorDescription
+    });
   };
 
   return (

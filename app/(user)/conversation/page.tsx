@@ -85,7 +85,7 @@ export default function ConversationPage() {
             const customTopic: Topic = {
               id: response.data.id,
               title: response.data.title,
-              description: response.data.description
+              description: response.data.description || "" // Provide default empty string if null
             };
             
             // Add to topics if not already included

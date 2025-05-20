@@ -276,11 +276,8 @@ export default function ConversationTopicsContent(
           isOpen={isDeleteModalOpen}
           topicId={deletingTopic.id}
           topicTitle={deletingTopic.title}
+          userId={userId}
           onClose={handleCloseDeleteModal}
-          onSuccess={() => {
-            // No additional action needed here as the page will be refreshed 
-            // by the server action revalidation
-          }}
         />
       )}
     </>

@@ -40,13 +40,12 @@ export default function ReflexPage() {
         recognizedText,
         isRecognizing,
         error: recognitionError,
-        audioData
+        
     } = useSpeechRecognition()
 
-    const { speak, isSpeaking, error: synthesisError } = useSpeechSynthesis()
+    const {error: synthesisError } = useSpeechSynthesis()
 
     const {
-        audioUrl,
         startRecording,
         stopRecording,
         getAudioData,

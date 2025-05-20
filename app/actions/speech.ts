@@ -207,7 +207,7 @@ export async function generateConversationResponse(userInput: string, topicId: s
                 
                 if (topic) {
                     topicTitle = topic.title;
-                    topicDescription = topic.description;
+                    topicDescription = topic.description || ""; // Provide default empty string if null
                 }
             } catch (dbError) {
                 console.error("Error fetching topic:", dbError);
@@ -331,7 +331,7 @@ export async function initializeConversation(topicId: string) {
                     
                     if (topic) {
                         topicTitle = topic.title;
-                        topicDescription = topic.description;
+                        topicDescription = topic.description || ""; // Provide default empty string if null
                         prompt = `Start a conversation about ${topicTitle}`;
                     }
                 } catch (dbError) {

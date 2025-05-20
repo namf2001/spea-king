@@ -36,9 +36,8 @@ export async function createConversationTopic(
       },
     })
 
-    // Revalidate the conversation page to show the new topic
-    revalidatePath("/conversation")
-    revalidatePath("/conversation/topics")
+    // Revalidate the entire conversation layout and all nested routes
+    revalidatePath("/conversation", "layout")
 
     return {
       success: true,
@@ -133,17 +132,42 @@ export async function getConversationTopicById(topicId: string) {
  * Server action to update an existing conversation topic
  * @param topicId - The ID of the topic to update
  * @param formData - The updated topic data from the form
+ * @param userId - The ID of the user requesting the update
  * @returns ActionResponse indicating success or failure
  */
 export async function updateConversationTopic(
   topicId: string,
-  formData: z.infer<typeof conversationTopicSchema>
+  formData: z.infer<typeof conversationTopicSchema>,
+  userId: string
 ): Promise<ActionResponse> {
   try {
     // Validate the form data
     const validatedData = conversationTopicSchema.parse(formData)
 
-    // Update the topic
+    // First fetch the topic to verify ownership
+    const topic = await prisma.conversationTopic.findUnique({
+      where: {
+        id: topicId,
+      },
+    });
+
+    // Check if topic exists
+    if (!topic) {
+      return {
+        success: false,
+        error: "Conversation topic not found",
+      };
+    }
+
+    // Check if the user is authorized to update this topic
+    if (topic.userId !== userId) {
+      return {
+        success: false,
+        error: "You are not authorized to update this topic",
+      };
+    }
+
+    // Update the topic once ownership is verified
     const updatedTopic = await prisma.conversationTopic.update({
       where: {
         id: topicId,
@@ -154,10 +178,8 @@ export async function updateConversationTopic(
       },
     })
 
-    // Revalidate the conversation page to show the updated topic
-    revalidatePath("/conversation")
-    revalidatePath("/conversation/topics")
-    revalidatePath(`/conversation/${topicId}`)
+    // Revalidate the entire conversation layout and all nested routes
+    revalidatePath("/conversation", "layout")
 
     return {
       success: true,
@@ -184,22 +206,46 @@ export async function updateConversationTopic(
 /**
  * Server action to delete a conversation topic
  * @param topicId - The ID of the topic to delete
+ * @param userId - The ID of the user requesting deletion
  * @returns ActionResponse indicating success or failure
  */
 export async function deleteConversationTopic(
-  topicId: string
+  topicId: string,
+  userId: string
 ): Promise<ActionResponse> {
   try {
-    // Delete the topic
+    // First fetch the topic to verify ownership
+    const topic = await prisma.conversationTopic.findUnique({
+      where: {
+        id: topicId,
+      },
+    });
+
+    // Check if topic exists
+    if (!topic) {
+      return {
+        success: false,
+        error: "Conversation topic not found",
+      };
+    }
+
+    // Check if the user is authorized to delete this topic
+    if (topic.userId !== userId) {
+      return {
+        success: false,
+        error: "You are not authorized to delete this topic",
+      };
+    }
+
+    // Delete the topic once ownership is verified
     await prisma.conversationTopic.delete({
       where: {
         id: topicId,
       },
-    })
+    });
 
-    // Revalidate the conversation page
-    revalidatePath("/conversation")
-    revalidatePath("/conversation/topics")
+    // Revalidate the entire conversation layout and all nested routes
+    revalidatePath("/conversation", "layout")
 
     return {
       success: true,

@@ -18,29 +18,28 @@ interface DeleteTopicDialogProps {
   isOpen: boolean
   topicId: string
   topicTitle: string
+  userId: string
   onClose: () => void
-  onSuccess: () => void
 }
 
 export default function DeleteTopicDialog({
   isOpen,
   topicId,
   topicTitle,
+  userId,
   onClose,
-  onSuccess
 }: DeleteTopicDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false)
 
   const handleDelete = async () => {
     try {
       setIsDeleting(true)
-      const response = await deleteConversationTopic(topicId)
+      const response = await deleteConversationTopic(topicId, userId)
       
       if (response.success) {
         toast.success("Topic deleted", {
           description: "The conversation topic has been successfully removed"
         })
-        onSuccess()
       } else {
         toast.error("Failed to delete topic", {
           description: response.error || "An unknown error occurred"
