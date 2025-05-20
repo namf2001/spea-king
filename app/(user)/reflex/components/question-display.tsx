@@ -65,7 +65,7 @@ export function QuestionDisplay({
             key={question.id}
             className="mb-8"
         >
-            <Card className="border-2 border-green-100 dark:border-green-900 shadow-md overflow-hidden">
+            <Card className="border-2 border-green-100 dark:border-green-900 shadow-md overflow-hidden pt-0">
                 {/* Thanh thời gian */}
                 <div className="relative h-2 bg-gray-100 dark:bg-gray-800">
                     <motion.div 

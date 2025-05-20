@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition"
 import { useSpeechSynthesis } from "@/hooks/use-speech-synthesis"
 import { useAudioRecorder } from "@/hooks/use-audio-recorder"
-import Link from "next/link"
 import { SpeechFallback } from "@/components/speech-fallback"
 import { questions } from "./data/questions"
 import { QuestionDisplay } from "./components/question-display"
@@ -13,7 +12,7 @@ import { AnswerFeedback } from "./components/answer-feedback"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronLeft, Award, Zap, Clock } from "lucide-react"
+import {  Award, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { RippleEffect } from "@/components/animations/ripple-effect"
 
@@ -31,7 +30,6 @@ export default function ReflexPage() {
     const [useFallback, setUseFallback] = useState(false)
     const [audioVisualizerEnabled, setAudioVisualizerEnabled] = useState(true)
     const [timeRemaining, setTimeRemaining] = useState(45)
-    const [sessionStarted, setSessionStarted] = useState(false)
     const [sessionCompleted, setSessionCompleted] = useState(false)
     const [exerciseResults, setExerciseResults] = useState<ExerciseResult[]>([])
     const [currentResult, setCurrentResult] = useState<ExerciseResult | null>(null)
@@ -118,7 +116,6 @@ export default function ReflexPage() {
 
     // Bắt đầu nghe
     const handleStartListening = async () => {
-        setSessionStarted(true)
         setIsListening(true)
         setTranscript("")
         setTimeRemaining(45)
@@ -265,7 +262,6 @@ export default function ReflexPage() {
         setTranscript("")
         setTimeRemaining(45)
         setCurrentResult(null)
-        setSessionStarted(false)
     }
 
     // Xử lý gửi văn bản từ fallback
@@ -335,43 +331,6 @@ export default function ReflexPage() {
                     </div>
                     <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Luyện tập Phản xạ</h1>
                 </motion.div>
-                {!sessionStarted && !sessionCompleted && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                        className="mb-8"
-                    >
-                        <Card className="mb-8 border-2 shadow-md pt-0">
-                            <CardHeader className="py-4 rounded-t-lg bg-gradient-to-b from-primary/20 to-background">
-                                <CardTitle>Bắt đầu Luyện tập Phản xạ</CardTitle>
-                            </CardHeader>
-                            <CardContent className="pb-2">
-                                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                                    Bạn sẽ được hiển thị một câu hỏi và có 45 giây để trả lời.
-                                    Càng trả lời nhanh và chính xác, điểm của bạn càng cao!
-                                </p>
-                                <div className="p-4 rounded-lg shadow-inner">
-                                    <h3 className="font-medium mb-2">Hướng dẫn</h3>
-                                    <ul className="list-disc pl-5 text-sm space-y-1">
-                                        <li>Nhấn nút "Trả lời" để bắt đầu ghi âm</li>
-                                        <li>Nói rõ ràng vào micrô câu trả lời của bạn</li>
-                                        <li>Bạn có thể dừng lại bất cứ lúc nào hoặc đợi hết 45 giây</li>
-                                        <li>Nhận phản hồi ngay lập tức về độ chính xác của câu trả lời</li>
-                                    </ul>
-                                </div>
-                            </CardContent>
-                            <CardFooter className="pt-2">
-                                <Button
-                                    onClick={() => setSessionStarted(true)}
-                                    className="w-full"
-                                >
-                                    Bắt đầu ngay
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    </motion.div>
-                )}
 
                 {sessionCompleted ? (
                     <motion.div
@@ -432,7 +391,7 @@ export default function ReflexPage() {
                             </CardFooter>
                         </Card>
                     </motion.div>
-                ) : sessionStarted && (
+                ) : (
                     <AnimatePresence mode="wait">
                         <QuestionDisplay
                             key={currentQuestion.id}
@@ -445,7 +404,7 @@ export default function ReflexPage() {
                     </AnimatePresence>
                 )}
 
-                {sessionStarted && !sessionCompleted && (
+                {!sessionCompleted && (
                     <>
                         {useFallback ? (
                             <motion.div

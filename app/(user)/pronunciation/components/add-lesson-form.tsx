@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Plus, Trash2, CheckCircle, Loader2 } from "lucide-react"
+import { Plus, Trash2, CheckCircle, Loader2, Edit } from "lucide-react"
 import { z } from "zod"
 import { nanoid } from "nanoid"
 import { lessonSchema } from "@/schemas/pronunciation"
@@ -17,58 +17,95 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import { createPronunciationLesson } from "@/app/actions/pronunciation"
-import { useState } from "react"
+import { createPronunciationLesson, updatePronunciationLesson } from "@/app/actions/pronunciation"
+import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { PronunciationLesson, PronunciationWord } from "@prisma/client"
 
 type FormValues = z.infer<typeof lessonSchema>
 
-export default function AddLessonForm({ userId, onCancel, onSuccess }: {
+type LessonWithWords = PronunciationLesson & {
+    words: PronunciationWord[]
+}
+
+interface LessonFormProps {
     userId: string,
     onCancel: () => void,
-    onSuccess?: () => void
-}) {
+    onSuccess?: () => void,
+    lesson?: LessonWithWords,
+    mode?: 'create' | 'edit'
+}
+
+// Rename the component to reflect its dual purpose
+export default function LessonForm({ 
+    userId, 
+    onCancel, 
+    onSuccess, 
+    lesson, 
+    mode = 'create' 
+}: LessonFormProps) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const isEditMode = mode === 'edit' && lesson;
 
-    // Initialize form with default values
+    // Initialize form with default values or existing lesson data if in edit mode
     const form = useForm<FormValues>({
         resolver: zodResolver(lessonSchema),
         defaultValues: {
-            title: "",
-            words: [{ id: nanoid(), word: "" }]
+            title: isEditMode ? lesson.title : "",
+            words: isEditMode 
+                ? lesson.words.map(word => ({ id: word.id, word: word.word })) 
+                : [{ id: nanoid(), word: "" }]
         }
-    })
+    });
+    
+    // Update form when lesson changes (important for modal reopening)
+    useEffect(() => {
+        if (isEditMode) {
+            form.reset({
+                title: lesson.title,
+                words: lesson.words.map(word => ({ id: word.id, word: word.word }))
+            });
+        }
+    }, [lesson, isEditMode, form]);
 
     // Function to add a new word field
     const addWord = () => {
-        const currentWords = form.getValues("words") || []
+        const currentWords = form.getValues("words") || [];
         form.setValue("words", [...currentWords, { id: nanoid(), word: "" }], {
             shouldValidate: true
-        })
-    }
+        });
+    };
 
     // Function to remove a word field
     const removeWord = (id: string) => {
-        const currentWords = form.getValues("words") || []
-        if (currentWords.length <= 1) return // Always keep at least one word
+        const currentWords = form.getValues("words") || [];
+        if (currentWords.length <= 1) return; // Always keep at least one word
 
         form.setValue("words",
             currentWords.filter(word => word.id !== id),
             { shouldValidate: true }
-        )
-    }
+        );
+    };
 
-    // Handle form submission
+    // Handle form submission - either create or update based on mode
     const onSubmit = async (data: FormValues) => {
         try {
             setIsSubmitting(true);
-            const response = await createPronunciationLesson(userId, data);
+            let response;
+            
+            if (isEditMode) {
+                response = await updatePronunciationLesson(lesson.id, data);
+            } else {
+                response = await createPronunciationLesson(userId, data);
+            }
 
             if (response.success) {
                 toast.success(response.message, {
-                    description: "Redirecting to lessons page..."
+                    description: isEditMode 
+                        ? "Lesson updated successfully" 
+                        : "Redirecting to lessons page..."
                 });
 
                 // Reset the form
@@ -79,21 +116,21 @@ export default function AddLessonForm({ userId, onCancel, onSuccess }: {
                     onSuccess();
                 }
 
-                // Refresh the page data to show the new lesson
+                // Refresh the page data to show the updated lesson
                 router.refresh();
             } else {
-                toast.error("Failed to create lesson", {
+                toast.error(isEditMode ? "Failed to update lesson" : "Failed to create lesson", {
                     description: response.error || "An unknown error occurred"
                 });
             }
         } catch (error) {
-            toast.error("Error creating lesson", {
+            toast.error(isEditMode ? "Error updating lesson" : "Error creating lesson", {
                 description: error instanceof Error ? error.message : "An unknown error occurred"
             });
         } finally {
             setIsSubmitting(false);
         }
-    }
+    };
 
     return (
         <Form {...form}>
@@ -184,17 +221,26 @@ export default function AddLessonForm({ userId, onCancel, onSuccess }: {
                         {isSubmitting ? (
                             <>
                                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                Saving...
+                                {isEditMode ? 'Updating...' : 'Saving...'}
                             </>
                         ) : (
                             <>
-                                <CheckCircle className="h-4 w-4 mr-2" />
-                                Add Lesson
+                                {isEditMode ? (
+                                    <>
+                                        <Edit className="h-4 w-4 mr-2" />
+                                        Update Lesson
+                                    </>
+                                ) : (
+                                    <>
+                                        <CheckCircle className="h-4 w-4 mr-2" />
+                                        Add Lesson
+                                    </>
+                                )}
                             </>
                         )}
                     </Button>
                 </DialogFooter>
             </form>
         </Form>
-    )
+    );
 }
