@@ -15,7 +15,6 @@ import { Card } from "@/components/ui/card"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
 import { Mic } from "lucide-react"
-import { RippleEffect } from "@/components/animations/ripple-effect"
 import type { PronunciationLesson, PronunciationWord } from "@prisma/client"
 
 interface PronunciationExerciseClientProps {
@@ -268,9 +267,6 @@ export default function PronunciationExerciseClient({ lessons }: PronunciationEx
                 >
                     <div className="bg-primary p-2 rounded-full relative overflow-hidden">
                         <Mic className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
-                        <div className="absolute inset-0">
-                            <RippleEffect color="white" />
-                        </div>
                     </div>
                     <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Pronunciation Practice</h1>
                 </motion.div>
