@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition"
 import { useSpeechSynthesis } from "@/hooks/use-speech-synthesis"
 import { useAudioRecorder } from "@/hooks/use-audio-recorder"
@@ -27,6 +27,7 @@ export default function PronunciationPage() {
     const [details, setDetails] = useState<any>(null)
     const [useFallback, setUseFallback] = useState(false)
     const [audioVisualizerEnabled, setAudioVisualizerEnabled] = useState(true)
+    const evaluationProcessedRef = useRef<boolean>(false)
     const {
         startRecognition,
         stopRecognition,
@@ -76,11 +77,28 @@ export default function PronunciationPage() {
     }, [recordingError])
 
     useEffect(() => {
-        if (recognizedText) {
-            setTranscript(recognizedText)
-            handleEvaluatePronunciation(recognizedText)
+        // Reset the evaluation status when starting a new recognition
+        if (!recognizedText) {
+            evaluationProcessedRef.current = false;
+            return;
         }
-    }, [recognizedText])
+
+        setTranscript(recognizedText);
+
+        // Only evaluate if we haven't already processed this input
+        if (!evaluationProcessedRef.current) {
+            if (audioData) {
+                // Both text and audio are available
+                handleEvaluatePronunciation(recognizedText, audioData);
+                evaluationProcessedRef.current = true;
+            } else if (!isRecognizing) {
+                // Recognition ended but no audio data, fall back to text-only
+                handleEvaluatePronunciation(recognizedText);
+                evaluationProcessedRef.current = true;
+            }
+            // If still recognizing and no audio yet, wait for more data
+        }
+    }, [recognizedText, audioData, isRecognizing]);
 
     const handleStartListening = async () => {
         setIsListening(true)
@@ -88,6 +106,7 @@ export default function PronunciationPage() {
         setScore(null)
         setFeedback("")
         setDetails(null)
+        evaluationProcessedRef.current = false; // Reset evaluation status when starting new listening
         try {
             // Start speech recognition
             await startRecognition()
@@ -146,60 +165,43 @@ export default function PronunciationPage() {
         handleEvaluatePronunciation(text)
     }
 
-    const handleEvaluatePronunciation = async (text: string) => {
+    const handleEvaluatePronunciation = async (text: string, audioData?: Blob) => {
         // Hiển thị trạng thái đang đánh giá
         toast.info("Evaluating pronunciation...");
 
-        // Chuẩn bị dữ liệu để gửi đến server
         try {
-            // Kiểm tra xem có dữ liệu âm thanh không
-            if (!audioData) {
-                console.warn("No audio data available for pronunciation assessment");
-                // Nếu không có dữ liệu âm thanh, sử dụng server action hiện tại
-                const result = await evaluatePronunciation(text, currentExercise.text,);
-                handleEvaluationResult(result);
-                return;
+            let result;
+            
+            if (audioData) {
+                // Create FormData for audio-based evaluation
+                const formData = new FormData();
+                formData.append('audio', audioData, 'recording.wav');
+                formData.append('text', text);
+                formData.append('targetText', currentExercise.text);
+
+                // Call API route for audio-based evaluation
+                const response = await fetch('/api/evaluate-pronunciation', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error ?? `Server error: ${response.status}`);
+                }
+
+                result = await response.json();
+            } else {
+                // Fallback to text-only evaluation
+                result = await evaluatePronunciation(text, currentExercise.text);
             }
 
-            console.log("Audio data available for pronunciation assessment:", {
-                type: audioData.type,
-                size: audioData.size,
-                hasAudio: !!audioData
-            });
-
-            // Chuyển đổi Blob thành FormData và gửi đến API route
-            const formData = new FormData();
-            formData.append('audio', audioData, 'recording.wav');
-            formData.append('text', text);
-            formData.append('targetText', currentExercise.text);
-
-            // Gọi API route để đánh giá phát âm
-            const response = await fetch('/api/evaluate-pronunciation', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error ?? `Server error: ${response.status}`);
-            }
-
-            const result = await response.json();
             handleEvaluationResult(result);
         } catch (err) {
             console.error("Error during pronunciation evaluation:", err);
-
-            // Nếu API gặp lỗi, thử sử dụng server action hiện tại
-            try {
-                toast.warning("Using fallback pronunciation assessment method");
-                const result = await evaluatePronunciation(text, currentExercise.text);
-                handleEvaluationResult(result);
-            } catch (fallbackErr) {
-                console.error("Fallback evaluation also failed:", fallbackErr);
-                toast.error("Evaluation Error", {
-                    description: err instanceof Error ? err.message : "An unexpected error occurred",
-                });
-            }
+            toast.error("Evaluation Error", {
+                description: err instanceof Error ? err.message : "An unexpected error occurred",
+            });
         }
     };
 

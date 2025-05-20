@@ -34,36 +34,49 @@ export function useAudioRecorder() {
 
     // Function to safely clean up all audio resources
     const cleanupResources = async () => {
-        if (mediaRecorderRef.current && state.isRecording) {
-            try {
-                mediaRecorderRef.current.stop()
-            } catch (err) {
-                console.error("Error stopping MediaRecorder:", err)
-            }
-        }
-
-        if (streamRef.current) {
-            streamRef.current.getTracks().forEach((track) => track.stop())
-            streamRef.current = null
-        }
-
-        if (audioContextRef.current && isAudioContextActiveRef.current) {
-            try {
-                if (audioContextRef.current.state !== "closed") {
-                    await audioContextRef.current.close()
+        try {
+            if (mediaRecorderRef.current && state.isRecording) {
+                try {
+                    mediaRecorderRef.current.stop()
+                } catch (err) {
+                    console.error("Error stopping MediaRecorder:", err)
+                    // Don't throw, continue with cleanup
                 }
-            } catch (err) {
-                console.error("Error closing AudioContext:", err)
             }
-            isAudioContextActiveRef.current = false
-        }
 
-        // Revoke object URL if it exists
-        if (state.audioUrl) {
-            URL.revokeObjectURL(state.audioUrl)
-        }
+            if (streamRef.current) {
+                try {
+                    streamRef.current.getTracks().forEach((track) => track.stop())
+                } catch (err) {
+                    console.error("Error stopping media tracks:", err)
+                }
+                streamRef.current = null
+            }
 
-        // Clear references
+            if (audioContextRef.current && isAudioContextActiveRef.current) {
+                try {
+                    if (audioContextRef.current.state !== "closed") {
+                        await audioContextRef.current.close()
+                    }
+                } catch (err) {
+                    console.error("Error closing AudioContext:", err)
+                }
+                isAudioContextActiveRef.current = false
+            }
+
+            // Revoke object URL if it exists
+            if (state.audioUrl) {
+                try {
+                    URL.revokeObjectURL(state.audioUrl)
+                } catch (err) {
+                    console.error("Error revoking URL:", err)
+                }
+            }
+        } catch (err) {
+            console.error("Error in cleanup resources:", err)
+        }
+        
+        // Clear references regardless of errors
         analyserRef.current = null
         dataArrayRef.current = null
         mediaRecorderRef.current = null
@@ -128,23 +141,32 @@ export function useAudioRecorder() {
                 }
 
                 mediaRecorder.onstop = () => {
-                    if (audioChunksRef.current.length === 0) {
+                    try {
+                        if (audioChunksRef.current.length === 0) {
+                            setState((prev) => ({
+                                ...prev,
+                                isRecording: false,
+                            }))
+                            return
+                        }
+
+                        const audioBlob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType || "audio/webm" })
+                        const audioUrl = URL.createObjectURL(audioBlob)
+
                         setState((prev) => ({
                             ...prev,
                             isRecording: false,
+                            audioBlob,
+                            audioUrl,
                         }))
-                        return
+                    } catch (err) {
+                        console.error("Error in mediaRecorder.onstop handler:", err)
+                        setState((prev) => ({
+                            ...prev,
+                            isRecording: false,
+                            error: "Failed to process recording"
+                        }))
                     }
-
-                    const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" })
-                    const audioUrl = URL.createObjectURL(audioBlob)
-
-                    setState((prev) => ({
-                        ...prev,
-                        isRecording: false,
-                        audioBlob,
-                        audioUrl,
-                    }))
                 }
 
                 // Start recording
@@ -178,18 +200,22 @@ export function useAudioRecorder() {
                 mediaRecorderRef.current.stop()
             } catch (err) {
                 console.error("Error stopping MediaRecorder:", err)
+                setState((prev) => ({
+                    ...prev,
+                    isRecording: false,
+                    error: "Failed to stop recording properly",
+                }))
             }
         }
 
-        // Stop the media tracks but keep the AudioContext for visualization
-        // until we're completely done with the recording
+        // Stop the media tracks but don't close the AudioContext yet
+        // We'll wait for mediaRecorder.onstop to complete first
         if (streamRef.current) {
-            streamRef.current.getTracks().forEach((track) => track.stop())
-            streamRef.current = null
-        }
-        if (audioContextRef.current && isAudioContextActiveRef.current) {
-            audioContextRef.current.close().catch(() => { })
-            isAudioContextActiveRef.current = false
+            try {
+                streamRef.current.getTracks().forEach((track) => track.stop())
+            } catch (err) {
+                console.error("Error stopping media tracks:", err)
+            }
         }
     }
 
@@ -208,14 +234,22 @@ export function useAudioRecorder() {
 
     const playRecording = () => {
         if (state.audioUrl) {
-            const audio = new Audio(state.audioUrl)
-            audio.play().catch((err) => {
-                console.error("Error playing audio:", err)
+            try {
+                const audio = new Audio(state.audioUrl)
+                audio.play().catch((err) => {
+                    console.error("Error playing audio:", err)
+                    setState((prev) => ({
+                        ...prev,
+                        error: "Failed to play recording",
+                    }))
+                })
+            } catch (err) {
+                console.error("Error creating Audio element:", err)
                 setState((prev) => ({
                     ...prev,
                     error: "Failed to play recording",
                 }))
-            })
+            }
         }
     }
 
