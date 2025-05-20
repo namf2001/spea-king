@@ -80,7 +80,7 @@ export default function TopicForm({
         toast.success(response.message || "Success", {
           description: isEditMode 
             ? "Topic updated successfully" 
-            : "Redirecting to conversation page..."
+            : "Topic created successfully. Redirecting..."
         });
 
         // Reset the form
@@ -93,14 +93,19 @@ export default function TopicForm({
 
         // In create mode, redirect to the topics page after a short delay
         if (!isEditMode) {
-          setTimeout(() => {
-            router.push("/conversation/topics");
-          }, 1000);
+          router.push("/conversation/topics");
         }
       } else {
-        toast.error("Failed to save topic", {
-          description: response.error || "An unknown error occurred"
-        });
+        // Handle specific error types
+        if (response.error?.includes("already exists")) {
+          toast.error("Topic already exists", {
+            description: "Please use a different title for this topic"
+          });
+        } else {
+          toast.error("Failed to save topic", {
+            description: response.error || "An unknown error occurred"
+          });
+        }
       }
     } catch (error) {
       toast.error("Error submitting form", {
