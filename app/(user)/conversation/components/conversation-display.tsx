@@ -5,15 +5,25 @@ import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import type { RefObject } from "react"
 import type { Message } from "../data/scenarios"
+import { DotLoading } from "@/components/animations"
 
 interface ConversationDisplayProps {
     readonly conversation: Message[]
     readonly isListening: boolean
     readonly scrollAreaRef: RefObject<HTMLDivElement>
     readonly recognizedText?: string
+    readonly hasStarted?: boolean
+    readonly isWaitingForResponse?: boolean // Thêm prop để biết khi nào đang chờ AI trả lời
 }
 
-export function ConversationDisplay({ conversation, isListening, scrollAreaRef, recognizedText }: ConversationDisplayProps) {
+export function ConversationDisplay({ 
+    conversation, 
+    isListening, 
+    scrollAreaRef, 
+    recognizedText, 
+    hasStarted,
+    isWaitingForResponse = false
+}: ConversationDisplayProps) {
     // Kiểm tra xem tin nhắn cuối cùng trong conversation có phải của người dùng không
     const lastMessage = conversation.length > 0 ? conversation[conversation.length - 1] : null;
     const isLastMessageFromUser = lastMessage?.role === "user";
@@ -42,6 +52,23 @@ export function ConversationDisplay({ conversation, isListening, scrollAreaRef, 
                     </motion.div>
                 ))}
 
+                {/* Hiển thị hiệu ứng loading dots khi đang chờ AI trả lời */}
+                {isWaitingForResponse && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="flex mt-4"
+                    >
+                        <DotLoading 
+                            dotColor="#ef9493" 
+                            backgroundColor="#ffffff" 
+                            className="w-fit" 
+                            autoScroll={true} 
+                        />
+                    </motion.div>
+                )}
+
                 {/* Chỉ hiển thị văn bản tạm thời nếu đang lắng nghe và KHÔNG có tin nhắn người dùng ở cuối conversation */}
                 {isListening && recognizedText && !isLastMessageFromUser && (
                     <motion.div
@@ -68,7 +95,7 @@ export function ConversationDisplay({ conversation, isListening, scrollAreaRef, 
                     </div>
                 )}
 
-                {/* Empty state when no messages */}
+                {/* Trạng thái rỗng khi không có tin nhắn */}
                 {conversation.length === 0 && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -77,7 +104,10 @@ export function ConversationDisplay({ conversation, isListening, scrollAreaRef, 
                         className="flex h-32 flex-col items-center justify-center text-center"
                     >
                         <p className="text-sm text-muted-foreground">
-                            Click the microphone button to start the conversation.
+                            {hasStarted 
+                                ? "Nhấn nút microphone để bắt đầu nói."
+                                : "Nhấn nút Bắt đầu Cuộc trò chuyện để bắt đầu."
+                            }
                         </p>
                     </motion.div>
                 )}

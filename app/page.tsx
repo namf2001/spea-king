@@ -3,7 +3,6 @@ import { logo } from "@/assets/image"
 import { world } from "@/assets/animations"
 import { Button } from "@/components/ui/button"
 import { LottieAnimation } from "@/components/animations/lottie-animation"
-import { RippleEffect } from "@/components/animations/ripple-effect"
 import Image from "next/image"
 import { MotivationalQuotesSlider } from "@/components/layout/motivational-quotes-slider"
 
@@ -44,14 +43,6 @@ export default function Home() {
       <div className="flex-1 container mx-auto px-4 flex flex-col md:flex-row items-center justify-center md:justify-between z-10">
         {/* World animation with ripple effect */}
         <div className="w-full max-w-xs md:max-w-md mx-auto md:mx-0 relative">
-          {/* Multiple layered effects behind world */}
-          <div className="absolute inset-0 -m-14 scale-125">
-            <RippleEffect className="w-full h-full" color="cyan" />
-          </div>
-          <div className="absolute inset-0 -m-14 scale-125">
-            <RippleEffect className="w-full h-full" color="blue" />
-          </div>
-
           {/* World animation */}
           <LottieAnimation
             src={world}

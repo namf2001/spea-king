@@ -3,12 +3,15 @@ import { notFound } from "next/navigation"
 import PronunciationExerciseClient from "../components/pronunciation-exercise-client"
 import { auth } from "@/lib/auth"
 
-export default async function PronunciationPage({ params }: { params: { id: string } }) {
+export default async function PronunciationPage(props: { params: Promise<{ id: string }> }) {
     const session = await auth()
     if (!session?.user) {
         return notFound()
     }
-    const response = await getPronunciationLessonById(params.id)
+
+    const params = await props.params
+    const id = params.id;
+    const response = await getPronunciationLessonById(id)
     if (!response.success || !response.data) {
         return notFound()
     }

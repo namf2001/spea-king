@@ -44,18 +44,18 @@ model Session {
 }
 
 model User {
-  id                 String               @id @default(cuid())
-  name               String?
-  email              String?              @unique
-  emailVerified      DateTime?            @map("email_verified")
-  image              String?
-  role               Role                 @default(USER)
-  accounts           Account[]
-  sessions           Session[]
+  id                   String                @id @default(cuid())
+  name                 String?
+  email                String?               @unique
+  emailVerified        DateTime?             @map("email_verified")
+  image                String?
+  role                 Role                  @default(USER)
+  accounts             Account[]
+  sessions             Session[]
   pronunciationLessons PronunciationLesson[]
-  communicationTopics CommunicationTopic[]
-  reflexQuestions    ReflexQuestion[]
-  speakingRecords    UserSpeakingRecord[]
+  reflexQuestions      ReflexQuestion[]
+  speakingRecords      UserSpeakingRecord[]
+  conversationTopics   ConversationTopic[]
 
   @@map("users")
 }
@@ -70,50 +70,38 @@ model VerificationToken {
 }
 
 model PronunciationLesson {
-  id        String         @id @default(cuid())
+  id        String              @id @default(cuid())
   title     String
   userId    String
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   words     PronunciationWord[]
-  createdAt DateTime       @default(now()) @map("created_at")
-  updatedAt DateTime       @updatedAt @map("updated_at")
+  createdAt DateTime            @default(now()) @map("created_at")
+  updatedAt DateTime            @updatedAt @map("updated_at")
 
   @@map("pronunciation_lessons")
 }
 
 model PronunciationWord {
-  id        String             @id @default(cuid())
+  id        String              @id @default(cuid())
   word      String
   lessonId  String
   lesson    PronunciationLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  createdAt DateTime           @default(now()) @map("created_at")
-  updatedAt DateTime           @updatedAt @map("updated_at")
+  createdAt DateTime            @default(now()) @map("created_at")
+  updatedAt DateTime            @updatedAt @map("updated_at")
+
   @@unique([word, lessonId])
   @@index([word])
-  
   @@map("pronunciation_words")
 }
 
-model CommunicationTopic {
-  id        String             @id @default(cuid())
-  title     String
-  userId    String
-  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  speakingRecords UserSpeakingRecord[]
-  createdAt DateTime           @default(now()) @map("created_at")
-  updatedAt DateTime           @updatedAt @map("updated_at")
-
-  @@map("communication_topics")
-}
-
 model ReflexQuestion {
-  id        String             @id @default(cuid())
-  question  String
-  userId    String
-  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String               @id @default(cuid())
+  question        String
+  userId          String
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   speakingRecords UserSpeakingRecord[]
-  createdAt DateTime           @default(now()) @map("created_at")
-  updatedAt DateTime           @updatedAt @map("updated_at")
+  createdAt       DateTime             @default(now()) @map("created_at")
+  updatedAt       DateTime             @updatedAt @map("updated_at")
 
   @@map("reflex_questions")
 }
@@ -122,14 +110,27 @@ model UserSpeakingRecord {
   id                  String             @id @default(cuid())
   userId              String
   user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  communicationTopicId String?
-  communicationTopic  CommunicationTopic? @relation(fields: [communicationTopicId], references: [id], onDelete: SetNull)
+  conversationTopicId String?
+  conversationTopic   ConversationTopic? @relation(fields: [conversationTopicId], references: [id], onDelete: SetNull)
   reflexQuestionId    String?
   reflexQuestion      ReflexQuestion?    @relation(fields: [reflexQuestionId], references: [id], onDelete: SetNull)
   duration            Int                @default(0) // Duration in seconds
   createdAt           DateTime           @default(now()) @map("created_at")
 
   @@map("user_speaking_records")
+}
+
+model ConversationTopic {
+  id              String               @id @default(cuid())
+  title           String
+  description     String?
+  speakingRecords UserSpeakingRecord[]
+  userId          String
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime             @default(now()) @map("created_at")
+  updatedAt       DateTime             @updatedAt @map("updated_at")
+
+  @@map("conversation_topics")
 }
 
 enum Role {
