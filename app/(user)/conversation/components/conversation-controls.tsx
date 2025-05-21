@@ -61,8 +61,6 @@ export function ConversationControls({
         >
           <Button
             onClick={onStartConversation}
-            size="lg"
-            className="w-full sm:max-w-md bg-gradient-to-r from-blue-500 to-blue-600"
           >
             <PlayCircle className="h-5 w-5 mr-2" />
             <span className="font-medium">Start Conversation</span>

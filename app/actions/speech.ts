@@ -183,201 +183,42 @@ export async function evaluatePronunciation(spokenText: string, targetText: stri
     }
 }
 
-// Server Action to generate conversation response
-export async function generateConversationResponse(userInput: string, topicId: string) {
-    try {
-        const API_KEY = process.env.GROQ_API_KEY;
-        const API_ENDPOINT = process.env.GROQ_API_ENDPOINT;
+// Server Action to generate AI response
+export async function generateAIResponse(userInput: string, topicName: string, isInitializing: boolean) {
+    const API_KEY = process.env.GROQ_API_KEY;
+    const API_ENDPOINT = process.env.GROQ_API_ENDPOINT;
 
-        if (!API_KEY || !API_ENDPOINT) {
-            throw new Error("AI service credentials are not configured");
-        }
-
-        // Get topic information from the database if it's a custom topic
-        let topicTitle = "";
-        let topicDescription = "";
-
-        if (topicId && !["restaurant", "interview", "shopping"].includes(topicId)) {
-            // Attempt to fetch the topic from the database
-            try {
-                const { prisma } = await import("@/lib/prisma");
-                const topic = await prisma.conversationTopic.findUnique({
-                    where: { id: topicId }
-                });
-                
-                if (topic) {
-                    topicTitle = topic.title;
-                    topicDescription = topic.description || ""; // Provide default empty string if null
-                }
-            } catch (dbError) {
-                console.error("Error fetching topic:", dbError);
-                // Continue with empty topic info if there was an error
-            }
-        }
-
-        // Prepare context based on topic
-        let systemPrompt = "You are a helpful conversational assistant.";
-        let topicContext = "";
-
-        // Set up specific persona and context based on topic
-        if (topicId === "restaurant") {
-            systemPrompt = "You are a helpful restaurant host. Be polite, friendly, and knowledgeable about the menu. Keep responses under 3 sentences.";
-            topicContext = "The user is at your fine dining restaurant and may ask about reservations, menu options, or other restaurant-related questions.";
-        } 
-        else if (topicId === "interview") {
-            systemPrompt = "You are a job interviewer. Ask professional questions and respond to the candidate's answers. Keep responses under 3 sentences.";
-            topicContext = "You are interviewing the user for a job position. Maintain a professional yet approachable tone.";
-        } 
-        else if (topicId === "shopping") {
-            systemPrompt = "You are a helpful retail sales associate. Assist customers with finding products, sizing, and pricing. Keep responses under 3 sentences.";
-            topicContext = "The user is shopping in your retail store and may ask about products, prices, or store policies.";
-        }
-        else if (topicTitle) {
-            // Custom topic from database
-            systemPrompt = `You are having a conversation about "${topicTitle}". Be helpful, engaging and keep responses under 3 sentences.`;
-            topicContext = topicDescription 
-                ? `Topic description: ${topicDescription}. Engage with the user on this topic.`
-                : `Engage with the user about ${topicTitle}.`;
-        }
-
-        // Create messages for the AI
-        const messages = [
-            {
-                role: "system",
-                content: `${systemPrompt} ${topicContext} Focus on helping the user practice English conversation in this specific context.`
-            },
-            {
-                role: "user",
-                content: userInput
-            }
-        ];
-
-        // Call the Groq API
-        const response = await fetch(API_ENDPOINT, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_KEY}`
-            },
-            body: JSON.stringify({
-                model: "meta-llama/llama-4-scout-17b-16e-instruct", // Using Llama 4 Scout model from Groq
-                messages: messages,
-                max_tokens: 150, // Limiting response length
-                temperature: 0.7 // Slightly creative but mostly focused responses
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`AI API error: ${response.status} ${JSON.stringify(errorData)}`);
-        }
-
-        const data = await response.json();
-        const aiResponse = data.choices[0].message.content;
-        console.log("AI Response:", aiResponse);
-        return {
-            success: true,
-            response: aiResponse,
-        };
-    } catch (error) {
-        console.error("Error generating conversation response:", error);
-        
-        // Fallback to basic responses if AI fails
-        let fallbackResponse = "I'm sorry, I'm having trouble connecting. Could you please repeat that?";
-        
-        return {
-            success: false,
-            response: fallbackResponse,
-            error: error instanceof Error ? error.message : "Failed to generate response",
-        };
+    if (!API_KEY || !API_ENDPOINT) {
+        throw new Error("AI service credentials are not configured");
     }
-}
 
-// Server Action to initialize a conversation
-export async function initializeConversation(topicId: string) {
+    // Get topic information
+    const topicTitle = topicName || "English Conversation";
+    let prompt = isInitializing ? "Start a conversation with the user" : userInput;
+    // Create simple conversation context
+    let systemPrompt = `You are having a conversation about "${topicTitle}". Be helpful, engaging and keep responses under 3 sentences.`;
+    let topicContext = `Engage with the user about ${topicTitle}.`;
+    if (isInitializing) {
+        prompt = `Start a conversation about ${topicTitle}`;
+    }
+    // Create messages for the AI
+    const systemContent = isInitializing
+        ? `${systemPrompt} ${topicContext} You are starting a new conversation with the user. Provide a friendly greeting and a question to start the conversation. Keep it under 3 sentences.`
+        : `${systemPrompt} ${topicContext} Focus on helping the user practice English conversation in this specific context.`;
+    const messages = [
+        {
+            role: "system",
+            content: systemContent
+        },
+        {
+            role: "user",
+            content: prompt
+
+        }
+    ];
+    // Call the Groq API
     try {
-        const API_KEY = process.env.GROQ_API_KEY;
-        const API_ENDPOINT = process.env.GROQ_API_ENDPOINT;
-
-        if (!API_KEY || !API_ENDPOINT) {
-            throw new Error("AI service credentials are not configured");
-        }
-
-        // Get topic information from the database if it's a custom topic
-        let topicTitle = "";
-        let topicDescription = "";
-        let prompt = "Start a conversation with the user";
-
-        if (topicId) {
-            if (topicId === "restaurant") {
-                topicTitle = "At a Restaurant";
-                prompt = "Start a conversation as a restaurant host greeting a customer";
-            } 
-            else if (topicId === "interview") {
-                topicTitle = "Job Interview";
-                prompt = "Start a conversation as a job interviewer greeting a candidate";
-            } 
-            else if (topicId === "shopping") {
-                topicTitle = "Shopping";
-                prompt = "Start a conversation as a retail associate greeting a customer";
-            }
-            else {
-                // Custom topic from database
-                try {
-                    const { prisma } = await import("@/lib/prisma");
-                    const topic = await prisma.conversationTopic.findUnique({
-                        where: { id: topicId }
-                    });
-                    
-                    if (topic) {
-                        topicTitle = topic.title;
-                        topicDescription = topic.description || ""; // Provide default empty string if null
-                        prompt = `Start a conversation about ${topicTitle}`;
-                    }
-                } catch (dbError) {
-                    console.error("Error fetching topic:", dbError);
-                }
-            }
-        }
-
-        // Prepare context based on topic
-        let systemPrompt = "You are a helpful conversational assistant.";
-        let topicContext = "";
-
-        // Set up specific persona and context based on topic
-        if (topicId === "restaurant") {
-            systemPrompt = "You are a helpful restaurant host. Be polite, friendly, and knowledgeable about the menu. Keep responses under 3 sentences.";
-            topicContext = "The user is at your fine dining restaurant and may ask about reservations, menu options, or other restaurant-related questions.";
-        } 
-        else if (topicId === "interview") {
-            systemPrompt = "You are a job interviewer. Ask professional questions and respond to the candidate's answers. Keep responses under 3 sentences.";
-            topicContext = "You are interviewing the user for a job position. Maintain a professional yet approachable tone.";
-        } 
-        else if (topicId === "shopping") {
-            systemPrompt = "You are a helpful retail sales associate. Assist customers with finding products, sizing, and pricing. Keep responses under 3 sentences.";
-            topicContext = "The user is shopping in your retail store and may ask about products, prices, or store policies.";
-        }
-        else if (topicTitle) {
-            // Custom topic from database
-            systemPrompt = `You are having a conversation about "${topicTitle}". Be helpful, engaging and keep responses under 3 sentences.`;
-            topicContext = topicDescription 
-                ? `Topic description: ${topicDescription}. Engage with the user on this topic.`
-                : `Engage with the user about ${topicTitle}.`;
-        }
-
-        // Create messages for the AI to generate an initial greeting
-        const messages = [
-            {
-                role: "system",
-                content: `${systemPrompt} ${topicContext} You are starting a new conversation with the user. Provide a friendly greeting and a question to start the conversation. Keep it under 3 sentences.`
-            },
-            {
-                role: "user",
-                content: prompt
-            }
-        ];
-
-        // Call the Groq API
+        console.log("Sending request to AI API with messages:", messages);
         const response = await fetch(API_ENDPOINT, {
             method: 'POST',
             headers: {
@@ -385,43 +226,36 @@ export async function initializeConversation(topicId: string) {
                 'Authorization': `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
-                model: "meta-llama/llama-4-scout-17b-16e-instruct", // Using Llama 4 Scout model from Groq
+                model: "meta-llama/llama-4-scout-17b-16e-instruct",
                 messages: messages,
-                max_tokens: 150, // Limiting response length
-                temperature: 0.7 // Slightly creative but mostly focused responses
+                max_tokens: 150,
+                temperature: 0.7
             })
         });
-
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(`AI API error: ${response.status} ${JSON.stringify(errorData)}`);
         }
-
         const data = await response.json();
         const aiResponse = data.choices[0].message.content;
-        console.log("Initial AI Response:", aiResponse);
+        console.log(`${isInitializing ? "Initial" : ""} AI Response:`, aiResponse);
         return {
             success: true,
             response: aiResponse,
         };
     } catch (error) {
-        console.error("Error initializing conversation:", error);
-        
-        // Fallback responses based on topic
-        let fallbackResponse = "Hello! How can I help you today?";
-        
-        if (topicId === "restaurant") {
-            fallbackResponse = "Welcome to our restaurant! How can I assist you today?";
-        } else if (topicId === "interview") {
-            fallbackResponse = "Thanks for coming in today. Could you tell me a bit about yourself?";
-        } else if (topicId === "shopping") {
-            fallbackResponse = "Welcome to our store! What are you looking for today?";
+        console.error(`Error ${isInitializing ? "initializing" : "generating"} conversation:`, error);
+        // Fallback responses
+        let fallbackResponse = "I'm sorry, I'm having trouble connecting. Could you please repeat that?";
+        // Simpler fallback for initialization
+        if (isInitializing) {
+            fallbackResponse = "Hello! How can I help you today?";
         }
-        
+        const operationType = isInitializing ? "initialize" : "generate";
         return {
             success: false,
             response: fallbackResponse,
-            error: error instanceof Error ? error.message : "Failed to initialize conversation",
+            error: error instanceof Error ? error.message : `Failed to ${operationType} conversation`,
         };
     }
 }

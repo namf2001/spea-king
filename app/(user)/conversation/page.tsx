@@ -12,11 +12,9 @@ import { defaultTopics } from "./data/topics"
 import { TopicTabs } from "./components/topic-tabs"
 import { ConversationDisplay } from "./components/conversation-display"
 import { ConversationControls } from "./components/conversation-controls"
-import { generateConversationResponse, initializeConversation } from "@/app/actions/speech"
-import { getConversationTopicById } from "@/app/actions/conversation"
+import { generateAIResponse } from "@/app/actions/speech"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
-import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
@@ -31,14 +29,6 @@ interface Topic {
   description: string
 }
 
-// Helper function for adding custom topic to state
-const addCustomTopicToList = (
-  prevTopics: Topic[], 
-  customTopic: Topic
-): Topic[] => {
-  const exists = prevTopics.some(t => t.id === customTopic.id);
-  return exists ? prevTopics : [...prevTopics, customTopic];
-};
 
 export default function ConversationPage() {
   const [topics, setTopics] = useState<Topic[]>(defaultTopics)
@@ -48,11 +38,8 @@ export default function ConversationPage() {
   const [useFallback, setUseFallback] = useState(false)
   const [audioVisualizerEnabled, setAudioVisualizerEnabled] = useState(true)
   const [hasStarted, setHasStarted] = useState(false)
-  // Trạng thái để biết khi nào đang chờ AI trả lời
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false)
-  // Thêm state mới để theo dõi khi nào nên reset UI về trạng thái nút microphone
   const [resetUIState, setResetUIState] = useState(false)
-  const searchParams = useSearchParams()
   
   const {
     startRecognition,
@@ -70,44 +57,6 @@ export default function ConversationPage() {
     error: recordingError,
   } = useAudioRecorder()
   const scrollAreaRef = useRef<HTMLDivElement>(null)
-
-  // Load custom topic if specified in URL
-  useEffect(() => {
-    const topicId = searchParams.get('topic');
-    
-    if (topicId && !defaultTopics.some(t => t.id === topicId)) {
-      const loadCustomTopic = async () => {
-        try {
-          const response = await getConversationTopicById(topicId);
-          
-          if (response.success && response.data) {
-            // Convert the DB topic to the expected format
-            const customTopic: Topic = {
-              id: response.data.id,
-              title: response.data.title,
-              description: response.data.description || "" // Provide default empty string if null
-            };
-            
-            // Add to topics if not already included
-            setTopics(prev => addCustomTopicToList(prev, customTopic));
-            
-            // Set as active topic
-            setActiveTopic(customTopic);
-          } else {
-            toast.error("Failed to load topic", {
-              description: response.error || "Topic not found"
-            });
-          }
-        } catch (err) {
-          toast.error("Error loading topic", {
-            description: err instanceof Error ? err.message : "An unexpected error occurred"
-          });
-        } 
-      }
-      
-      loadCustomTopic()
-    }
-  }, [searchParams])
 
   // Check for errors and enable fallback if needed
   useEffect(() => {
@@ -148,8 +97,6 @@ export default function ConversationPage() {
 
   useEffect(() => {
     if (recognizedText && isListening) {
-      // When we're listening continuously, update the recognized text display
-      // but don't submit automatically
       const lastMessage = conversation[conversation.length - 1];
       if (lastMessage && lastMessage.role === "user") {
         const updatedConversation = [...conversation.slice(0, -1), { 
@@ -158,8 +105,6 @@ export default function ConversationPage() {
         }];
         setConversation(updatedConversation);
       } else {
-        // Only add a new user message if there's no user message at the end
-        // This is just for displaying what's being recognized
         setConversation([...conversation, { 
           role: "user" as const, 
           content: recognizedText 
@@ -171,18 +116,15 @@ export default function ConversationPage() {
   // Handler for the start conversation button
   const handleStartConversation = async () => {
     try {
-      const result = await initializeConversation(activeTopic.id);
+      const result = await generateAIResponse("", activeTopic.title, true)
       
       if (result.success && result.response) {
-        // Add AI greeting to conversation
         setConversation([{ 
           role: "assistant" as const, 
           content: result.response
         }]);
         
         setHasStarted(true);
-        
-        // Speak the greeting if not using fallback
         if (!useFallback) {
           try {
             await speak(result.response);
@@ -208,46 +150,30 @@ export default function ConversationPage() {
   // Handler for submitting recognized speech
   const handleSubmitResponse = () => {
     if (!recognizedText) return;
-    
-    // Store the user message for display
     const currentText = recognizedText;
-    
-    // Stop listening
     handleStopListening();
-    
-    // Add user message to conversation
     const updatedConversation = [...conversation, { 
       role: "user" as const, 
       content: currentText 
     }];
     setConversation(updatedConversation);
-    
-    // Bật trạng thái đang chờ phản hồi
     setIsWaitingForResponse(true);
-    
-    // Đặt resetUIState thành true
     setResetUIState(true);
-    
-    // Generate AI response with a small delay
-    setTimeout(() => {
-      handleGenerateResponse(currentText);
-    }, 500);
+    handleGenerateResponse(currentText);
   };
 
   const handleStartListening = async () => {
     setIsListening(true)
     try {
-      // Start speech recognition
       await startRecognition()
-
-      // Try to start audio recording for visualization and replay
       try {
         await startRecording()
       } catch (err) {
         console.error("Failed to start audio recording:", err)
         setAudioVisualizerEnabled(false)
-        // Don't show error toast here, just disable the visualizer
-        // We can still continue with speech recognition
+        toast.error("Audio Recording Error", {
+          description: "Failed to start audio recording. Please check your microphone settings.",
+        })
       }
     } catch (err) {
       setIsListening(false)
@@ -262,7 +188,6 @@ export default function ConversationPage() {
     setIsListening(false)
     stopRecognition()
 
-    // Try to stop recording, but don't fail if it errors
     try {
       stopRecording()
     } catch (err) {
@@ -285,33 +210,16 @@ export default function ConversationPage() {
 
   const handleFallbackSubmit = (text: string) => {
     if (!hasStarted) {
-      // If conversation hasn't started yet, initialize it first
       handleStartConversation().then(() => {
-        // Then handle the user input after a delay
-        setTimeout(() => {
-          // Store the user message for display
-
-          // Add user message to conversation
           const updatedConversation = [...conversation, { role: "user" as const, content: text }]
           setConversation(updatedConversation)
-
-          // Bật trạng thái đang chờ phản hồi
           setIsWaitingForResponse(true);
-
-          // Generate AI response
           handleGenerateResponse(text)
-        }, 1000)
       })
     } else {
-
-      // Add user message to conversation
       const updatedConversation = [...conversation, { role: "user" as const, content: text }]
       setConversation(updatedConversation)
-
-      // Bật trạng thái đang chờ phản hồi
       setIsWaitingForResponse(true);
-
-      // Generate AI response
       handleGenerateResponse(text)
     }
   }
@@ -347,21 +255,13 @@ export default function ConversationPage() {
   }
 
   const handleGenerateResponse = async (userInput: string) => {
-    // Use the Server Action to generate a response
-    const result = await generateConversationResponse(userInput, activeTopic.id)
-
-    // Tắt trạng thái đang chờ phản hồi
+    const result = await generateAIResponse(userInput, activeTopic.title, false)
     setIsWaitingForResponse(false);
 
     if (result.success && result.response) {
-      // Add AI response to conversation
       const updatedConversation = [...conversation, { role: "assistant" as const, content: result.response }]
       setConversation(updatedConversation)
-
-      // Đặt lại resetUIState về false sau khi đã reset UI
       setResetUIState(false);
-
-      // Speak the response if not using fallback
       if (!useFallback) {
         try {
           await speak(result.response)
