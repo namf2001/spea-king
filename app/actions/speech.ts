@@ -259,3 +259,67 @@ export async function generateAIResponse(userInput: string, topicName: string, i
         };
     }
 }
+
+export async function suggestUserResponse(AIquestion: string, topicName: string) {
+    const API_KEY = process.env.GROQ_API_KEY;
+    const API_ENDPOINT = process.env.GROQ_API_ENDPOINT;
+
+    if (!API_KEY || !API_ENDPOINT) {
+        throw new Error("AI service credentials are not configured");
+    }
+
+    // Get topic information
+    const topicTitle = topicName || "English Conversation";
+    let prompt = AIquestion;
+    // Create simple conversation context
+    let systemPrompt = `You are having a conversation about "${topicTitle}". Be helpful, engaging and keep responses under 3 sentences.`;
+    let topicContext = `Engage with the user about ${topicTitle}.`;
+    // Create messages for the AI
+    const systemContent = `${systemPrompt} ${topicContext} Provide a response to the user's input.`;
+    const messages = [
+        {
+            role: "system",
+            content: systemContent
+        },
+        {
+            role: "user",
+            content: prompt
+
+        }
+    ];
+    // Call the Groq API
+    try {
+        console.log("Sending request to AI API with messages:", messages);
+        const response = await fetch(API_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "meta-llama/llama-4-scout-17b-16e-instruct",
+                messages: messages,
+                max_tokens: 150,
+                temperature: 0.7
+            })
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`AI API error: ${response.status} ${JSON.stringify(errorData)}`);
+        }
+        const data = await response.json();
+        const aiResponse = data.choices[0].message.content;
+        console.log(`User Response Suggestion:`, aiResponse);
+        return {
+            success: true,
+            response: aiResponse,
+        };
+    } catch (error) {
+        console.error(`Error generating user response suggestion:`, error);
+        return {
+            success: false,
+            response: "I'm sorry, I'm having trouble connecting. Could you please repeat that?",
+            error: error instanceof Error ? error.message : "Failed to generate user response suggestion",
+        };
+    }
+}       
