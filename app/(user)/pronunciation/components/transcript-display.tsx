@@ -1,8 +1,10 @@
+"use client"
+
 import { motion } from "framer-motion"
 import { Mic } from "lucide-react"
 
 interface TranscriptDisplayProps {
-    readonly transcript: string
+    transcript: string
 }
 
 export function TranscriptDisplay({ transcript }: TranscriptDisplayProps) {
@@ -28,19 +30,19 @@ export function TranscriptDisplay({ transcript }: TranscriptDisplayProps) {
                 <div className="flex flex-wrap gap-2 py-1">
                     {words.map((word, index) => (
                         <motion.span
-                            key={`${word}-${index}`}
-                            initial={{ opacity: 0, y: 5 }}
+                            key={index}
+                            className="text-lg font-medium"
+                            initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.03, duration: 0.3 }}
-                            className="text-lg"
+                            transition={{ 
+                                delay: index * 0.05,
+                                ease: "easeOut"
+                            }}
                         >
                             {word}
                         </motion.span>
                     ))}
                 </div>
-                {words.length === 0 && (
-                    <p className="text-gray-400 dark:text-gray-500 italic">Your spoken text will appear here...</p>
-                )}
             </motion.div>
         </motion.div>
     )

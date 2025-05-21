@@ -1,6 +1,6 @@
 import { getPronunciationLessonById } from "@/app/actions/pronunciation"
 import { notFound } from "next/navigation"
-import PronunciationExerciseClient from "../components/pronunciation-exercise-client"
+import PronunciationClient from "../components/pronunciation-client"
 import { auth } from "@/lib/auth"
 
 export default async function PronunciationPage(props: { params: Promise<{ id: string }> }) {
@@ -15,7 +15,12 @@ export default async function PronunciationPage(props: { params: Promise<{ id: s
     if (!response.success || !response.data) {
         return notFound()
     }
+    
     const lessons = [response.data]
     
-    return <PronunciationExerciseClient lessons={lessons} />
+    return <PronunciationClient 
+        lessons={lessons}
+        userId={session.user.id} 
+        error={response.success ? undefined : response.error}
+    />
 }

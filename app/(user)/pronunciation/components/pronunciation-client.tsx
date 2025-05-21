@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { useSpeechRecognition } from "@/hooks/use-speech-recognition"
+import { usePronunciationAssessment } from "@/hooks/use-pronunciation-assessment"
 import { useSpeechSynthesis } from "@/hooks/use-speech-synthesis"
 import { useAudioRecorder } from "@/hooks/use-audio-recorder"
 import { SpeechFallback } from "@/components/speech-fallback"
@@ -9,7 +9,6 @@ import { ExerciseDisplay } from "./exercise-display"
 import { ExerciseControls } from "./exercise-controls"
 import { TranscriptDisplay } from "./transcript-display"
 import { FeedbackDisplay } from "./feedback-display"
-import { evaluatePronunciation } from "@/app/actions/speech"
 import { ReplayButton } from "@/components/replay-button"
 import { Card } from "@/components/ui/card"
 import { toast } from "sonner"
@@ -17,29 +16,36 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Mic } from "lucide-react"
 import type { PronunciationLesson, PronunciationWord } from "@prisma/client"
 
-interface PronunciationExerciseClientProps {
+interface PronunciationClientProps {
     lessons: (PronunciationLesson & {
         words: PronunciationWord[]
     })[];
+    userId: string;
+    error?: string;
 }
 
-export default function PronunciationExerciseClient({ lessons }: PronunciationExerciseClientProps) {
+export default function PronunciationClient({ lessons, userId, error }: PronunciationClientProps) {
+    // State
     const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
-    const [isListening, setIsListening] = useState(false)
+    const [isAssessing, setIsAssessing] = useState(false)
     const [transcript, setTranscript] = useState("")
-    const [score, setScore] = useState<number | null>(null)
-    const [feedback, setFeedback] = useState("")
-    const [details, setDetails] = useState<any>(null)
+    const [results, setResults] = useState<any>(null)
     const [useFallback, setUseFallback] = useState(false)
     const [audioVisualizerEnabled, setAudioVisualizerEnabled] = useState(true)
-    const evaluationProcessedRef = useRef<boolean>(false)
+    
+    // Refs
+    const assessmentProcessedRef = useRef<boolean>(false)
+    
+    // Hooks
     const {
         startRecognition,
         stopRecognition,
-        recognizedText,
-        isRecognizing,
-        error: recognitionError,
-    } = useSpeechRecognition()
+        results: pronunciationResults,
+        error: assessmentError,
+        resetResults,
+        isProcessingResult,
+    } = usePronunciationAssessment()
+    
     const { speak, isSpeaking, error: synthesisError } = useSpeechSynthesis()
     const {
         audioUrl,
@@ -50,18 +56,19 @@ export default function PronunciationExerciseClient({ lessons }: PronunciationEx
         error: recordingError,
     } = useAudioRecorder()
 
+    // Current exercise and its text
     const currentExercise = lessons[currentExerciseIndex]
     const exerciseText = currentExercise?.words.map(word => word.word).join(" ")
-
+    
     // Display errors as toasts
     useEffect(() => {
-        if (recognitionError) {
+        if (assessmentError) {
             toast.error("Speech Recognition Error", {
-                description: recognitionError,
+                description: assessmentError.message || "An error occurred with speech recognition",
             })
             setUseFallback(true)
         }
-    }, [recognitionError])
+    }, [assessmentError])
 
     useEffect(() => {
         if (synthesisError) {
@@ -81,34 +88,33 @@ export default function PronunciationExerciseClient({ lessons }: PronunciationEx
         }
     }, [recordingError])
 
+    // Process pronunciation assessment results when they arrive
     useEffect(() => {
-        // Reset the evaluation status when starting a new recognition
-        if (!recognizedText) {
-            evaluationProcessedRef.current = false;
-            return;
+        if (pronunciationResults && !assessmentProcessedRef.current) {
+            setResults(pronunciationResults)
+            setTranscript(pronunciationResults.words.map((w: any) => w.word).join(" "))
+            assessmentProcessedRef.current = true
+            
+            // Show toast with score
+            toast.success("Assessment completed", {
+                description: `Your overall score: ${pronunciationResults.pronunciationScore}%`
+            })
+            
+            console.log("Pronunciation assessment completed:", pronunciationResults)
         }
+    }, [pronunciationResults])
 
-        setTranscript(recognizedText);
-
-        // Only evaluate if we haven't already processed this input
-        if (!evaluationProcessedRef.current) {
-            // Both text and audio are available
-            handleEvaluatePronunciation(recognizedText);
-            evaluationProcessedRef.current = true;
-        }
-    }, [recognizedText, isRecognizing]);
-
-    const handleStartListening = async () => {
-        setIsListening(true)
+    const handleStartAssessment = async () => {
+        setIsAssessing(true)
         setTranscript("")
-        setScore(null)
-        setFeedback("")
-        setDetails(null)
-        evaluationProcessedRef.current = false; // Reset evaluation status when starting new listening
+        setResults(null)
+        resetResults()
+        assessmentProcessedRef.current = false
+        
         try {
-            // Start speech recognition
-            await startRecognition()
-
+            // Start pronunciation assessment
+            await startRecognition(exerciseText)
+            
             // Try to start audio recording for visualization and replay
             try {
                 await startRecording()
@@ -117,26 +123,26 @@ export default function PronunciationExerciseClient({ lessons }: PronunciationEx
                 setAudioVisualizerEnabled(false)
             }
         } catch (err) {
-            setIsListening(false)
+            setIsAssessing(false)
             setUseFallback(true)
             toast.error("Error", {
                 description: err instanceof Error ? err.message : "Failed to start speech recognition",
             })
         }
     }
-
-    const handleStopListening = () => {
-        setIsListening(false)
+    
+    const handleStopAssessment = () => {
+        setIsAssessing(false)
         stopRecognition()
-
-        // Try to stop recording, but don't fail if it errors
+        
+        // Stop recording
         try {
             stopRecording()
         } catch (err) {
             console.error("Error stopping recording:", err)
         }
     }
-
+    
     const handlePlayExample = async () => {
         try {
             await speak(exerciseText)
@@ -147,67 +153,23 @@ export default function PronunciationExerciseClient({ lessons }: PronunciationEx
             })
         }
     }
-
+    
     const handleNextExercise = () => {
         setCurrentExerciseIndex((prev) => (prev + 1) % lessons.length)
         setTranscript("")
-        setScore(null)
-        setFeedback("")
-        setDetails(null)
+        setResults(null)
+        resetResults()
+        assessmentProcessedRef.current = false
     }
-
+    
     const handleFallbackSubmit = (text: string) => {
         setTranscript(text)
-        handleEvaluatePronunciation(text)
+        // In a real implementation, you would process this with an API
+        toast.info("Fallback mode", {
+            description: "Text submitted for evaluation. This is a fallback mode with limited features."
+        })
     }
-
-    const handleEvaluatePronunciation = async (text: string) => {
-        try {
-            const result = await evaluatePronunciation(text, exerciseText);
-            handleEvaluationResult(result);
-        } catch (err) {
-            console.error("Error during pronunciation evaluation:", err);
-            toast.error("Evaluation Error", {
-                description: err instanceof Error ? err.message : "An unexpected error occurred",
-            });
-        }
-    };
-
-    // Handle evaluation result
-    interface EvaluationResult {
-        success: boolean;
-        score?: number;
-        feedback?: string;
-        details?: any;
-        error?: string;
-    }
-
-    const handleEvaluationResult = (result: EvaluationResult) => {
-        console.log("Pronunciation Evaluation Result:", {
-            success: result.success,
-            score: result.score,
-            feedback: result.feedback,
-            hasDetails: !!result.details
-        });
-
-        if (result.success && result.score !== undefined && result.feedback) {
-            setScore(result.score);
-            setFeedback(result.feedback);
-
-            if (result.details) {
-                setDetails(result.details);
-            }
-
-            toast.success("Pronunciation evaluated", {
-                description: `Your score: ${result.score}%`
-            });
-        } else {
-            toast.error("Evaluation Error", {
-                description: result.error ?? "Failed to evaluate pronunciation",
-            });
-        }
-    }
-
+    
     const handleReplayRecording = () => {
         if (audioUrl) {
             try {
@@ -224,11 +186,11 @@ export default function PronunciationExerciseClient({ lessons }: PronunciationEx
             })
         }
     }
-
-    // Safe wrapper for getAudioData to prevent errors from propagating
+    
+    // Safe wrapper for getAudioData to prevent errors
     const safeGetAudioData = () => {
         if (!audioVisualizerEnabled) return null
-
+        
         try {
             return getAudioData()
         } catch (err) {
@@ -237,7 +199,7 @@ export default function PronunciationExerciseClient({ lessons }: PronunciationEx
             return null
         }
     }
-
+    
     if (!currentExercise || lessons.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-12">
@@ -250,7 +212,7 @@ export default function PronunciationExerciseClient({ lessons }: PronunciationEx
             </div>
         )
     }
-
+    
     return (
         <div className="container mx-auto px-4 py-12">
             <motion.div
@@ -265,11 +227,31 @@ export default function PronunciationExerciseClient({ lessons }: PronunciationEx
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                 >
-                    <div className="bg-primary p-2 rounded-full relative overflow-hidden">
-                        <Mic className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
+                    <div className="flex items-center gap-2">
+                        <div className="bg-primary p-2 rounded-full relative overflow-hidden">
+                            <motion.div
+                                className="absolute inset-0 bg-primary-foreground/20"
+                                animate={{ 
+                                    scale: [1, 1.5, 1],
+                                    opacity: [0, 0.3, 0]
+                                }}
+                                transition={{ 
+                                    repeat: Infinity, 
+                                    duration: 2,
+                                    ease: "easeInOut" 
+                                }}
+                            />
+                            <Mic className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
+                        </div>
+                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold flex items-center gap-2">
+                            Pronunciation Practice
+                            <span className="text-sm font-normal bg-primary/20 text-primary px-2 py-0.5 rounded-full">
+                                Advanced Mode
+                            </span>
+                        </h1>
                     </div>
-                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Pronunciation Practice</h1>
                 </motion.div>
+                
                 <AnimatePresence mode="wait">
                     <ExerciseDisplay
                         exercise={currentExercise}
@@ -277,6 +259,7 @@ export default function PronunciationExerciseClient({ lessons }: PronunciationEx
                         totalExercises={lessons.length}
                     />
                 </AnimatePresence>
+                
                 {useFallback ? (
                     <motion.div
                         className="mb-8"
@@ -297,16 +280,17 @@ export default function PronunciationExerciseClient({ lessons }: PronunciationEx
                     </motion.div>
                 ) : (
                     <ExerciseControls
-                        isListening={isListening}
+                        isAssessing={isAssessing}
                         isSpeaking={isSpeaking}
-                        isRecognizing={isRecognizing}
-                        onStartListening={handleStartListening}
-                        onStopListening={handleStopListening}
+                        isProcessing={isProcessingResult}
+                        onStartAssessment={handleStartAssessment}
+                        onStopAssessment={handleStopAssessment}
                         onPlayExample={handlePlayExample}
                         onNextExercise={handleNextExercise}
                         getAudioData={audioVisualizerEnabled ? safeGetAudioData : undefined}
                     />
                 )}
+                
                 <AnimatePresence>
                     {transcript && (
                         <motion.div
@@ -317,7 +301,7 @@ export default function PronunciationExerciseClient({ lessons }: PronunciationEx
                             transition={{ duration: 0.4 }}
                         >
                             <TranscriptDisplay transcript={transcript} />
-
+                            
                             {audioUrl && (
                                 <motion.div
                                     className="flex justify-center mb-6"
@@ -337,9 +321,9 @@ export default function PronunciationExerciseClient({ lessons }: PronunciationEx
                         </motion.div>
                     )}
                 </AnimatePresence>
-
+                
                 <AnimatePresence>
-                    {score !== null && <FeedbackDisplay score={score} feedback={feedback} details={details} />}
+                    {results && <FeedbackDisplay results={results} />}
                 </AnimatePresence>
             </motion.div>
         </div>

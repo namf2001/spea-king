@@ -29,7 +29,7 @@ export function ConversationDisplay({
     const isLastMessageFromUser = lastMessage?.role === "user";
 
     return (
-        <ScrollArea className="h-[400px] pr-4" ref={scrollAreaRef as any} data-testid="conversation-display">
+        <ScrollArea className="h-[350px] pr-4" ref={scrollAreaRef as any} data-testid="conversation-display">
             <div className="space-y-4 pb-4">
                 {conversation.map((message, index) => (
                     <motion.div
