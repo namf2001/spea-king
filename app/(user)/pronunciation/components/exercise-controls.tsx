@@ -7,49 +7,49 @@ import { AudioVisualizer } from "@/components/audio-visualizer"
 import { useState, useEffect } from "react"
 
 interface ExerciseControlsProps {
-    readonly isListening: boolean
+    readonly isAssessing: boolean
     readonly isSpeaking: boolean
-    readonly isRecognizing: boolean
-    readonly onStartListening: () => Promise<void>
-    readonly onStopListening: () => void
+    readonly isProcessing: boolean
+    readonly onStartAssessment: () => Promise<void>
+    readonly onStopAssessment: () => void
     readonly onPlayExample: () => Promise<void>
     readonly onNextExercise: () => void
     readonly getAudioData?: () => Uint8Array | null
 }
 
 export function ExerciseControls({
-    isListening,
+    isAssessing,
     isSpeaking,
-    isRecognizing,
-    onStartListening,
-    onStopListening,
+    isProcessing,
+    onStartAssessment,
+    onStopAssessment,
     onPlayExample,
     onNextExercise,
     getAudioData,
 }: ExerciseControlsProps) {
-    const [recordingTime, setRecordingTime] = useState(0);
+    const [recordingTime, setRecordingTime] = useState(0)
 
     // Recording timer
     useEffect(() => {
-        let interval: NodeJS.Timeout;
+        let interval: NodeJS.Timeout
 
-        if (isListening) {
-            setRecordingTime(0);
+        if (isAssessing) {
+            setRecordingTime(0)
             interval = setInterval(() => {
-                setRecordingTime(prev => prev + 1);
-            }, 1000);
+                setRecordingTime(prev => prev + 1)
+            }, 1000)
         }
 
         return () => {
-            if (interval) clearInterval(interval);
-        };
-    }, [isListening]);
+            if (interval) clearInterval(interval)
+        }
+    }, [isAssessing])
 
     const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-    };
+        const mins = Math.floor(seconds / 60)
+        const secs = seconds % 60
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`
+    }
 
     return (
         <div className="mb-10">
@@ -59,7 +59,7 @@ export function ExerciseControls({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
             >
-                {isListening && getAudioData && (
+                {isAssessing && getAudioData && (
                     <motion.div
                         className="w-full mb-6"
                         initial={{ opacity: 0, height: 0 }}
@@ -78,7 +78,7 @@ export function ExerciseControls({
                         <div className="relative">
                             <AudioVisualizer
                                 getAudioData={getAudioData}
-                                isActive={isListening}
+                                isActive={isAssessing}
                                 height={60}
                                 barColor="#ed9392"
                                 backgroundColor="rgba(248, 250, 252, 0.8)"
@@ -103,7 +103,7 @@ export function ExerciseControls({
                                 onClick={onPlayExample}
                                 variant="secondary"
                                 disabled={isSpeaking}
-                                className="w-full"
+                                className="w-full relative overflow-hidden"
                             >
                                 <div className="relative z-10 flex items-center gap-2">
                                     {isSpeaking
@@ -122,8 +122,9 @@ export function ExerciseControls({
                             </Button>
                         </motion.div>
                     </AnimatePresence>
+                    
                     <AnimatePresence mode="wait">
-                        {isListening ? (
+                        {isAssessing ? (
                             <motion.div
                                 key="stop-recording"
                                 initial={{ scale: 0.9, opacity: 0 }}
@@ -132,12 +133,13 @@ export function ExerciseControls({
                                 className="flex justify-center w-full sm:w-auto"
                             >
                                 <Button
-                                    onClick={onStopListening}
-                                    variant="secondary"
+                                    onClick={onStopAssessment}
+                                    variant="destructive"
+                                    disabled={isProcessing}
                                     className="w-full"
                                 >
-                                    <VolumeX className="h-5 w-5" />
-                                    <span className="font-medium">Stop</span>
+                                    <VolumeX className="h-5 w-5 mr-2" />
+                                    <span className="font-medium">{isProcessing ? "Processing..." : "Stop"}</span>
                                 </Button>
                             </motion.div>
                         ) : (
@@ -149,16 +151,17 @@ export function ExerciseControls({
                                 className="flex justify-center w-full sm:w-auto"
                             >
                                 <Button
-                                    onClick={onStartListening}
-                                    disabled={isRecognizing}
-                                    className="w-full"
+                                    onClick={onStartAssessment}
+                                    disabled={isProcessing}
+                                    className="w-full bg-gradient-to-r from-primary to-primary/90"
                                 >
-                                    <Mic className="h-5 w-5" />
-                                    <span className="font-medium">{isRecognizing ? "Listening..." : "Record"}</span>
+                                    <Mic className="h-5 w-5 mr-2" />
+                                    <span className="font-medium">Start Assessment</span>
                                 </Button>
                             </motion.div>
                         )}
                     </AnimatePresence>
+                    
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -170,7 +173,7 @@ export function ExerciseControls({
                             variant="secondary"
                             className="w-full"
                         >
-                            <SkipForward className="h-5 w-5" />
+                            <SkipForward className="h-5 w-5 mr-2" />
                             <span>Next</span>
                         </Button>
                     </motion.div>
