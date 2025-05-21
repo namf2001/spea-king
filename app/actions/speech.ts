@@ -183,7 +183,6 @@ export async function evaluatePronunciation(spokenText: string, targetText: stri
     }
 }
 
-// Server Action to generate AI response
 export async function generateAIResponse(userInput: string, topicName: string, isInitializing: boolean) {
     const API_KEY = process.env.GROQ_API_KEY;
     const API_ENDPOINT = process.env.GROQ_API_ENDPOINT;
@@ -192,19 +191,19 @@ export async function generateAIResponse(userInput: string, topicName: string, i
         throw new Error("AI service credentials are not configured");
     }
 
-    // Get topic information
-    const topicTitle = topicName || "English Conversation";
-    let prompt = isInitializing ? "Start a conversation with the user" : userInput;
-    // Create simple conversation context
-    let systemPrompt = `You are having a conversation about "${topicTitle}". Be helpful, engaging and keep responses under 3 sentences.`;
-    let topicContext = `Engage with the user about ${topicTitle}.`;
-    if (isInitializing) {
-        prompt = `Start a conversation about ${topicTitle}`;
-    }
-    // Create messages for the AI
+    const topicTitle = topicName || "General Topics";
+
+    const prompt = isInitializing
+        ? `Act like an IELTS Speaking examiner. Start the interview with a natural IELTS-style question related to the topic: "${topicTitle}". Keep the question clear, relevant, and similar in style to Part 1 or Part 3 of the IELTS Speaking test.`
+        : userInput;
+
     const systemContent = isInitializing
-        ? `${systemPrompt} ${topicContext} You are starting a new conversation with the user. Provide a friendly greeting and a question to start the conversation. Keep it under 3 sentences.`
-        : `${systemPrompt} ${topicContext} Focus on helping the user practice English conversation in this specific context.`;
+        ? `You are acting as an IELTS Speaking examiner. Your job is to begin an IELTS Speaking conversation with the candidate. 
+Ask 1 clear, natural, and relevant IELTS-style question related to the topic "${topicTitle}". 
+Do not add greetings or explanations — just ask the question like in a real IELTS interview.`
+        : `You are continuing an IELTS-style conversation with a candidate about "${topicTitle}". 
+Give natural, relevant follow-ups. Avoid long responses. Ask short, clear IELTS-style questions when appropriate.`;
+
     const messages = [
         {
             role: "system",
@@ -213,10 +212,9 @@ export async function generateAIResponse(userInput: string, topicName: string, i
         {
             role: "user",
             content: prompt
-
         }
     ];
-    // Call the Groq API
+
     try {
         console.log("Sending request to AI API with messages:", messages);
         const response = await fetch(API_ENDPOINT, {
@@ -232,26 +230,29 @@ export async function generateAIResponse(userInput: string, topicName: string, i
                 temperature: 0.7
             })
         });
+
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(`AI API error: ${response.status} ${JSON.stringify(errorData)}`);
         }
+
         const data = await response.json();
         const aiResponse = data.choices[0].message.content;
         console.log(`${isInitializing ? "Initial" : ""} AI Response:`, aiResponse);
+
         return {
             success: true,
             response: aiResponse,
         };
     } catch (error) {
         console.error(`Error ${isInitializing ? "initializing" : "generating"} conversation:`, error);
-        // Fallback responses
-        let fallbackResponse = "I'm sorry, I'm having trouble connecting. Could you please repeat that?";
-        // Simpler fallback for initialization
-        if (isInitializing) {
-            fallbackResponse = "Hello! How can I help you today?";
-        }
+
+        const fallbackResponse = isInitializing
+            ? "Let's start with a simple question: What do you usually do in your free time?"
+            : "I'm sorry, I'm having trouble connecting. Could you please repeat that?";
+
         const operationType = isInitializing ? "initialize" : "generate";
+
         return {
             success: false,
             response: fallbackResponse,
@@ -260,7 +261,9 @@ export async function generateAIResponse(userInput: string, topicName: string, i
     }
 }
 
-export async function suggestUserResponse(AIquestion: string, topicName: string) {
+
+// suggestUserResponse is used to generate a user response suggestion based on the AI's question
+export async function suggestUserResponse(AIquestion: string, topicName: string, ieltsLevel: string = "4.0") {
     const API_KEY = process.env.GROQ_API_KEY;
     const API_ENDPOINT = process.env.GROQ_API_ENDPOINT;
 
@@ -268,14 +271,22 @@ export async function suggestUserResponse(AIquestion: string, topicName: string)
         throw new Error("AI service credentials are not configured");
     }
 
-    // Get topic information
+    // Validate IELTS level input
+    const validLevels = ["4.0", "5.0", "6.0", "6.5", "7.0", "7.5", "8.0", "9.0"];
+    const level = validLevels.includes(ieltsLevel) ? ieltsLevel : "6.0";
+
     const topicTitle = topicName || "English Conversation";
-    let prompt = AIquestion;
-    // Create simple conversation context
-    let systemPrompt = `You are having a conversation about "${topicTitle}". Be helpful, engaging and keep responses under 3 sentences.`;
-    let topicContext = `Engage with the user about ${topicTitle}.`;
-    // Create messages for the AI
-    const systemContent = `${systemPrompt} ${topicContext} Provide a response to the user's input.`;
+    const prompt = AIquestion;
+
+    const systemPrompt = `You are helping a learner improve their English speaking. 
+Respond with a short and natural sentence that this learner could say in a conversation. 
+Make sure the language, grammar, and vocabulary match an IELTS level of ${level}. 
+Keep it under 3 sentences, and do not respond with another question.`;
+
+    const topicContext = `The conversation topic is: "${topicTitle}".`;
+
+    const systemContent = `${systemPrompt} ${topicContext}`;
+
     const messages = [
         {
             role: "system",
@@ -284,10 +295,9 @@ export async function suggestUserResponse(AIquestion: string, topicName: string)
         {
             role: "user",
             content: prompt
-
         }
     ];
-    // Call the Groq API
+
     try {
         console.log("Sending request to AI API with messages:", messages);
         const response = await fetch(API_ENDPOINT, {
@@ -303,13 +313,16 @@ export async function suggestUserResponse(AIquestion: string, topicName: string)
                 temperature: 0.7
             })
         });
+
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(`AI API error: ${response.status} ${JSON.stringify(errorData)}`);
         }
+
         const data = await response.json();
         const aiResponse = data.choices[0].message.content;
         console.log(`User Response Suggestion:`, aiResponse);
+
         return {
             success: true,
             response: aiResponse,
@@ -322,4 +335,4 @@ export async function suggestUserResponse(AIquestion: string, topicName: string)
             error: error instanceof Error ? error.message : "Failed to generate user response suggestion",
         };
     }
-}       
+}
