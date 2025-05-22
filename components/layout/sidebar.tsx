@@ -6,7 +6,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Award, BarChart2, Home, MessageSquare, Mic, MoreHorizontal, ShoppingBag, User } from "lucide-react"
+import { Award, MessageSquare, Mic, MoreHorizontal, User, Zap } from "lucide-react"
 import { motion } from "framer-motion"
 import { logo } from "@/assets/image"
 
@@ -52,39 +52,27 @@ export function AppSidebar() {
 
   const navigation: NavigationItem[] = [
     {
-      label: "HỌC",
-      href: "/",
-      icon: <Home className="h-6 w-6" />,
-      iconColor: "text-primary",
-    },
-    {
       label: "PHÁT ÂM",
       href: "/pronunciation",
       icon: <Mic className="h-6 w-6" />,
       iconColor: "text-primary",
     },
     {
-      label: "LUYỆN TẬP",
+      label: "PHẢN XẠ",
       href: "/reflex",
-      icon: <BarChart2 className="h-6 w-6" />,
+      icon: <Zap className="h-6 w-6" />,
       iconColor: "text-primary",
     },
     {
-      label: "BẢNG XẾP HẠNG",
-      href: "/progress",
-      icon: <Award className="h-6 w-6" />,
-      iconColor: "text-primary",
-    },
-    {
-      label: "NHIỆM VỤ",
+      label: "GIAO TIẾP",
       href: "/conversation",
       icon: <MessageSquare className="h-6 w-6" />,
       iconColor: "text-primary",
     },
     {
-      label: "CỬA HÀNG",
-      href: "/store",
-      icon: <ShoppingBag className="h-6 w-6" />,
+      label: "THỐNG KÊ",
+      href: "/progress",
+      icon: <Award className="h-6 w-6" />,
       iconColor: "text-primary",
     },
     {

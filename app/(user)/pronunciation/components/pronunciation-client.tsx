@@ -27,6 +27,7 @@ interface PronunciationClientProps {
 export default function PronunciationClient({ lessons, userId, error }: PronunciationClientProps) {
     // State
     const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
+    const [currentWordIndex, setCurrentWordIndex] = useState(0)
     const [isAssessing, setIsAssessing] = useState(false)
     const [transcript, setTranscript] = useState("")
     const [results, setResults] = useState<any>(null)
@@ -56,9 +57,9 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
         error: recordingError,
     } = useAudioRecorder()
 
-    // Current exercise and its text
+    // Current exercise and its current word
     const currentExercise = lessons[currentExerciseIndex]
-    const exerciseText = currentExercise?.words.map(word => word.word).join(" ")
+    const currentWord = currentExercise?.words[currentWordIndex]?.word || ""
     
     // Display errors as toasts
     useEffect(() => {
@@ -112,8 +113,8 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
         assessmentProcessedRef.current = false
         
         try {
-            // Start pronunciation assessment
-            await startRecognition(exerciseText)
+            // Start pronunciation assessment for the current word
+            await startRecognition(currentWord)
             
             // Try to start audio recording for visualization and replay
             try {
@@ -145,7 +146,8 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
     
     const handlePlayExample = async () => {
         try {
-            await speak(exerciseText)
+            // Play only the current word
+            await speak(currentWord)
         } catch (err) {
             setUseFallback(true)
             toast.error("Error", {
@@ -155,11 +157,21 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
     }
     
     const handleNextExercise = () => {
-        setCurrentExerciseIndex((prev) => (prev + 1) % lessons.length)
+        // Reset transcript and results
         setTranscript("")
         setResults(null)
         resetResults()
         assessmentProcessedRef.current = false
+        
+        // Move to the next word in the current exercise
+        if (currentWordIndex < currentExercise.words.length - 1) {
+            // There are more words in this exercise
+            setCurrentWordIndex(currentWordIndex + 1)
+        } else {
+            // This was the last word, move to the next exercise
+            setCurrentWordIndex(0)
+            setCurrentExerciseIndex((prev) => (prev + 1) % lessons.length)
+        }
     }
     
     const handleFallbackSubmit = (text: string) => {
@@ -257,6 +269,7 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
                         exercise={currentExercise}
                         currentIndex={currentExerciseIndex}
                         totalExercises={lessons.length}
+                        currentWordIndex={currentWordIndex}
                     />
                 </AnimatePresence>
                 
