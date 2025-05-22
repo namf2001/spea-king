@@ -7,9 +7,10 @@ import { AlertCircle, ChevronDown, ChevronRight, Volume, Music, PenTool } from "
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
+import { PronunciationAssessmentResult } from "@/types/speech"
 
 interface FeedbackDisplayProps {
-    results: any;
+    results: PronunciationAssessmentResult;
 }
 
 export function FeedbackDisplay({ results }: FeedbackDisplayProps) {

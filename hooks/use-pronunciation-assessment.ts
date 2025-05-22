@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import * as SpeechSDK from "microsoft-cognitiveservices-speech-sdk"
 import type { PronunciationAssessmentResult } from "@/types/speech"
+import { getSpeechToken } from "@/app/actions/speech"
 
 // Define types for word and syllable objects to avoid implicit 'any'
 interface WordData {
@@ -52,32 +53,38 @@ export function usePronunciationAssessment() {
   const [error, setError] = useState<Error | null>(null)
   const [isProcessingResult, setIsProcessingResult] = useState(false)
 
-  // Use refs to track if we're waiting for results
   const resultReceivedRef = useRef(false)
   const stopRequestedRef = useRef(false)
 
-  // Initialize the Speech SDK
   useEffect(() => {
-    try {
-      const speechKey = process.env.NEXT_PUBLIC_SPEECH_KEY
-      const speechRegion = process.env.NEXT_PUBLIC_SPEECH_REGION
+    // Use the server action to get a token instead of using environment variables directly
+    const initializeSpeechConfig = async () => {
+      try {
+        const result = await getSpeechToken()
+        
+        if (!result.success || !result.token || !result.region) {
+          throw new Error(result.error ?? "Speech SDK credentials are not configured")
+        }
 
-      if (!speechKey || !speechRegion) {
-        throw new Error("Speech SDK credentials are not configured")
+        // Create the speech config using the token (not the actual API key)
+        const config = SpeechSDK.SpeechConfig.fromAuthorizationToken(result.token, result.region)
+        config.speechRecognitionLanguage = "en-US"
+
+        // Enable detailed output format for pronunciation assessment
+        config.outputFormat = SpeechSDK.OutputFormat.Detailed
+
+        setSpeechConfig(config)
+        setIsInitialized(true)
+      } catch (err) {
+        console.error("Failed to initialize Speech SDK:", err)
+        setError(err instanceof Error ? err : new Error(String(err)))
       }
+    }
 
-      const config = SpeechSDK.SpeechConfig.fromSubscription(speechKey, speechRegion)
-      config.speechRecognitionLanguage = "en-US"
-
-      // Enable detailed output format for pronunciation assessment
-      config.outputFormat = SpeechSDK.OutputFormat.Detailed
-
-      setSpeechConfig(config)
-      setIsInitialized(true)
-    } catch (err) {
+    initializeSpeechConfig().catch(err => {
       console.error("Failed to initialize Speech SDK:", err)
       setError(err instanceof Error ? err : new Error(String(err)))
-    }
+    })
 
     return () => {
       if (recognizer) {
