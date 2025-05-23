@@ -60,69 +60,6 @@ export function ReflexControls({
         return `${mins}:${secs < 10 ? '0' : ''}${secs}`
     }
 
-    const renderControlButton = () => {
-        if (isCountingDown) {
-            return (
-                <motion.div
-                    key="countdown"
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.8, opacity: 0 }}
-                    className="flex flex-col items-center justify-center gap-2"
-                >
-                    <div className="text-4xl font-bold text-primary">
-                        {countdown}
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                        Preparing to answer...
-                    </p>
-                </motion.div>
-            );
-        }
-
-        if (isListening) {
-            return (
-                <motion.div
-                    key="stop-button"
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.9, opacity: 0 }}
-                    className="flex justify-center w-full sm:w-auto"
-                >
-                    <Button 
-                        onClick={onStopListening} 
-                        variant="destructive" 
-                        size="lg"
-                        className="flex items-center gap-2 h-14 px-6 relative pulse-animation rounded-xl shadow-md w-full sm:w-auto bg-destructive hover:bg-destructive/90"
-                    >
-                        <StopCircle className="h-5 w-5" />
-                        <span className="font-medium">Stop</span>
-                    </Button>
-                </motion.div>
-            );
-        }
-
-        return (
-            <motion.div
-                key="start-button"
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="flex justify-center w-full sm:w-auto"
-            >
-                <Button
-                    onClick={handlePrepareStartListening}
-                    variant="default"
-                    disabled={isRecognizing || disabled}
-                    className="bg-primary hover:bg-primary/90"
-                >
-                    <Mic className="h-5 w-5" />
-                    <span className="font-medium">{isRecognizing ? "Listening..." : "Answer"}</span>
-                </Button>
-            </motion.div>
-        );
-    };
-
     return (
         <div className="mb-10">
             <motion.div 
@@ -172,7 +109,7 @@ export function ReflexControls({
                                 exit={{ scale: 0.8, opacity: 0 }}
                                 className="flex flex-col items-center justify-center gap-2"
                             >
-                                <div className="text-4xl font-bold text-green-600 dark:text-green-400">
+                                <div className="text-4xl font-bold text-primary">
                                     {countdown}
                                 </div>
                                 <p className="text-gray-500 dark:text-gray-400 text-sm">
@@ -211,7 +148,7 @@ export function ReflexControls({
                             >
                                 <Button
                                     onClick={handlePrepareStartListening}
-                                    disabled={isRecognizing || disabled}
+                                    disabled={isRecognizing}
                                 >
                                     <Mic className="h-5 w-5" />
                                     <span className="font-medium">{isRecognizing ? "Đang nghe..." : "Trả lời"}</span>

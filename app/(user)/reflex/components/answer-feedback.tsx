@@ -4,18 +4,11 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
 import { Sparkles } from "lucide-react"
-import { generateAnswerSuggestion } from "@/app/actions/reflex"
-import { toast } from "sonner"
 
 interface AnswerFeedbackProps {
     readonly transcript: string
     readonly targetAnswerText: string
-    readonly isActive: boolean
-    readonly onManualAnswerSubmit?: (answer: string) => void
-    readonly allowManualInput?: boolean
 }
 
 interface WordMatch {
@@ -27,15 +20,9 @@ interface WordMatch {
 export function AnswerFeedback({
     transcript,
     targetAnswerText,
-    isActive,
-    onManualAnswerSubmit,
-    allowManualInput = false
 }: AnswerFeedbackProps) {
     const [analyzedWords, setAnalyzedWords] = useState<WordMatch[]>([])
     const [accuracy, setAccuracy] = useState(0)
-    const [manualAnswer, setManualAnswer] = useState("")
-    const [suggestedAnswer, setSuggestedAnswer] = useState("")
-    const [isGenerating, setIsGenerating] = useState(false)
 
     // Get the appropriate badge variant based on accuracy
     const getAccuracyBadgeVariant = (score: number) => {
@@ -95,52 +82,6 @@ export function AnswerFeedback({
         setAccuracy(calculatedAccuracy)
     }, [transcript, targetAnswerText])
 
-    // Hàm tạo gợi ý câu trả lời từ AI
-    const handleGetSuggestion = async () => {
-        if (isGenerating) return
-        
-        setIsGenerating(true)
-        try {
-            const result = await generateAnswerSuggestion(targetAnswerText.split('[')[0].trim())
-            
-            if (result.success && result.data.suggestion) {
-                setSuggestedAnswer(result.data.suggestion)
-            } else {
-                toast.error("Không thể tạo gợi ý")
-            }
-        } catch (error) {
-            console.error("Lỗi khi tạo gợi ý:", error)
-            toast.error("Không thể tạo gợi ý câu trả lời")
-        } finally {
-            setIsGenerating(false)
-        }
-    }
-    
-    // Hàm gửi câu trả lời thủ công
-    const handleSubmitManualAnswer = () => {
-        if (!manualAnswer.trim()) {
-            toast.error("Vui lòng nhập câu trả lời của bạn")
-            return
-        }
-        
-        if (onManualAnswerSubmit) {
-            onManualAnswerSubmit(manualAnswer)
-            setManualAnswer("") // Xóa sau khi gửi
-        }
-    }
-    
-    // Sử dụng câu trả lời được gợi ý
-    const handleUseSuggestion = () => {
-        if (!suggestedAnswer) {
-            toast.error("Không có gợi ý nào")
-            return
-        }
-        
-        if (onManualAnswerSubmit) {
-            onManualAnswerSubmit(suggestedAnswer)
-        }
-    }
-
     // Hàm tính khoảng cách Levenshtein (độ tương tự giữa các chuỗi)
     const calculateLevenshteinDistance = (a: string, b: string): number => {
         const matrix = Array(a.length + 1).fill(null).map(() => Array(b.length + 1).fill(null))
@@ -167,11 +108,6 @@ export function AnswerFeedback({
         return matrix[a.length][b.length]
     }
 
-    // Nếu không có dữ liệu hoặc chỉ cho phép nhập thủ công, xử lý phù hợp
-    if ((!transcript || analyzedWords.length === 0) && !allowManualInput) {
-        return null
-    }
-
     const containerVariants = {
         hidden: { opacity: 0, y: 20 },
         visible: { opacity: 1, y: 0 }
@@ -189,18 +125,18 @@ export function AnswerFeedback({
             animate="visible"
             className="mb-10"
         >
-            <Card className="border-2">
-                <CardHeader className="bg-gradient-to-b from-primary/5 to-background">
+            <Card className="border-2 py-0 gap-0">
+                <CardHeader className="rounded-lg bg-gradient-to-b from-primary/20 to-background p-6">
                     <CardTitle className="flex items-center gap-2">
                         <Sparkles className="h-4 w-4 text-primary" />
                         Answer Feedback
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-6 pb-2">
+                <CardContent className="pb-6">
                     <div className="space-y-4">
                         <motion.div
                             variants={itemVariants}
-                            className="p-4 rounded-lg border bg-gradient-to-t from-primary/5 to-background"
+                            className="rounded-lg border bg-gradient-to-t from-primary/5 to-background"
                         >
                             <div className="flex items-center justify-between mb-2">
                                 <h3 className="text-sm font-medium text-primary">Your Answer</h3>
@@ -217,9 +153,9 @@ export function AnswerFeedback({
                                         key={`${wordMatch.word}-${index}`}
                                         className={`
                                             inline-block px-1 rounded
-                                            ${wordMatch.status === 'correct' ? 'bg-primary/10 text-primary' : 
+                                            ${wordMatch.status === 'correct' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 
                                             wordMatch.status === 'partial' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300' : 
-                                            'bg-destructive/10 text-destructive'}
+                                            'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'}
                                         `}
                                     >
                                         {wordMatch.word}
@@ -227,40 +163,6 @@ export function AnswerFeedback({
                                 ))}
                             </div>
                         </motion.div>
-
-                        <motion.div
-                            variants={itemVariants}
-                            className="p-4 rounded-lg border bg-gradient-to-t from-primary/5 to-background"
-                        >
-                            <div className="flex items-center gap-2 mb-2">
-                                <h3 className="text-sm font-medium text-primary">Expected Answer</h3>
-                            </div>
-                            <p className="text-sm text-muted-foreground">{targetAnswerText}</p>
-                        </motion.div>
-
-                        {allowManualInput && (
-                            <motion.div
-                                variants={itemVariants}
-                                className="mt-4"
-                            >
-                                <Textarea
-                                    placeholder="Type your answer here..."
-                                    value={manualAnswer}
-                                    onChange={(e) => setManualAnswer(e.target.value)}
-                                    className="min-h-[100px] mb-4"
-                                />
-                                <div className="flex justify-end gap-2">
-                                    <Button
-                                        variant="outline"
-                                        onClick={handleSubmitManualAnswer}
-                                        disabled={!manualAnswer.trim()}
-                                        className="hover:bg-primary/10 hover:text-primary"
-                                    >
-                                        Submit Answer
-                                    </Button>
-                                </div>
-                            </motion.div>
-                        )}
                     </div>
                 </CardContent>
             </Card>

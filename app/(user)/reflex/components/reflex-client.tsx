@@ -8,32 +8,22 @@ import { questions as defaultQuestions } from "../data/questions"
 import { QuestionDisplay } from "./question-display"
 import { ReflexControls } from "./reflex-controls"
 import { AnswerFeedback } from "./answer-feedback"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
-import { MicOff, Keyboard, BrainCircuit, ListPlus } from "lucide-react"
-import { Switch } from "@/components/ui/switch"
+import { BrainCircuit, ListPlus, X, PenSquare, InfoIcon } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import Link from "next/link"
-
+import { ReflexQuestion } from "@prisma/client"
 interface ExerciseResult {
     questionId: string | number
     accuracy: number
     responseTime: number
     date: string
-}
-
-// ReflexQuestion interface to match the database schema
-interface ReflexQuestion {
-    id: string
-    question: string
-    answer: string
-    suggestedAnswer: string | null
-    createdAt: Date
-    updatedAt: Date
 }
 
 interface ReflexClientProps {
@@ -44,13 +34,14 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
     const [isListening, setIsListening] = useState(false)
     const [transcript, setTranscript] = useState("")
-    const [useFallback, setUseFallback] = useState(false)
     const [audioVisualizerEnabled, setAudioVisualizerEnabled] = useState(true)
     const [timeRemaining, setTimeRemaining] = useState(45)
     const [currentResult, setCurrentResult] = useState<ExerciseResult | null>(null)
     const [responseStartTime, setResponseStartTime] = useState<number | null>(null)
-    const [useManualInput, setUseManualInput] = useState(false)
-    const [manualAnswer, setManualAnswer] = useState("")
+    const [customQuestion, setCustomQuestion] = useState("")
+    const [customAnswer, setCustomAnswer] = useState("")
+    const [isCustomMode, setIsCustomMode] = useState(false)
+    const [showCustomForm, setShowCustomForm] = useState(false)
 
     const {
         startRecognition,
@@ -69,10 +60,16 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
         error: recordingError,
     } = useAudioRecorder()
 
-    // Get the current question - either from userQuestions or defaultQuestions
-    const currentQuestion = userQuestions.length > 0
-        ? userQuestions[currentQuestionIndex % userQuestions.length]
-        : defaultQuestions[currentQuestionIndex % defaultQuestions.length]
+    // Get the current question - either custom question, userQuestions or defaultQuestions
+    const currentQuestion = isCustomMode && customQuestion ?
+        {
+            id: "custom",
+            question: customQuestion,
+            answer: customAnswer || "No sample answer provided"
+        } :
+        userQuestions.length > 0
+            ? userQuestions[currentQuestionIndex % userQuestions.length]
+            : defaultQuestions[currentQuestionIndex % defaultQuestions.length]
 
     // Handle speech recognition errors
     useEffect(() => {
@@ -80,7 +77,6 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
             toast.error("Lỗi nhận dạng giọng nói", {
                 description: recognitionError,
             })
-            setUseFallback(true)
         }
     }, [recognitionError])
 
@@ -90,7 +86,6 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
             toast.error("Lỗi tổng hợp giọng nói", {
                 description: synthesisError,
             })
-            setUseFallback(true)
         }
     }, [synthesisError])
 
@@ -139,15 +134,9 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
         setTimeRemaining(45)
         setResponseStartTime(Date.now())
 
-        // Skip speech recognition if manual input mode
-        if (useManualInput) {
-            return
-        }
-
         try {
             // Start speech recognition
             await startRecognition()
-
             // Try to start recording for visualization
             try {
                 await startRecording()
@@ -157,7 +146,6 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
             }
         } catch (err) {
             setIsListening(false)
-            setUseFallback(true)
             toast.error("Lỗi", {
                 description: err instanceof Error ? err.message : "Không thể bắt đầu nhận dạng giọng nói",
             })
@@ -173,7 +161,7 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
         stopRecording()
 
         // Calculate results
-        if (responseStartTime && !useManualInput) {
+        if (responseStartTime) {
             const responseTime = (Date.now() - responseStartTime) / 1000 // chuyển đổi thành giây
 
             // Lấy độ chính xác từ phân tích văn bản
@@ -195,32 +183,16 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
         }
     }
 
-    // Handle manual answer submission
-    const handleManualAnswerSubmit = (answer: string) => {
-        // Tính toán độ chính xác với câu trả lời thủ công
-        const calculatedAccuracy = calculateAccuracy(answer, currentQuestion.answer)
-
-        const responseTime = responseStartTime
-            ? (Date.now() - responseStartTime) / 1000
-            : 0
-
-        const result: ExerciseResult = {
-            questionId: currentQuestion.id,
-            accuracy: calculatedAccuracy,
-            responseTime: responseTime,
-            date: new Date().toISOString()
-        }
-
-        setCurrentResult(result)
-        setTranscript(answer)
-
-        toast.success("Đã gửi câu trả lời", {
-            description: `Độ chính xác: ${calculatedAccuracy}%`
-        })
-    }
-
     // Handler for moving to the next question
     const handleNextQuestion = () => {
+        if (isCustomMode) {
+            // In custom mode, just clear the transcript and results
+            setTranscript("");
+            setCurrentResult(null);
+            setResponseStartTime(null);
+            return;
+        }
+
         const totalQuestions = userQuestions.length > 0
             ? userQuestions.length
             : defaultQuestions.length;
@@ -230,6 +202,26 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
         setTranscript("");
         setCurrentResult(null);
         setResponseStartTime(null);
+    }
+
+    // Handle custom question submission
+    const handleCustomQuestionSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (customQuestion.trim()) {
+            setIsCustomMode(true);
+            setShowCustomForm(false);
+        } else {
+            toast.error("Please enter a question");
+        }
+    }
+
+    // Reset to default or user questions
+    const handleResetToDefaultQuestions = () => {
+        setIsCustomMode(false);
+        setCustomQuestion("");
+        setCustomAnswer("");
+        setTranscript("");
+        setCurrentResult(null);
     }
 
     // Tính toán độ chính xác dựa trên khoảng cách Levenshtein
@@ -303,33 +295,6 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
         }
     }
 
-    // Chuyển đổi giữa chế độ giọng nói và nhập thủ công
-    const handleToggleInputMode = () => {
-        setUseManualInput(!useManualInput)
-        if (isListening) {
-            stopRecognition()
-            stopRecording()
-            setIsListening(false)
-        }
-    }
-
-    // Extract the nested ternary into an independent statement
-    const getInputModeLabel = () => {
-        if (useManualInput) {
-            return (
-                <div className="flex items-center">
-                    <Keyboard className="h-4 w-4 mr-1" /> Nhập thủ công
-                </div>
-            );
-        } else {
-            return (
-                <div className="flex items-center">
-                    <MicOff className="h-4 w-4 mr-1" /> Tắt mic
-                </div>
-            );
-        }
-    };
-
     return (
         <motion.div
             className="max-w-4xl mx-auto"
@@ -349,92 +314,142 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
                     </div>
                     <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Conversation Practice</h1>
                 </div>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button asChild variant="outline" className="flex items-center gap-2">
-                            <Link href="/reflex/question">
-                                <ListPlus className="h-4 w-4" /> My Question
-                            </Link>
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        Manage your custom questions
-                    </TooltipContent>
-                </Tooltip>
-            </motion.div>
-            <div className="mb-4 flex items-center justify-end space-x-2">
-                <div className="flex items-center space-x-2">
-                    <Label htmlFor="input-mode" className={useManualInput ? "text-primary" : "text-muted-foreground"}>
-                        {getInputModeLabel()}
-                    </Label>
-                    <Switch
-                        id="input-mode"
-                        checked={useManualInput}
-                        onCheckedChange={handleToggleInputMode}
-                        className="data-[state=checked]:bg-primary"
-                    />
+                <div className="flex gap-2">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="outline"
+                                className="flex items-center gap-2"
+                                onClick={() => setShowCustomForm(!showCustomForm)}
+                            >
+                                {showCustomForm ? <X className="h-4 w-4" /> : <PenSquare className="h-4 w-4" />}
+                                {showCustomForm ? "Cancel" : "Custom Question"}
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            {showCustomForm ? "Cancel" : "Create a custom question"}
+                        </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button asChild variant="outline" className="flex items-center gap-2">
+                                <Link href="/reflex/question">
+                                    <ListPlus className="h-4 w-4" /> My Questions
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            Manage your custom questions
+                        </TooltipContent>
+                    </Tooltip>
                 </div>
-            </div>
+            </motion.div>
+
+            {/* Custom Question Form */}
+            <AnimatePresence>
+                {showCustomForm && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mb-6"
+                    >
+                        <Card className="border-2 shadow-md">
+                            <CardHeader>
+                                <CardTitle className="text-lg">Custom Question</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <form onSubmit={handleCustomQuestionSubmit} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="customQuestion">Your Question</Label>
+                                        <Input
+                                            id="customQuestion"
+                                            value={customQuestion}
+                                            onChange={(e) => setCustomQuestion(e.target.value)}
+                                            placeholder="Enter your question here..."
+                                            className="w-full"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="customAnswer" className="flex items-center justify-between">
+                                            <span>Sample Answer (Optional)</span>
+                                        </Label>
+                                        <Textarea
+                                            id="customAnswer"
+                                            value={customAnswer}
+                                            onChange={(e) => setCustomAnswer(e.target.value)}
+                                            placeholder="Enter a sample answer or leave empty to practice without one..."
+                                            className="w-full min-h-[100px]"
+                                        />
+                                    </div>
+                                    <div className="flex justify-end gap-2">
+                                        <Button
+                                            variant="outline"
+                                            type="button"
+                                            onClick={() => setShowCustomForm(false)}
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button type="submit">Use This Question</Button>
+                                    </div>
+                                </form>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {isCustomMode && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mb-6 flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md"
+                >
+                    <div className="flex items-center gap-2">
+                        <InfoIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <p className="text-sm text-blue-700 dark:text-blue-300">Using custom question mode</p>
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleResetToDefaultQuestions}
+                        className="text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800"
+                    >
+                        Return to Standard Questions
+                    </Button>
+                </motion.div>
+            )}
             <AnimatePresence mode="wait">
                 <QuestionDisplay
                     key={currentQuestion.id}
                     question={currentQuestion}
                     currentIndex={currentQuestionIndex}
                     totalQuestions={userQuestions.length > 0 ? userQuestions.length : defaultQuestions.length}
-                    timeRemaining={useManualInput ? undefined : timeRemaining}
+                    timeRemaining={timeRemaining}
                     isAnswering={isListening}
                 />
             </AnimatePresence>
 
-            {useManualInput ? (
-                <Card className="border-2">
-                    <CardContent className="pt-6">
-                        <Textarea
-                            placeholder="Type your answer here..."
-                            value={manualAnswer}
-                            onChange={(e) => setManualAnswer(e.target.value)}
-                            className="min-h-[100px] mb-4 border-primary/20 focus:border-primary"
-                        />
-                        <div className="flex justify-end gap-2">
-                            <Button
-                                variant="outline"
-                                onClick={handleNextQuestion}
-                                className="hover:bg-primary/10 hover:text-primary border-primary/20"
-                            >
-                                Skip
-                            </Button>
-                            <Button
-                                disabled={!manualAnswer.trim()}
-                                className="bg-primary hover:bg-primary/90"
-                            >
-                                Submit Answer
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
-            ) : (
-                <>
-                    <ReflexControls
-                        isListening={isListening}
-                        isRecognizing={isRecognizing}
-                        onStartListening={handleStartListening}
-                        onStopListening={handleStopListening}
-                        onNextQuestion={handleNextQuestion}
-                        timeRemaining={timeRemaining}
-                        getAudioData={audioVisualizerEnabled ? safeGetAudioData : undefined}
-                        disabled={currentResult !== null}
-                    />
 
-                    <AnimatePresence>
-                        {transcript && (
-                            <AnswerFeedback
-                                transcript={transcript}
-                                targetAnswerText={currentQuestion.answer}
-                                isActive={isListening}
-                            />
-                        )}
-                    </AnimatePresence>
-                </>
+            <ReflexControls
+                isListening={isListening}
+                isRecognizing={isRecognizing}
+                onStartListening={handleStartListening}
+                onStopListening={handleStopListening}
+                onNextQuestion={handleNextQuestion}
+                timeRemaining={timeRemaining}
+                getAudioData={audioVisualizerEnabled ? safeGetAudioData : undefined}
+                disabled={currentResult !== null}
+            />
+            
+            {currentResult && (
+                <AnimatePresence>
+                    <AnswerFeedback
+                        transcript={transcript}
+                        targetAnswerText={currentQuestion.answer}
+                    />
+                </AnimatePresence>
             )}
         </motion.div>
     )
