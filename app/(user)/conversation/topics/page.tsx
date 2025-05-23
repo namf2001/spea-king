@@ -15,7 +15,7 @@ export default async function TopicsPage() {
     }
 
     // Fetch user's conversation topics
-    const response = await getConversationTopicsByUserId({ userId })
+    const response = await getConversationTopicsByUserId()
     const topics = response.data || []
     const error = response.success ? undefined : response.error
 

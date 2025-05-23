@@ -10,8 +10,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import LessonForm from "./add-lesson-form"
-import DeleteConfirmationDialog from "./delete-confirmation-dialog"
+import LessonForm from "./lesson-form"
+import DeleteConfirmationDialog from "./delete-pronunciation-dialog"
 import { type PronunciationLesson, type PronunciationWord } from "@prisma/client"
 
 // Define a type that includes the words relation
@@ -301,10 +301,6 @@ export default function PronunciationLessonsContent(
           lessonId={deletingLesson.id}
           lessonTitle={deletingLesson.title}
           onClose={handleCloseDeleteModal}
-          onSuccess={() => {
-            // No additional action needed here as the page will be refreshed 
-            // by the server action revalidation
-          }}
         />
       )}
     </>

@@ -16,7 +16,6 @@ import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-
 interface Message {
   role: "user" | "assistant"
   content: string

@@ -15,21 +15,20 @@ import { Loader2, AlertTriangle } from "lucide-react"
 import { deletePronunciationLesson } from "@/app/actions/pronunciation"
 import { motion } from "framer-motion"
 
-interface DeleteConfirmationDialogProps {
+interface DeletePronunciationDialogProps {
   isOpen: boolean
   lessonId: string
   lessonTitle: string
   onClose: () => void
-  onSuccess: () => void
 }
 
-export default function DeleteConfirmationDialog({
+export default function DeletePronunciationDialogProps({
   isOpen,
   lessonId,
   lessonTitle,
   onClose,
-  onSuccess
-}: DeleteConfirmationDialogProps) {
+}: DeletePronunciationDialogProps
+) {
   const [isDeleting, setIsDeleting] = useState(false)
 
   const handleDelete = async () => {
@@ -41,7 +40,6 @@ export default function DeleteConfirmationDialog({
         toast.success("Lesson deleted", {
           description: "The lesson has been successfully removed"
         })
-        onSuccess()
       } else {
         toast.error("Failed to delete lesson", {
           description: response.error || "An unknown error occurred"

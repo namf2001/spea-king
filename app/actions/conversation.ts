@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma"
 import { conversationTopicSchema } from "@/schemas/conversation"
 import { z } from "zod"
 import { revalidatePath } from "next/cache"
+import { auth } from "@/lib/auth"
+
 
 // Define return type for consistent server action responses
 type ActionResponse = {
@@ -66,15 +68,16 @@ export async function createConversationTopic(
  * @param params - Object containing userId
  * @returns Object containing topics array and/or error message
  */
-export async function getConversationTopicsByUserId({
-  userId,
-}: {
-  userId: string
-}) {
+export async function getConversationTopicsByUserId() {
   try {
+      const session = await auth()
+      
+      if (!session?.user?.id) {
+        throw new Error("Unauthorized")
+      }
     const topics = await prisma.conversationTopic.findMany({
       where: {
-        userId,
+        userId: session.user.id,
       },
       orderBy: {
         createdAt: "desc",
