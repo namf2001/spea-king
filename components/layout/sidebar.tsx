@@ -19,6 +19,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { ThemeSwitcher } from "./theme-switcher"
+import { LogoutButton } from "./logout-button"
 
 interface NavigationItem {
   label: string
@@ -121,7 +122,7 @@ export function AppSidebar() {
             </Link>
           </SidebarHeader>
           <SidebarContent className="flex-1 flex flex-col items-center gap-2 px-4 overflow-y-auto">
-            <SidebarMenu>
+            <SidebarMenu className="flex-1">
               {navigation.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
@@ -166,7 +167,10 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
-            <ThemeSwitcher />
+            <div className="mt-auto w-full flex flex-col gap-2">
+              <ThemeSwitcher />
+              <LogoutButton isIpad={isIpad} />
+            </div>
           </SidebarContent>
         </Sidebar>
       </motion.div>
