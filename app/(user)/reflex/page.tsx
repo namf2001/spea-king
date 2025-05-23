@@ -1,12 +1,10 @@
 import { Suspense } from "react"
-import ReflexContent from "./components/reflex-content"
-import LessonsSkeleton from "./loading"
 import { auth } from "@/lib/auth"
-import { getPronunciationLessonsByUserId } from "@/app/actions/pronunciation"
+import { getReflexQuestions } from "@/app/actions/reflex"
 import { notFound } from "next/navigation"
+import ReflexClient from "./components/reflex-client"
 
-
-export default async function PronunciationPage() {
+export default async function ReflexPage() {
     const session = await auth()
     const userId = session?.user?.id
 
@@ -14,15 +12,28 @@ export default async function PronunciationPage() {
         notFound();
     }
 
+    // Fetch user questions from the database
+    const response = await getReflexQuestions()
+    const userQuestions = response.success && response.data ? response.data : []
+    const error = response.success ? undefined : response.error?.message
 
     return (
-        <Suspense fallback={<LessonsSkeleton />}>
-            <div className="container mx-auto py-12 px-4">
-                <div className="max-w-4xl mx-auto animate-fadeIn">
-                    <ReflexContent />
+        <div className="container mx-auto px-4 py-12">
+            <Suspense fallback={
+                <div className="h-32 flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+                    <p className="ml-2 text-muted-foreground">Loading questions...</p>
                 </div>
-            </div>
-        </Suspense>
+            }>
+                {error ? (
+                    <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md text-destructive">
+                        <p>Error loading questions: {error}</p>
+                        <p>Using default questions instead.</p>
+                    </div>
+                ) : null}
+                
+                <ReflexClient userQuestions={userQuestions} />
+            </Suspense>
+        </div>
     )
 }
-

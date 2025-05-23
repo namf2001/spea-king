@@ -351,7 +351,7 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
         transition={{ duration: 0.5 }}
       >
         <motion.div 
-          className="flex items-center justify-between gap-3 mb-8"
+          className="flex items-center justify-between mb-8"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
