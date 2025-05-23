@@ -120,16 +120,16 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
     try {
       const result = await generateAIResponse("", activeTopic.title, true)
       
-      if (result.success && result.response) {
+      if (result.success && result.data?.response) {
         setConversation([{ 
           role: "assistant" as const, 
-          content: result.response
+          content: result.data.response
         }]);
         
         setHasStarted(true);
         if (!useFallback) {
           try {
-            await speak(result.response);
+            await speak(result.data.response);
           } catch (err) {
             setUseFallback(true);
             toast.error("Speech Synthesis Error", {
@@ -139,7 +139,7 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
         }
       } else {
         toast.error("Failed to start conversation", {
-          description: result.error || "Please try again"
+          description: result.error?.message || "Please try again"
         });
       }
     } catch (err) {
@@ -260,19 +260,19 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
     const result = await generateAIResponse(userInput, activeTopic.title, false)
     setIsWaitingForResponse(false);
 
-    if (result.success && result.response) {
-      const updatedConversation = [...conversation, { role: "assistant" as const, content: result.response }]
+    if (result.success && result.data?.response) {
+      const updatedConversation = [...conversation, { role: "assistant" as const, content: result.data.response }]
       setConversation(updatedConversation)
       setResetUIState(false);
       
       // Generate suggestion if enabled
       if (suggestionsEnabled) {
-        getSuggestionForLastMessage(result.response);
+        getSuggestionForLastMessage(result.data.response);
       }
       
       if (!useFallback) {
         try {
-          await speak(result.response)
+          await speak(result.data.response)
         } catch (err) {
           setUseFallback(true)
           toast.error("Speech Synthesis Error", {
@@ -282,7 +282,7 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
       }
     } else {
       toast.error("Response Generation Error", {
-        description: result.error ?? "Failed to generate response",
+        description: typeof result.error === 'string' ? result.error : "Failed to generate response",
       })
     }
   }
@@ -313,11 +313,11 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
     try {
       const result = await suggestUserResponse(assistantMessage, activeTopic.title, ieltsLevel);
       
-      if (result.success && result.response) {
-        setSuggestionText(result.response);
+      if (result.success && result.data?.response) {
+        setSuggestionText(result.data.response);
       } else {
         toast.error("Failed to get suggestion", {
-          description: result.error || "Please try again"
+          description: typeof result.error === 'string' ? result.error : "Please try again"
         });
       }
     } catch (err) {

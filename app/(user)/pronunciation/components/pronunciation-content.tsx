@@ -19,8 +19,8 @@ type PronunciationLessonWithWords = PronunciationLesson & {
   words: PronunciationWord[];
 }
 
-export default function PronunciationLessonsContent(
-  { lessons, userId, error }: { lessons: PronunciationLessonWithWords[], userId: string, error?: string }
+export default function PronunciationContent(
+  { lessons, error }: { lessons: PronunciationLessonWithWords[], error?: string }
 ) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -285,7 +285,6 @@ export default function PronunciationLessonsContent(
             </DialogDescription>
           </DialogHeader>
           <LessonForm
-            userId={userId}
             onCancel={handleCloseModal}
             onSuccess={handleCloseModal}
             lesson={editingLesson || undefined}

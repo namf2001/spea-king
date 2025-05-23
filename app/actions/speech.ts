@@ -1,9 +1,10 @@
 "use server"
 
 import { cookies } from "next/headers"
+import { ApiResponse, createSuccessResponse, createErrorResponse } from "@/types/response"
 
 // Server Action to get a speech token
-export async function getSpeechToken() {
+export async function getSpeechToken(): Promise<ApiResponse<{ token: string, region: string }>> {
     try {
         const speechKey = process.env.AZURE_SPEECH_KEY
         const speechRegion = process.env.AZURE_SPEECH_REGION
@@ -40,23 +41,32 @@ export async function getSpeechToken() {
             sameSite: "strict",
         })
 
-        // Return the token and region
-        return {
-            success: true,
-            token,
-            region: speechRegion,
-        }
+        // Return the token and region using standardized response format
+        return createSuccessResponse({ token, region: speechRegion })
     } catch (error) {
         console.error("Error generating speech token:", error)
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : "Failed to generate speech token",
-        }
+        return createErrorResponse(
+            "SPEECH_TOKEN_ERROR",
+            error instanceof Error ? error.message : "Failed to generate speech token"
+        )
     }
 }
 
 // Server Action to evaluate pronunciation
-export async function evaluatePronunciation(spokenText: string, targetText: string) {
+export async function evaluatePronunciation(spokenText: string, targetText: string): Promise<ApiResponse<{
+    score: number,
+    feedback: string,
+    details: {
+        pronunciationScore: number,
+        fluencyScore: number,
+        completenessScore: number,
+        words: Array<{
+            word: string,
+            score: number,
+            errorType: string | null
+        }>
+    }
+}>> {
     try {
         const speechKey = process.env.AZURE_SPEECH_KEY
         const speechRegion = process.env.AZURE_SPEECH_REGION
@@ -64,15 +74,6 @@ export async function evaluatePronunciation(spokenText: string, targetText: stri
         if (!speechKey || !speechRegion) {
             throw new Error("Speech service credentials are not configured")
         }
-
-        // Use the Azure Pronunciation Assessment API
-        // const endpoint = `https://${speechRegion}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US&format=detailed`
-
-        // Create reference text object
-        // const referenceText = {
-        // Prepare the target text without punctuation for assessment
-        //    ReferenceText: targetText.replace(/[.,?!]/g, ""),
-        //}
 
         // Create audio data from the spokenText
         // In a real implementation, this should be audio data from the client
@@ -135,8 +136,7 @@ export async function evaluatePronunciation(spokenText: string, targetText: stri
 
         // Create detailed feedback that simulates the Pronunciation Assessment API response
         // In a real implementation, this would come from the API
-        return {
-            success: true,
+        return createSuccessResponse({
             score: calculatedScore,
             feedback,
             details: {
@@ -151,44 +151,26 @@ export async function evaluatePronunciation(spokenText: string, targetText: stri
                         errorType: mispronounced ? "Mispronunciation" : null
                     }
                 }),
-
             }
-        }
-
-        // NOTE: In a complete implementation, you would:
-        // 1. Receive audio data from the client (e.g., WAV or MP3 format)
-        // 2. Send the audio and reference text to the Azure Pronunciation Assessment API
-        // 3. Process the detailed response to provide meaningful feedback
-        // 4. Highlight specific sounds or words that need improvement
-        // 
-        // Example API request (using actual audio data):
-        //
-        // const response = await fetch(endpoint, {
-        //     method: "POST",
-        //     headers: {
-        //         "Ocp-Apim-Subscription-Key": speechKey,
-        //         "Content-Type": "audio/wav",
-        //         "Pronunciation-Assessment": JSON.stringify(referenceText)
-        //     },
-        //     body: audioData // Binary audio data
-        // })
-        //
-        // Then process the detailed response from the API
+        })
     } catch (error) {
         console.error("Error evaluating pronunciation:", error)
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : "Failed to evaluate pronunciation",
-        }
+        return createErrorResponse(
+            "PRONUNCIATION_EVALUATION_ERROR",
+            error instanceof Error ? error.message : "Failed to evaluate pronunciation"
+        )
     }
 }
 
-export async function generateAIResponse(userInput: string, topicName: string, isInitializing: boolean) {
+export async function generateAIResponse(userInput: string, topicName: string, isInitializing: boolean): Promise<ApiResponse<{ response: string }>> {
     const API_KEY = process.env.GROQ_API_KEY;
     const API_ENDPOINT = process.env.GROQ_API_ENDPOINT;
 
     if (!API_KEY || !API_ENDPOINT) {
-        throw new Error("AI service credentials are not configured");
+        return createErrorResponse(
+            "AI_CONFIG_ERROR",
+            "AI service credentials are not configured"
+        );
     }
 
     const topicTitle = topicName || "General Topics";
@@ -240,10 +222,7 @@ Give natural, relevant follow-ups. Avoid long responses. Ask short, clear IELTS-
         const aiResponse = data.choices[0].message.content;
         console.log(`${isInitializing ? "Initial" : ""} AI Response:`, aiResponse);
 
-        return {
-            success: true,
-            response: aiResponse,
-        };
+        return createSuccessResponse({ response: aiResponse });
     } catch (error) {
         console.error(`Error ${isInitializing ? "initializing" : "generating"} conversation:`, error);
 
@@ -253,22 +232,24 @@ Give natural, relevant follow-ups. Avoid long responses. Ask short, clear IELTS-
 
         const operationType = isInitializing ? "initialize" : "generate";
 
-        return {
-            success: false,
-            response: fallbackResponse,
-            error: error instanceof Error ? error.message : `Failed to ${operationType} conversation`,
-        };
+        return createErrorResponse(
+            `AI_${operationType.toUpperCase()}_ERROR`,
+            error instanceof Error ? error.message : `Failed to ${operationType} conversation`,
+            { response: fallbackResponse }
+        );
     }
 }
 
-
 // suggestUserResponse is used to generate a user response suggestion based on the AI's question
-export async function suggestUserResponse(AIquestion: string, topicName: string, ieltsLevel: string = "4.0") {
+export async function suggestUserResponse(AIquestion: string, topicName: string, ieltsLevel: string = "4.0"): Promise<ApiResponse<{ response: string }>> {
     const API_KEY = process.env.GROQ_API_KEY;
     const API_ENDPOINT = process.env.GROQ_API_ENDPOINT;
 
     if (!API_KEY || !API_ENDPOINT) {
-        throw new Error("AI service credentials are not configured");
+        return createErrorResponse(
+            "AI_CONFIG_ERROR",
+            "AI service credentials are not configured"
+        );
     }
 
     // Validate IELTS level input
@@ -323,16 +304,14 @@ Keep it under 3 sentences, and do not respond with another question.`;
         const aiResponse = data.choices[0].message.content;
         console.log(`User Response Suggestion:`, aiResponse);
 
-        return {
-            success: true,
-            response: aiResponse,
-        };
+        return createSuccessResponse({ response: aiResponse });
     } catch (error) {
         console.error(`Error generating user response suggestion:`, error);
-        return {
-            success: false,
-            response: "I'm sorry, I'm having trouble connecting. Could you please repeat that?",
-            error: error instanceof Error ? error.message : "Failed to generate user response suggestion",
-        };
+        
+        return createErrorResponse(
+            "AI_SUGGESTION_ERROR",
+            error instanceof Error ? error.message : "Failed to generate user response suggestion",
+            { response: "I'm sorry, I'm having trouble connecting. Could you please repeat that?" }
+        );
     }
 }

@@ -62,12 +62,12 @@ export function usePronunciationAssessment() {
       try {
         const result = await getSpeechToken()
         
-        if (!result.success || !result.token || !result.region) {
-          throw new Error(result.error ?? "Speech SDK credentials are not configured")
+        if (!result.success || !result.data?.token || !result.data?.region) {
+          throw new Error(result.error?.message ?? "Speech SDK credentials are not configured")
         }
 
         // Create the speech config using the token (not the actual API key)
-        const config = SpeechSDK.SpeechConfig.fromAuthorizationToken(result.token, result.region)
+        const config = SpeechSDK.SpeechConfig.fromAuthorizationToken(result.data.token, result.data.region)
         config.speechRecognitionLanguage = "en-US"
 
         // Enable detailed output format for pronunciation assessment

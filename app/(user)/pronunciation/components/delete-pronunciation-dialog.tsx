@@ -42,7 +42,7 @@ export default function DeletePronunciationDialogProps({
         })
       } else {
         toast.error("Failed to delete lesson", {
-          description: response.error || "An unknown error occurred"
+          description: response.error?.message || "An unknown error occurred"
         })
       }
     } catch (error) {

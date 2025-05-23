@@ -32,17 +32,17 @@ export function useSpeechSynthesis() {
             console.log("Speech Synthesis Token Result:", {
                 action: "getSpeechToken for synthesis",
                 success: result.success,
-                region: result.region,
-                hasToken: !!result.token,
-                error: result.error || null
+                region: result.data?.region,
+                hasToken: !!result.data?.token,
+                error: result.error?.message ?? null
             });
 
-            if (!result.success || !result.token || !result.region) {
-                throw new Error(result.error || "Failed to get speech token")
+            if (!result.success || !result.data?.token || !result.data?.region) {
+                throw new Error(result.error?.message ?? "Failed to get speech token")
             }
 
             // Create the speech config with the token
-            const speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(result.token, result.region)
+            const speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(result.data.token, result.data.region)
             speechConfig.speechSynthesisLanguage = "en-US"
             speechConfig.speechSynthesisVoiceName = "en-US-JennyNeural"
 

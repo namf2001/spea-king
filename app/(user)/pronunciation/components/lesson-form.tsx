@@ -30,7 +30,6 @@ type LessonWithWords = PronunciationLesson & {
 }
 
 interface LessonFormProps {
-    userId: string,
     onCancel: () => void,
     onSuccess?: () => void,
     lesson?: LessonWithWords,
@@ -39,7 +38,6 @@ interface LessonFormProps {
 
 // Rename the component to reflect its dual purpose
 export default function LessonForm({ 
-    userId, 
     onCancel, 
     onSuccess, 
     lesson, 
@@ -98,11 +96,11 @@ export default function LessonForm({
             if (isEditMode) {
                 response = await updatePronunciationLesson(lesson.id, data);
             } else {
-                response = await createPronunciationLesson(userId, data);
+                response = await createPronunciationLesson(data);
             }
 
             if (response.success) {
-                toast.success(response.message, {
+                toast.success(response.error?.message ?? (isEditMode ? "Lesson updated" : "Lesson created"), {
                     description: isEditMode 
                         ? "Lesson updated successfully" 
                         : "Redirecting to lessons page..."
@@ -120,7 +118,7 @@ export default function LessonForm({
                 router.refresh();
             } else {
                 toast.error(isEditMode ? "Failed to update lesson" : "Failed to create lesson", {
-                    description: response.error || "An unknown error occurred"
+                    description: response.error?.message || "An unknown error occurred"
                 });
             }
         } catch (error) {

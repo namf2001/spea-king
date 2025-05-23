@@ -5,29 +5,26 @@ import { conversationTopicSchema } from "@/schemas/conversation"
 import { z } from "zod"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
-
-
-// Define return type for consistent server action responses
-type ActionResponse = {
-  success: boolean
-  message?: string
-  error?: string
-  data?: any
-}
+import { ApiResponse, createSuccessResponse, createErrorResponse } from "@/types/response"
 
 /**
  * Server action to create a new conversation topic
- * @param userId - The ID of the user creating the topic
  * @param formData - The topic data from the form
- * @returns ActionResponse indicating success or failure
+ * @returns ApiResponse indicating success or failure
  */
 export async function createConversationTopic(
-  userId: string,
   formData: z.infer<typeof conversationTopicSchema>
-): Promise<ActionResponse> {
+): Promise<ApiResponse> {
   try {
     // Validate the form data
     const validatedData = conversationTopicSchema.parse(formData)
+
+    const session = await auth()
+    const userId = session?.user?.id
+
+    if (!userId) {
+      throw new Error("Unauthorized")
+    }
 
     // Create the topic in the database
     const topic = await prisma.conversationTopic.create({
@@ -41,40 +38,37 @@ export async function createConversationTopic(
     // Revalidate the entire conversation layout and all nested routes
     revalidatePath("/conversation", "layout")
 
-    return {
-      success: true,
-      message: "Topic created successfully",
-      data: topic,
-    }
+    return createSuccessResponse(topic, {
+      timestamp: Date.now(),
+    })
   } catch (error) {
     console.error("Error creating conversation topic:", error)
 
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: "Invalid form data. Please check your input and try again.",
-      }
+      return createErrorResponse(
+        "FORM_VALIDATION_ERROR",
+        "Invalid form data. Please check your input and try again."
+      )
     }
 
-    return {
-      success: false,
-      error: "Failed to create topic. Please try again later.",
-    }
+    return createErrorResponse(
+      "CREATE_TOPIC_ERROR",
+      "Failed to create topic. Please try again later."
+    )
   }
 }
 
 /**
  * Get all conversation topics for a specific user
- * @param params - Object containing userId
- * @returns Object containing topics array and/or error message
+ * @returns ApiResponse containing topics array
  */
-export async function getConversationTopicsByUserId() {
+export async function getConversationTopicsByUserId(): Promise<ApiResponse> {
   try {
-      const session = await auth()
-      
-      if (!session?.user?.id) {
-        throw new Error("Unauthorized")
-      }
+    const session = await auth()
+    if (!session?.user?.id) {
+      return createErrorResponse("AUTH_ERROR", "Unauthorized")
+    }
+
     const topics = await prisma.conversationTopic.findMany({
       where: {
         userId: session.user.id,
@@ -84,26 +78,22 @@ export async function getConversationTopicsByUserId() {
       },
     })
 
-    return {
-      success: true,
-      data: topics
-    }
+    return createSuccessResponse(topics)
   } catch (error) {
     console.error("Error fetching conversation topics:", error)
-    return {
-      success: false,
-      error: "Failed to fetch conversation topics. Please try again later.",
-      data: []
-    }
+    return createErrorResponse(
+      "FETCH_TOPICS_ERROR",
+      "Failed to fetch conversation topics. Please try again later."
+    )
   }
 }
 
 /**
  * Get a specific conversation topic by ID
  * @param topicId - The ID of the topic to fetch
- * @returns Object containing the topic data and/or error message
+ * @returns ApiResponse containing the topic data
  */
-export async function getConversationTopicById(topicId: string) {
+export async function getConversationTopicById(topicId: string): Promise<ApiResponse> {
   try {
     const topic = await prisma.conversationTopic.findUnique({
       where: {
@@ -112,22 +102,16 @@ export async function getConversationTopicById(topicId: string) {
     });
 
     if (!topic) {
-      return {
-        success: false,
-        error: "Conversation topic not found",
-      };
+      return createErrorResponse("NOT_FOUND", "Conversation topic not found")
     }
 
-    return {
-      success: true,
-      data: topic,
-    };
+    return createSuccessResponse(topic)
   } catch (error) {
     console.error("Error fetching conversation topic:", error);
-    return {
-      success: false,
-      error: "Failed to fetch conversation topic. Please try again later.",
-    };
+    return createErrorResponse(
+      "FETCH_TOPIC_ERROR",
+      "Failed to fetch conversation topic. Please try again later."
+    )
   }
 }
 
@@ -135,18 +119,21 @@ export async function getConversationTopicById(topicId: string) {
  * Server action to update an existing conversation topic
  * @param topicId - The ID of the topic to update
  * @param formData - The updated topic data from the form
- * @param userId - The ID of the user requesting the update
- * @returns ActionResponse indicating success or failure
+ * @returns ApiResponse indicating success or failure
  */
 export async function updateConversationTopic(
   topicId: string,
   formData: z.infer<typeof conversationTopicSchema>,
-  userId: string
-): Promise<ActionResponse> {
+): Promise<ApiResponse> {
   try {
     // Validate the form data
     const validatedData = conversationTopicSchema.parse(formData)
 
+    const session = await auth()
+    const userId = session?.user?.id
+    if (!userId) {
+      return createErrorResponse("AUTH_ERROR", "Unauthorized")
+    }
     // First fetch the topic to verify ownership
     const topic = await prisma.conversationTopic.findUnique({
       where: {
@@ -156,18 +143,12 @@ export async function updateConversationTopic(
 
     // Check if topic exists
     if (!topic) {
-      return {
-        success: false,
-        error: "Conversation topic not found",
-      };
+      return createErrorResponse("NOT_FOUND", "Conversation topic not found")
     }
 
     // Check if the user is authorized to update this topic
     if (topic.userId !== userId) {
-      return {
-        success: false,
-        error: "You are not authorized to update this topic",
-      };
+      return createErrorResponse("AUTH_ERROR", "You are not authorized to update this topic")
     }
 
     // Update the topic once ownership is verified
@@ -184,25 +165,23 @@ export async function updateConversationTopic(
     // Revalidate the entire conversation layout and all nested routes
     revalidatePath("/conversation", "layout")
 
-    return {
-      success: true,
-      message: "Topic updated successfully",
-      data: updatedTopic,
-    }
+    return createSuccessResponse(updatedTopic, {
+      timestamp: Date.now(),
+    })
   } catch (error) {
     console.error("Error updating conversation topic:", error)
 
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: "Invalid form data. Please check your input and try again.",
-      }
+      return createErrorResponse(
+        "FORM_VALIDATION_ERROR",
+        "Invalid form data. Please check your input and try again."
+      )
     }
 
-    return {
-      success: false,
-      error: "Failed to update topic. Please try again later.",
-    }
+    return createErrorResponse(
+      "UPDATE_TOPIC_ERROR", 
+      "Failed to update topic. Please try again later."
+    )
   }
 }
 
@@ -210,12 +189,12 @@ export async function updateConversationTopic(
  * Server action to delete a conversation topic
  * @param topicId - The ID of the topic to delete
  * @param userId - The ID of the user requesting deletion
- * @returns ActionResponse indicating success or failure
+ * @returns ApiResponse indicating success or failure
  */
 export async function deleteConversationTopic(
   topicId: string,
   userId: string
-): Promise<ActionResponse> {
+): Promise<ApiResponse> {
   try {
     // First fetch the topic to verify ownership
     const topic = await prisma.conversationTopic.findUnique({
@@ -226,18 +205,12 @@ export async function deleteConversationTopic(
 
     // Check if topic exists
     if (!topic) {
-      return {
-        success: false,
-        error: "Conversation topic not found",
-      };
+      return createErrorResponse("NOT_FOUND", "Conversation topic not found")
     }
 
     // Check if the user is authorized to delete this topic
     if (topic.userId !== userId) {
-      return {
-        success: false,
-        error: "You are not authorized to delete this topic",
-      };
+      return createErrorResponse("AUTH_ERROR", "You are not authorized to delete this topic")
     }
 
     // Delete the topic once ownership is verified
@@ -250,15 +223,14 @@ export async function deleteConversationTopic(
     // Revalidate the entire conversation layout and all nested routes
     revalidatePath("/conversation", "layout")
 
-    return {
-      success: true,
-      message: "Topic deleted successfully",
-    }
+    return createSuccessResponse(null, {
+      timestamp: Date.now(),
+    })
   } catch (error) {
     console.error("Error deleting conversation topic:", error)
-    return {
-      success: false,
-      error: "Failed to delete topic. Please try again later.",
-    }
+    return createErrorResponse(
+      "DELETE_TOPIC_ERROR",
+      "Failed to delete topic. Please try again later."
+    )
   }
 }

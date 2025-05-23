@@ -4,26 +4,24 @@ import { prisma } from "@/lib/prisma"
 import { lessonSchema } from "@/schemas/pronunciation"
 import { z } from "zod"
 import { revalidatePath } from "next/cache"
-
-// Define return type for consistent server action responses
-type ActionResponse = {
-  success: boolean
-  message?: string
-  error?: string
-  data?: any
-}
+import { auth } from "@/lib/auth"
+import { ApiResponse, createSuccessResponse, createErrorResponse } from "@/types/response"
 
 /**
  * Server action to create a new pronunciation lesson
- * @param userId - The ID of the user creating the lesson
  * @param formData - The lesson data from the form
- * @returns ActionResponse indicating success or failure
+ * @returns ApiResponse indicating success or failure
  */
 export async function createPronunciationLesson(
-  userId: string,
   formData: z.infer<typeof lessonSchema>
-): Promise<ActionResponse> {
+): Promise<ApiResponse> {
   try {
+    const session = await auth()
+      
+    if (!session?.user?.id) {
+      return createErrorResponse("AUTH_ERROR", "Unauthorized. Please log in to create a lesson.")
+    }
+
     // Validate the form data
     const validatedData = lessonSchema.parse(formData)
 
@@ -31,7 +29,7 @@ export async function createPronunciationLesson(
     const lesson = await prisma.pronunciationLesson.create({
       data: {
         title: validatedData.title,
-        userId,
+        userId: session.user.id,
         words: {
           create: validatedData.words.map(wordItem => ({
             word: wordItem.word,
@@ -43,42 +41,45 @@ export async function createPronunciationLesson(
     // Revalidate the lessons page to show the new lesson
     revalidatePath("/pronunciation")
 
-    return {
-      success: true,
-      message: "Lesson created successfully",
-      data: lesson,
-    }
+    return createSuccessResponse(lesson, {
+      timestamp: Date.now(),
+    })
   } catch (error) {
     console.error("Error creating pronunciation lesson:", error)
 
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: "Invalid form data. Please check your input and try again.",
-      }
+      return createErrorResponse(
+        "FORM_VALIDATION_ERROR", 
+        "Invalid form data. Please check your input and try again."
+      )
     }
 
-    return {
-      success: false,
-      error: "Failed to create lesson. Please try again later.",
-    }
+    return createErrorResponse(
+      "CREATE_LESSON_ERROR",
+      "Failed to create lesson. Please try again later."
+    )
   }
 }
 
 /**
- * Get all pronunciation lessons for a specific user
- * @param params - Object containing userId
- * @returns Object containing lessons array and/or error message
+ * Get all pronunciation lessons for the current user
+ * @returns ApiResponse containing lessons array
  */
-export async function getPronunciationLessonsByUserId({
-  userId,
-}: {
-  userId: string
-}) {
+export async function getPronunciationLessonsByUserId(): Promise<ApiResponse> {
   try {
+    const session = await auth()
+      
+    if (!session?.user?.id) {
+      return createErrorResponse(
+        "AUTH_ERROR", 
+        "Unauthorized. Please log in to view lessons.",
+        { data: [] }
+      )
+    }
+
     const lessons = await prisma.pronunciationLesson.findMany({
       where: {
-        userId,
+        userId: session.user.id,
       },
       include: {
         words: true,
@@ -88,26 +89,23 @@ export async function getPronunciationLessonsByUserId({
       },
     })
 
-    return {
-      success: true,
-      data: lessons
-    }
+    return createSuccessResponse(lessons)
   } catch (error) {
     console.error("Error fetching pronunciation lessons:", error)
-    return {
-      success: false,
-      error: "Failed to fetch pronunciation lessons. Please try again later.",
-      data: []
-    }
+    return createErrorResponse(
+      "FETCH_LESSONS_ERROR",
+      "Failed to fetch pronunciation lessons. Please try again later.",
+      { data: [] }
+    )
   }
 }
 
 /**
  * Get a specific pronunciation lesson by ID
  * @param lessonId - The ID of the lesson to fetch
- * @returns Object containing the lesson data and/or error message
+ * @returns ApiResponse containing the lesson data
  */
-export async function getPronunciationLessonById(lessonId: string) {
+export async function getPronunciationLessonById(lessonId: string): Promise<ApiResponse> {
   try {
     const lesson = await prisma.pronunciationLesson.findUnique({
       where: {
@@ -119,22 +117,16 @@ export async function getPronunciationLessonById(lessonId: string) {
     });
 
     if (!lesson) {
-      return {
-        success: false,
-        error: "Pronunciation lesson not found",
-      };
+      return createErrorResponse("NOT_FOUND", "Pronunciation lesson not found")
     }
 
-    return {
-      success: true,
-      data: lesson,
-    };
+    return createSuccessResponse(lesson)
   } catch (error) {
     console.error("Error fetching pronunciation lesson:", error);
-    return {
-      success: false,
-      error: "Failed to fetch pronunciation lesson. Please try again later.",
-    };
+    return createErrorResponse(
+      "FETCH_LESSON_ERROR",
+      "Failed to fetch pronunciation lesson. Please try again later."
+    )
   }
 }
 
@@ -142,12 +134,12 @@ export async function getPronunciationLessonById(lessonId: string) {
  * Server action to update an existing pronunciation lesson
  * @param lessonId - The ID of the lesson to update
  * @param formData - The updated lesson data from the form
- * @returns ActionResponse indicating success or failure
+ * @returns ApiResponse indicating success or failure
  */
 export async function updatePronunciationLesson(
   lessonId: string,
   formData: z.infer<typeof lessonSchema>
-): Promise<ActionResponse> {
+): Promise<ApiResponse> {
   try {
     // Validate the form data
     const validatedData = lessonSchema.parse(formData)
@@ -178,36 +170,34 @@ export async function updatePronunciationLesson(
     revalidatePath("/pronunciation")
     revalidatePath(`/pronunciation/${lessonId}`)
 
-    return {
-      success: true,
-      message: "Lesson updated successfully",
-      data: updatedLesson,
-    }
+    return createSuccessResponse(updatedLesson, {
+      timestamp: Date.now(),
+    })
   } catch (error) {
     console.error("Error updating pronunciation lesson:", error)
 
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: "Invalid form data. Please check your input and try again.",
-      }
+      return createErrorResponse(
+        "FORM_VALIDATION_ERROR", 
+        "Invalid form data. Please check your input and try again."
+      )
     }
 
-    return {
-      success: false,
-      error: "Failed to update lesson. Please try again later.",
-    }
+    return createErrorResponse(
+      "UPDATE_LESSON_ERROR",
+      "Failed to update lesson. Please try again later."
+    )
   }
 }
 
 /**
  * Server action to delete a pronunciation lesson
  * @param lessonId - The ID of the lesson to delete
- * @returns ActionResponse indicating success or failure
+ * @returns ApiResponse indicating success or failure
  */
 export async function deletePronunciationLesson(
   lessonId: string
-): Promise<ActionResponse> {
+): Promise<ApiResponse> {
   try {
     // Delete all words associated with the lesson first
     await prisma.pronunciationWord.deleteMany({
@@ -226,15 +216,14 @@ export async function deletePronunciationLesson(
     // Revalidate the lessons page
     revalidatePath("/pronunciation")
 
-    return {
-      success: true,
-      message: "Lesson deleted successfully",
-    }
+    return createSuccessResponse(null, {
+      timestamp: Date.now(),
+    })
   } catch (error) {
     console.error("Error deleting pronunciation lesson:", error)
-    return {
-      success: false,
-      error: "Failed to delete lesson. Please try again later.",
-    }
+    return createErrorResponse(
+      "DELETE_LESSON_ERROR",
+      "Failed to delete lesson. Please try again later."
+    )
   }
 }

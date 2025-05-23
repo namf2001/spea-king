@@ -3,14 +3,15 @@
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
+import { ApiResponse, createSuccessResponse, createErrorResponse } from "@/types/response"
 
 // Get all reflex questions for a user (including default ones)
-export async function getReflexQuestions() {
+export async function getReflexQuestions(): Promise<ApiResponse> {
   try {
     const session = await auth()
 
     if (!session?.user?.id) {
-      throw new Error("Unauthorized")
+      return createErrorResponse("AUTH_ERROR", "Unauthorized", { data: [] })
     }
 
     // First get user-created questions
@@ -23,14 +24,15 @@ export async function getReflexQuestions() {
       }
     })
 
-    return {
-      success: true,
-      data: userQuestions
-    }
+    return createSuccessResponse(userQuestions)
   }
   catch (error) {
     console.error("Error fetching reflex questions:", error)
-    return { success: false, error: "Failed to fetch reflex questions", data: [] }
+    return createErrorResponse(
+      "FETCH_QUESTIONS_ERROR", 
+      "Failed to fetch reflex questions", 
+      { data: [] }
+    )
   }
 }
 
@@ -38,14 +40,14 @@ export async function getReflexQuestions() {
 export async function createReflexQuestion(data: {
   question: string
   answer: string
-}) {
-  const session = await auth()
-
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized")
-  }
-
+}): Promise<ApiResponse> {
   try {
+    const session = await auth()
+
+    if (!session?.user?.id) {
+      return createErrorResponse("AUTH_ERROR", "Unauthorized")
+    }
+
     const question = await prisma.reflexQuestion.create({
       data: {
         question: data.question,
@@ -55,10 +57,10 @@ export async function createReflexQuestion(data: {
     })
 
     revalidatePath("/reflex")
-    return { success: true, question }
+    return createSuccessResponse(question)
   } catch (error) {
     console.error("Error creating question:", error)
-    return { success: false, error: "Failed to create question" }
+    return createErrorResponse("CREATE_QUESTION_ERROR", "Failed to create question")
   }
 }
 
@@ -67,20 +69,20 @@ export async function updateReflexQuestion(id: string, data: {
   question?: string
   answer?: string
   suggestedAnswer?: string
-}) {
-  const session = await auth()
-
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized")
-  }
-
+}): Promise<ApiResponse> {
   try {
+    const session = await auth()
+
+    if (!session?.user?.id) {
+      return createErrorResponse("AUTH_ERROR", "Unauthorized")
+    }
+
     const question = await prisma.reflexQuestion.findUnique({
       where: { id }
     })
 
     if (!question || question.userId !== session.user.id) {
-      throw new Error("Question not found or not authorized")
+      return createErrorResponse("NOT_FOUND", "Question not found or not authorized")
     }
 
     const updatedQuestion = await prisma.reflexQuestion.update({
@@ -89,28 +91,28 @@ export async function updateReflexQuestion(id: string, data: {
     })
 
     revalidatePath("/reflex")
-    return { success: true, question: updatedQuestion }
+    return createSuccessResponse(updatedQuestion)
   } catch (error) {
     console.error("Error updating question:", error)
-    return { success: false, error: "Failed to update question" }
+    return createErrorResponse("UPDATE_QUESTION_ERROR", "Failed to update question")
   }
 }
 
 // Delete a reflex question
-export async function deleteReflexQuestion(id: string) {
-  const session = await auth()
-
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized")
-  }
-
+export async function deleteReflexQuestion(id: string): Promise<ApiResponse> {
   try {
+    const session = await auth()
+
+    if (!session?.user?.id) {
+      return createErrorResponse("AUTH_ERROR", "Unauthorized")
+    }
+
     const question = await prisma.reflexQuestion.findUnique({
       where: { id }
     })
 
     if (!question || question.userId !== session.user.id) {
-      throw new Error("Question not found or not authorized")
+      return createErrorResponse("NOT_FOUND", "Question not found or not authorized")
     }
 
     await prisma.reflexQuestion.delete({
@@ -118,15 +120,15 @@ export async function deleteReflexQuestion(id: string) {
     })
 
     revalidatePath("/reflex")
-    return { success: true }
+    return createSuccessResponse(null)
   } catch (error) {
     console.error("Error deleting question:", error)
-    return { success: false, error: "Failed to delete question" }
+    return createErrorResponse("DELETE_QUESTION_ERROR", "Failed to delete question")
   }
 }
 
 // Generate AI suggestion for an answer
-export async function generateAnswerSuggestion(questionText: string) {
+export async function generateAnswerSuggestion(questionText: string): Promise<ApiResponse> {
   try {
     // For real implementation, you'd call an AI service like OpenAI API here
     // For this example, we'll create a simple function to generate suggestions
@@ -160,9 +162,12 @@ export async function generateAnswerSuggestion(questionText: string) {
 
     const suggestion = generateSuggestion(questionText)
 
-    return { success: true, suggestion }
+    return createSuccessResponse({ suggestion })
   } catch (error) {
     console.error("Error generating suggestion:", error)
-    return { success: false, error: "Failed to generate answer suggestion" }
+    return createErrorResponse(
+      "SUGGESTION_ERROR", 
+      "Failed to generate answer suggestion"
+    )
   }
 }

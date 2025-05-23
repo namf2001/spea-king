@@ -71,15 +71,15 @@ export default function TopicForm({
       let response;
       
       if (isEditMode && topic) {
-        response = await updateConversationTopic(topic.id, data, userId);
+        response = await updateConversationTopic(topic.id, data);
       } else {
-        response = await createConversationTopic(userId, data);
+        response = await createConversationTopic(data);
       }
 
       if (response.success) {
         handleSuccess(isEditMode);
       } else {
-        handleError(response.error);
+        handleError(response.error?.message);
       }
     } catch (error) {
       toast.error("Error submitting form", {

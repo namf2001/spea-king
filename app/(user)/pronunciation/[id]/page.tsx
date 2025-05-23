@@ -21,6 +21,6 @@ export default async function PronunciationPage(props: { params: Promise<{ id: s
     return <PronunciationClient 
         lessons={lessons}
         userId={session.user.id} 
-        error={response.success ? undefined : response.error}
+        error={response.success ? undefined : response.error?.message}
     />
 }

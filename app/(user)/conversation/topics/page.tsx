@@ -17,7 +17,7 @@ export default async function TopicsPage() {
     // Fetch user's conversation topics
     const response = await getConversationTopicsByUserId()
     const topics = response.data || []
-    const error = response.success ? undefined : response.error
+    const errorMessage = response.success ? undefined : response.error?.message
 
     return (
         <Suspense fallback={<TopicsLoading />}>
@@ -26,7 +26,7 @@ export default async function TopicsPage() {
                     <ConversationTopicsContent 
                         topics={topics} 
                         userId={userId} 
-                        error={error} 
+                        error={errorMessage} 
                     />
                 </div>
             </div>

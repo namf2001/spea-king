@@ -97,8 +97,7 @@ model PronunciationWord {
 model ReflexQuestion {
   id              String               @id @default(cuid())
   question        String
-  answer          String               // Adding answer field
-  suggestedAnswer String?              // Adding optional AI-suggested answer
+  answer          String               @db.Text
   userId          String
   user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   speakingRecords UserSpeakingRecord[]
