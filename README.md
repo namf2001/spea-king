@@ -8,6 +8,10 @@ Empower Your Voice, Transform Your Communication Skills
   <img src="https://img.shields.io/badge/languages-3-blue" alt="languages" />
 </div>
 
+<div align="center">
+  <h3><a href="https://spea-king.vercel.app/" target="_blank">🚀 Live Demo: https://spea-king.vercel.app/</a></h3>
+</div>
+
 ## Built with the tools and technologies:
 
 <div align="center">
