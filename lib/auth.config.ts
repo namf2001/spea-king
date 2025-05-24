@@ -2,6 +2,7 @@ import type { NextAuthConfig } from "next-auth";
 import { Role } from "@prisma/client";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+import Facebook from "next-auth/providers/facebook";
 
 export default {
     pages: {
@@ -17,8 +18,12 @@ export default {
             clientId: process.env.GOOGLE_ID,
             clientSecret: process.env.GOOGLE_SECRET,
         }),
+        Facebook({
+            clientId: process.env.FACEBOOK_ID,
+            clientSecret: process.env.FACEBOOK_SECRET,
+        }),
     ],
-    callbacks: {
+    callbacks:  {
         session: async ({ session, token }) => {
             if (session.user) {
                 session.user.name = token.name ?? "";
