@@ -19,9 +19,7 @@ export function ExerciseDisplay({
     totalExercises, 
     currentWordIndex = 0 
 }: ExerciseDisplayProps) {
-    // Get the current word to display
     const currentWord = exercise.words[currentWordIndex]
-    // Get progress indicators
     const wordProgress = `${currentWordIndex + 1}/${exercise.words.length}`
 
     return (

@@ -1,22 +1,23 @@
-import React from 'react';
-import { auth } from '@/lib/auth';
-import { redirect } from "next/navigation"
-interface LoginLayoutProps {
+import { auth } from "@/lib/auth";
+import { Header } from "./components/header";
+import { redirect } from "next/navigation";
+
+export default async function LoginLayout({
+    children,
+}: Readonly<{
     children: React.ReactNode;
-}
-
-const LoginLayout: React.FC<LoginLayoutProps> = async ({ children }) => {
+}>) {
     const session = await auth();
-
-    if (session) {
-       redirect('/pronunciation');
+    if (session?.user) {
+        redirect("/pronunciation");
     }
-    
-    return (
-        <>
-            {children}
-        </>
-    );
-};
 
-export default LoginLayout;
+    return (
+        <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-primary/5">
+            <Header />
+            <div className="mt-16">
+                {children}
+            </div>
+        </div>
+    );
+}
