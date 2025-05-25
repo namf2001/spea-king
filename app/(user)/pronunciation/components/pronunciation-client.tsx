@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { usePronunciationAssessment } from "@/hooks/use-pronunciation-assessment"
 import { useSpeechSynthesis } from "@/hooks/use-speech-synthesis"
 import { useAudioRecorder } from "@/hooks/use-audio-recorder"
+import { saveSpeakingRecord } from "@/app/actions/speech"
 import { ExerciseDisplay } from "./pronunciation-display"
 import { ExerciseControls } from "./pronunciation-controls"
 import { FeedbackDisplay } from "./feedback-display"
@@ -116,6 +117,7 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
     
     const handleStopAssessment = () => {
         setIsAssessing(false)
+        const startTime = Date.now()
         stopRecognition()
         
         try {
@@ -123,6 +125,12 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
         } catch (err) {
             console.error("Error stopping recording:", err)
         }
+
+        // Save speaking record for pronunciation practice
+        const duration = Math.floor((Date.now() - startTime) / 1000) || 5 // Default to 5 seconds if calculation fails
+        saveSpeakingRecord('pronunciation', duration).catch(err => {
+            console.error("Error saving speaking record:", err)
+        })
     }
     
     const handlePlayExample = async () => {

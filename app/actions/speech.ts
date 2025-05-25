@@ -1,6 +1,8 @@
 "use server"
 
 import { cookies } from "next/headers"
+import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 import { ApiResponse, createSuccessResponse, createErrorResponse } from "@/types/response"
 
 // Server Action to get a speech token
@@ -382,6 +384,198 @@ Do not exceed ${validatedWordLimit + 5} words.`;
             error instanceof Error ? error.message : "Failed to generate answer",
             { response: "I'm sorry, I couldn't generate an answer at this time. Please try again later." }
         );
+    }
+}
+
+// New action to save speaking record
+export async function saveSpeakingRecord(
+    type: 'pronunciation' | 'conversation' | 'reflex',
+    duration: number,
+    conversationTopicId?: string,
+    reflexQuestionId?: string
+): Promise<ApiResponse<{ id: string }>> {
+    try {
+        const session = await auth()
+        
+        if (!session?.user?.id) {
+            return createErrorResponse(
+                "AUTH_ERROR",
+                "Unauthorized. Please log in to save speaking record."
+            )
+        }
+
+        const record = await prisma.userSpeakingRecord.create({
+            data: {
+                userId: session.user.id,
+                duration,
+                conversationTopicId,
+                reflexQuestionId,
+            },
+        })
+
+        return createSuccessResponse({ id: record.id })
+    } catch (error) {
+        console.error("Error saving speaking record:", error)
+        return createErrorResponse(
+            "SAVE_RECORD_ERROR",
+            "Failed to save speaking record"
+        )
+    }
+}
+
+// New action to get user statistics
+export async function getUserSpeakingStats(): Promise<ApiResponse<{
+    totalSpeakingCount: number
+    practiceStreak: number
+    exercisesThisMonth: number
+    pronunciationCount: number
+    conversationCount: number
+    reflexCount: number
+    recentRecords: Array<{
+        id: string
+        type: string
+        duration: number
+        date: string
+        topicTitle?: string
+        questionText?: string
+    }>
+    progressOverTime: Array<{
+        date: string
+        count: number
+    }>
+    skillsBreakdown: Array<{
+        name: string
+        value: number
+    }>
+}>> {
+    try {
+        const session = await auth()
+        
+        if (!session?.user?.id) {
+            return createErrorResponse(
+                "AUTH_ERROR",
+                "Unauthorized. Please log in to view statistics."
+            )
+        }
+
+        const userId = session.user.id
+
+        // Get all speaking records for the user
+        const allRecords = await prisma.userSpeakingRecord.findMany({
+            where: { userId },
+            include: {
+                conversationTopic: true,
+                reflexQuestion: true,
+            },
+            orderBy: { createdAt: 'desc' },
+        })
+
+        // Calculate total speaking count
+        const totalSpeakingCount = allRecords.length
+
+        // Calculate practice streak (consecutive days with practice)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        
+        let practiceStreak = 0
+        let checkDate = new Date(today)
+        
+        while (true) {
+            const dayStart = new Date(checkDate)
+            const dayEnd = new Date(checkDate)
+            dayEnd.setHours(23, 59, 59, 999)
+            
+            const hasRecordOnDay = allRecords.some(record => {
+                const recordDate = new Date(record.createdAt)
+                return recordDate >= dayStart && recordDate <= dayEnd
+            })
+            
+            if (hasRecordOnDay) {
+                practiceStreak++
+                checkDate.setDate(checkDate.getDate() - 1)
+            } else {
+                break
+            }
+        }
+
+        // Calculate exercises this month
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+        const exercisesThisMonth = allRecords.filter(record => 
+            new Date(record.createdAt) >= startOfMonth
+        ).length
+
+        // Count by type
+        const pronunciationCount = allRecords.filter(record => 
+            !record.conversationTopicId && !record.reflexQuestionId
+        ).length
+        
+        const conversationCount = allRecords.filter(record => 
+            record.conversationTopicId
+        ).length
+        
+        const reflexCount = allRecords.filter(record => 
+            record.reflexQuestionId
+        ).length
+
+        // Recent records (last 10)
+        const recentRecords = allRecords.slice(0, 10).map(record => ({
+            id: record.id,
+            type: record.conversationTopicId ? 'Conversation' : 
+                  record.reflexQuestionId ? 'Reflex' : 'Pronunciation',
+            duration: record.duration,
+            date: record.createdAt.toISOString().split('T')[0],
+            topicTitle: record.conversationTopic?.title,
+            questionText: record.reflexQuestion?.question,
+        }))
+
+        // Progress over time (last 7 days)
+        const progressOverTime = []
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(today)
+            date.setDate(date.getDate() - i)
+            const dateStr = date.toISOString().split('T')[0]
+            
+            const dayStart = new Date(date)
+            const dayEnd = new Date(date)
+            dayEnd.setHours(23, 59, 59, 999)
+            
+            const count = allRecords.filter(record => {
+                const recordDate = new Date(record.createdAt)
+                return recordDate >= dayStart && recordDate <= dayEnd
+            }).length
+            
+            progressOverTime.push({
+                date: `${date.getMonth() + 1}/${date.getDate()}`,
+                count
+            })
+        }
+
+        // Skills breakdown based on practice frequency
+        const skillsBreakdown = [
+            { name: 'Pronunciation', value: pronunciationCount },
+            { name: 'Conversation', value: conversationCount },
+            { name: 'Reflex Training', value: reflexCount },
+            { name: 'Fluency', value: Math.floor(totalSpeakingCount * 0.7) },
+            { name: 'Comprehension', value: Math.floor(totalSpeakingCount * 0.8) },
+        ]
+
+        return createSuccessResponse({
+            totalSpeakingCount,
+            practiceStreak,
+            exercisesThisMonth,
+            pronunciationCount,
+            conversationCount,
+            reflexCount,
+            recentRecords,
+            progressOverTime,
+            skillsBreakdown,
+        })
+    } catch (error) {
+        console.error("Error fetching user speaking stats:", error)
+        return createErrorResponse(
+            "FETCH_STATS_ERROR",
+            "Failed to fetch speaking statistics"
+        )
     }
 }
 

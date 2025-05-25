@@ -11,7 +11,7 @@ import { SpeechFallback } from "@/components/speech-fallback"
 import { TopicTabs } from "./topic-tabs"
 import { ConversationDisplay } from "./conversation-display"
 import { ConversationControls } from "./conversation-controls"
-import { generateAIResponse, suggestUserResponse } from "@/app/actions/speech"
+import { generateAIResponse, suggestUserResponse, saveSpeakingRecord } from "@/app/actions/speech"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
@@ -195,6 +195,12 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
     } catch (err) {
       console.error("Error stopping recording:", err)
     }
+
+    // Save speaking record for conversation practice
+    const estimatedDuration = recognizedText ? Math.max(Math.floor(recognizedText.length / 5), 3) : 3 // Estimate ~5 chars per second
+    saveSpeakingRecord('conversation', estimatedDuration, activeTopic.id).catch(err => {
+      console.error("Error saving speaking record:", err)
+    })
   }
 
   const handleTopicChange = (topicId: string) => {

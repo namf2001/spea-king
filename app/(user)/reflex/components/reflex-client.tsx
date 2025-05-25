@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition"
 import { useSpeechSynthesis } from "@/hooks/use-speech-synthesis"
 import { useAudioRecorder } from "@/hooks/use-audio-recorder"
+import { saveSpeakingRecord } from "@/app/actions/speech"
 import { questions as defaultQuestions } from "../data/questions"
 import { QuestionDisplay } from "./question-display"
 import { ReflexControls } from "./reflex-controls"
@@ -175,6 +176,15 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
             }
 
             setCurrentResult(result)
+
+            // Save speaking record for reflex practice - defer to avoid setState during render
+            setTimeout(() => {
+                const duration = Math.floor(responseTime) || 3 // Use actual response time or default to 3 seconds
+                const questionId = typeof currentQuestion.id === 'string' ? currentQuestion.id : undefined
+                saveSpeakingRecord('reflex', duration, undefined, questionId).catch(err => {
+                    console.error("Error saving speaking record:", err)
+                })
+            }, 0)
 
             // Hiển thị thông báo kết quả
             toast.success("Đã hoàn thành câu hỏi", {
