@@ -50,6 +50,7 @@
   },
   "devDependencies": {
     "@mermaid-js/mermaid-cli": "^11.4.2",
+    "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^3.0.0",
     "@types/date-fns": "^2.6.3",
