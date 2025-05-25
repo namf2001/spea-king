@@ -1,7 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+
+/* IPA Phoneme styling */
+.ipa-phoneme {
+  font-family: 'Noto Sans', 'Doulos SIL', 'Charis SIL', 'Times New Roman', serif;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
 
 :root {
   --background: oklch(1.00 0 0);

@@ -4,12 +4,9 @@ import { useState, useEffect, useRef } from "react"
 import { usePronunciationAssessment } from "@/hooks/use-pronunciation-assessment"
 import { useSpeechSynthesis } from "@/hooks/use-speech-synthesis"
 import { useAudioRecorder } from "@/hooks/use-audio-recorder"
-import { SpeechFallback } from "@/components/speech-fallback"
 import { ExerciseDisplay } from "./pronunciation-display"
 import { ExerciseControls } from "./pronunciation-controls"
-import { TranscriptDisplay } from "./transcript-display"
 import { FeedbackDisplay } from "./feedback-display"
-import { ReplayButton } from "@/components/replay-button"
 import { Card } from "@/components/ui/card"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
@@ -25,19 +22,14 @@ interface PronunciationClientProps {
 }
 
 export default function PronunciationClient({ lessons, userId, error }: PronunciationClientProps) {
-    // State
     const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
     const [currentWordIndex, setCurrentWordIndex] = useState(0)
     const [isAssessing, setIsAssessing] = useState(false)
-    const [transcript, setTranscript] = useState("")
     const [results, setResults] = useState<any>(null)
-    const [useFallback, setUseFallback] = useState(false)
     const [audioVisualizerEnabled, setAudioVisualizerEnabled] = useState(true)
     
-    // Refs
     const assessmentProcessedRef = useRef<boolean>(false)
     
-    // Hooks
     const {
         startRecognition,
         stopRecognition,
@@ -67,7 +59,6 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
             toast.error("Speech Recognition Error", {
                 description: assessmentError.message || "An error occurred with speech recognition",
             })
-            setUseFallback(true)
         }
     }, [assessmentError])
 
@@ -76,7 +67,6 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
             toast.error("Speech Synthesis Error", {
                 description: synthesisError,
             })
-            setUseFallback(true)
         }
     }, [synthesisError])
 
@@ -89,34 +79,27 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
         }
     }, [recordingError])
 
-    // Process pronunciation assessment results when they arrive
     useEffect(() => {
         if (pronunciationResults && !assessmentProcessedRef.current) {
             setResults(pronunciationResults)
-            setTranscript(pronunciationResults.words.map((w: any) => w.word).join(" "))
             assessmentProcessedRef.current = true
-            
-            // Show toast with score
-            toast.success("Assessment completed", {
-                description: `Your overall score: ${pronunciationResults.pronunciationScore}%`
-            })
-            
-            console.log("Pronunciation assessment completed:", pronunciationResults)
+        }
+
+        return () => {
+            setResults(null);
+            assessmentProcessedRef.current = false;
         }
     }, [pronunciationResults])
 
     const handleStartAssessment = async () => {
         setIsAssessing(true)
-        setTranscript("")
         setResults(null)
         resetResults()
         assessmentProcessedRef.current = false
         
         try {
-            // Start pronunciation assessment for the current word
             await startRecognition(currentWord)
             
-            // Try to start audio recording for visualization and replay
             try {
                 await startRecording()
             } catch (err) {
@@ -125,7 +108,6 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
             }
         } catch (err) {
             setIsAssessing(false)
-            setUseFallback(true)
             toast.error("Error", {
                 description: err instanceof Error ? err.message : "Failed to start speech recognition",
             })
@@ -136,7 +118,6 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
         setIsAssessing(false)
         stopRecognition()
         
-        // Stop recording
         try {
             stopRecording()
         } catch (err) {
@@ -146,10 +127,8 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
     
     const handlePlayExample = async () => {
         try {
-            // Play only the current word
             await speak(currentWord)
         } catch (err) {
-            setUseFallback(true)
             toast.error("Error", {
                 description: err instanceof Error ? err.message : "Failed to play audio example",
             })
@@ -157,29 +136,15 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
     }
     
     const handleNextExercise = () => {
-        // Reset transcript and results
-        setTranscript("")
         setResults(null)
         resetResults()
         assessmentProcessedRef.current = false
-        
-        // Move to the next word in the current exercise
         if (currentWordIndex < currentExercise.words.length - 1) {
-            // There are more words in this exercise
             setCurrentWordIndex(currentWordIndex + 1)
         } else {
-            // This was the last word, move to the next exercise
             setCurrentWordIndex(0)
             setCurrentExerciseIndex((prev) => (prev + 1) % lessons.length)
         }
-    }
-    
-    const handleFallbackSubmit = (text: string) => {
-        setTranscript(text)
-        // In a real implementation, you would process this with an API
-        toast.info("Fallback mode", {
-            description: "Text submitted for evaluation. This is a fallback mode with limited features."
-        })
     }
     
     const handleReplayRecording = () => {
@@ -257,9 +222,6 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
                         </div>
                         <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold flex items-center gap-2">
                             Pronunciation Practice
-                            <span className="text-sm font-normal bg-primary/20 text-primary px-2 py-0.5 rounded-full">
-                                Advanced Mode
-                            </span>
                         </h1>
                     </div>
                 </motion.div>
@@ -272,26 +234,7 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
                         currentWordIndex={currentWordIndex}
                     />
                 </AnimatePresence>
-                
-                {useFallback ? (
-                    <motion.div
-                        className="mb-8"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <Card className="p-6 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
-                            <h3 className="font-medium text-amber-700 dark:text-amber-300 mb-2">
-                                Speech Recognition Unavailable
-                            </h3>
-                            <p className="text-amber-600 dark:text-amber-400 mb-4 text-sm">
-                                Your browser doesn't support speech recognition or microphone access was denied.
-                                Please enter your text manually.
-                            </p>
-                            <SpeechFallback onTextSubmit={handleFallbackSubmit} type="recognition" />
-                        </Card>
-                    </motion.div>
-                ) : (
+        
                     <ExerciseControls
                         isAssessing={isAssessing}
                         isSpeaking={isSpeaking}
@@ -302,41 +245,15 @@ export default function PronunciationClient({ lessons, userId, error }: Pronunci
                         onNextExercise={handleNextExercise}
                         getAudioData={audioVisualizerEnabled ? safeGetAudioData : undefined}
                     />
-                )}
-                
                 <AnimatePresence>
-                    {transcript && (
-                        <motion.div
-                            className="space-y-4"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ duration: 0.4 }}
-                        >
-                            <TranscriptDisplay transcript={transcript} />
-                            
-                            {audioUrl && (
-                                <motion.div
-                                    className="flex justify-center mb-6"
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ duration: 0.3, delay: 0.2 }}
-                                >
-                                    <div className="bg-gray-50 dark:bg-gray-800 py-3 px-6 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
-                                        <ReplayButton
-                                            onReplay={handleReplayRecording}
-                                            disabled={isSpeaking}
-                                            label="Listen to your recording"
-                                        />
-                                    </div>
-                                </motion.div>
-                            )}
-                        </motion.div>
+                    {results && (
+                        <FeedbackDisplay 
+                            results={results} 
+                            audioUrl={audioUrl}
+                            onReplayRecording={handleReplayRecording}
+                            targetText={currentWord}
+                        />
                     )}
-                </AnimatePresence>
-                
-                <AnimatePresence>
-                    {results && <FeedbackDisplay results={results} />}
                 </AnimatePresence>
             </motion.div>
         </div>

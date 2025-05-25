@@ -90,8 +90,8 @@ export function ReflexControls({
                                 getAudioData={getAudioData}
                                 isActive={isListening}
                                 height={60}
-                                barColor="hsl(var(--primary))"
-                                backgroundColor="rgba(248, 250, 252, 0.8)"
+                                barColor="#f09695"
+                                backgroundColor="#fef4f4"
                                 className="rounded-lg overflow-hidden"
                             />
                         </div>
