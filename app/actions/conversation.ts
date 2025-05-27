@@ -1,11 +1,15 @@
-"use server"
+'use server';
 
-import { prisma } from "@/lib/prisma"
-import { conversationTopicSchema } from "@/schemas/conversation"
-import { z } from "zod"
-import { revalidatePath } from "next/cache"
-import { auth } from "@/lib/auth"
-import { ApiResponse, createSuccessResponse, createErrorResponse } from "@/types/response"
+import { prisma } from '@/lib/prisma';
+import { conversationTopicSchema } from '@/schemas/conversation';
+import { z } from 'zod';
+import { revalidatePath } from 'next/cache';
+import { auth } from '@/lib/auth';
+import {
+  ApiResponse,
+  createSuccessResponse,
+  createErrorResponse,
+} from '@/types/response';
 
 /**
  * Server action to create a new conversation topic
@@ -13,17 +17,17 @@ import { ApiResponse, createSuccessResponse, createErrorResponse } from "@/types
  * @returns ApiResponse indicating success or failure
  */
 export async function createConversationTopic(
-  formData: z.infer<typeof conversationTopicSchema>
+  formData: z.infer<typeof conversationTopicSchema>,
 ): Promise<ApiResponse> {
   try {
     // Validate the form data
-    const validatedData = conversationTopicSchema.parse(formData)
+    const validatedData = conversationTopicSchema.parse(formData);
 
-    const session = await auth()
-    const userId = session?.user?.id
+    const session = await auth();
+    const userId = session?.user?.id;
 
     if (!userId) {
-      throw new Error("Unauthorized")
+      throw new Error('Unauthorized');
     }
 
     // Create the topic in the database
@@ -33,28 +37,28 @@ export async function createConversationTopic(
         description: validatedData.description,
         userId,
       },
-    })
+    });
 
     // Revalidate the entire conversation layout and all nested routes
-    revalidatePath("/conversation", "layout")
+    revalidatePath('/conversation', 'layout');
 
     return createSuccessResponse(topic, {
       timestamp: Date.now(),
-    })
+    });
   } catch (error) {
-    console.error("Error creating conversation topic:", error)
+    console.error('Error creating conversation topic:', error);
 
     if (error instanceof z.ZodError) {
       return createErrorResponse(
-        "FORM_VALIDATION_ERROR",
-        "Invalid form data. Please check your input and try again."
-      )
+        'FORM_VALIDATION_ERROR',
+        'Invalid form data. Please check your input and try again.',
+      );
     }
 
     return createErrorResponse(
-      "CREATE_TOPIC_ERROR",
-      "Failed to create topic. Please try again later."
-    )
+      'CREATE_TOPIC_ERROR',
+      'Failed to create topic. Please try again later.',
+    );
   }
 }
 
@@ -64,9 +68,9 @@ export async function createConversationTopic(
  */
 export async function getConversationTopicsByUserId(): Promise<ApiResponse> {
   try {
-    const session = await auth()
+    const session = await auth();
     if (!session?.user?.id) {
-      return createErrorResponse("AUTH_ERROR", "Unauthorized")
+      return createErrorResponse('AUTH_ERROR', 'Unauthorized');
     }
 
     const topics = await prisma.conversationTopic.findMany({
@@ -74,17 +78,17 @@ export async function getConversationTopicsByUserId(): Promise<ApiResponse> {
         userId: session.user.id,
       },
       orderBy: {
-        createdAt: "desc",
+        createdAt: 'desc',
       },
-    })
+    });
 
-    return createSuccessResponse(topics)
+    return createSuccessResponse(topics);
   } catch (error) {
-    console.error("Error fetching conversation topics:", error)
+    console.error('Error fetching conversation topics:', error);
     return createErrorResponse(
-      "FETCH_TOPICS_ERROR",
-      "Failed to fetch conversation topics. Please try again later."
-    )
+      'FETCH_TOPICS_ERROR',
+      'Failed to fetch conversation topics. Please try again later.',
+    );
   }
 }
 
@@ -93,7 +97,9 @@ export async function getConversationTopicsByUserId(): Promise<ApiResponse> {
  * @param topicId - The ID of the topic to fetch
  * @returns ApiResponse containing the topic data
  */
-export async function getConversationTopicById(topicId: string): Promise<ApiResponse> {
+export async function getConversationTopicById(
+  topicId: string,
+): Promise<ApiResponse> {
   try {
     const topic = await prisma.conversationTopic.findUnique({
       where: {
@@ -102,16 +108,16 @@ export async function getConversationTopicById(topicId: string): Promise<ApiResp
     });
 
     if (!topic) {
-      return createErrorResponse("NOT_FOUND", "Conversation topic not found")
+      return createErrorResponse('NOT_FOUND', 'Conversation topic not found');
     }
 
-    return createSuccessResponse(topic)
+    return createSuccessResponse(topic);
   } catch (error) {
-    console.error("Error fetching conversation topic:", error);
+    console.error('Error fetching conversation topic:', error);
     return createErrorResponse(
-      "FETCH_TOPIC_ERROR",
-      "Failed to fetch conversation topic. Please try again later."
-    )
+      'FETCH_TOPIC_ERROR',
+      'Failed to fetch conversation topic. Please try again later.',
+    );
   }
 }
 
@@ -127,12 +133,12 @@ export async function updateConversationTopic(
 ): Promise<ApiResponse> {
   try {
     // Validate the form data
-    const validatedData = conversationTopicSchema.parse(formData)
+    const validatedData = conversationTopicSchema.parse(formData);
 
-    const session = await auth()
-    const userId = session?.user?.id
+    const session = await auth();
+    const userId = session?.user?.id;
     if (!userId) {
-      return createErrorResponse("AUTH_ERROR", "Unauthorized")
+      return createErrorResponse('AUTH_ERROR', 'Unauthorized');
     }
     // First fetch the topic to verify ownership
     const topic = await prisma.conversationTopic.findUnique({
@@ -143,12 +149,15 @@ export async function updateConversationTopic(
 
     // Check if topic exists
     if (!topic) {
-      return createErrorResponse("NOT_FOUND", "Conversation topic not found")
+      return createErrorResponse('NOT_FOUND', 'Conversation topic not found');
     }
 
     // Check if the user is authorized to update this topic
     if (topic.userId !== userId) {
-      return createErrorResponse("AUTH_ERROR", "You are not authorized to update this topic")
+      return createErrorResponse(
+        'AUTH_ERROR',
+        'You are not authorized to update this topic',
+      );
     }
 
     // Update the topic once ownership is verified
@@ -160,28 +169,28 @@ export async function updateConversationTopic(
         title: validatedData.title,
         description: validatedData.description,
       },
-    })
+    });
 
     // Revalidate the entire conversation layout and all nested routes
-    revalidatePath("/conversation", "layout")
+    revalidatePath('/conversation', 'layout');
 
     return createSuccessResponse(updatedTopic, {
       timestamp: Date.now(),
-    })
+    });
   } catch (error) {
-    console.error("Error updating conversation topic:", error)
+    console.error('Error updating conversation topic:', error);
 
     if (error instanceof z.ZodError) {
       return createErrorResponse(
-        "FORM_VALIDATION_ERROR",
-        "Invalid form data. Please check your input and try again."
-      )
+        'FORM_VALIDATION_ERROR',
+        'Invalid form data. Please check your input and try again.',
+      );
     }
 
     return createErrorResponse(
-      "UPDATE_TOPIC_ERROR", 
-      "Failed to update topic. Please try again later."
-    )
+      'UPDATE_TOPIC_ERROR',
+      'Failed to update topic. Please try again later.',
+    );
   }
 }
 
@@ -193,7 +202,7 @@ export async function updateConversationTopic(
  */
 export async function deleteConversationTopic(
   topicId: string,
-  userId: string
+  userId: string,
 ): Promise<ApiResponse> {
   try {
     // First fetch the topic to verify ownership
@@ -205,12 +214,15 @@ export async function deleteConversationTopic(
 
     // Check if topic exists
     if (!topic) {
-      return createErrorResponse("NOT_FOUND", "Conversation topic not found")
+      return createErrorResponse('NOT_FOUND', 'Conversation topic not found');
     }
 
     // Check if the user is authorized to delete this topic
     if (topic.userId !== userId) {
-      return createErrorResponse("AUTH_ERROR", "You are not authorized to delete this topic")
+      return createErrorResponse(
+        'AUTH_ERROR',
+        'You are not authorized to delete this topic',
+      );
     }
 
     // Delete the topic once ownership is verified
@@ -221,16 +233,16 @@ export async function deleteConversationTopic(
     });
 
     // Revalidate the entire conversation layout and all nested routes
-    revalidatePath("/conversation", "layout")
+    revalidatePath('/conversation', 'layout');
 
     return createSuccessResponse(null, {
       timestamp: Date.now(),
-    })
+    });
   } catch (error) {
-    console.error("Error deleting conversation topic:", error)
+    console.error('Error deleting conversation topic:', error);
     return createErrorResponse(
-      "DELETE_TOPIC_ERROR",
-      "Failed to delete topic. Please try again later."
-    )
+      'DELETE_TOPIC_ERROR',
+      'Failed to delete topic. Please try again later.',
+    );
   }
 }

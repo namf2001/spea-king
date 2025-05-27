@@ -42,3 +42,5 @@ next-env.d.ts
 
 # migrations
 /prisma/migrations
+
+/next-app-router-playground

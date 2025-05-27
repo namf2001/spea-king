@@ -1,32 +1,45 @@
-"use client"
+'use client';
 
-import React from "react"
-import { Button } from "@/components/ui/button"
-import { Mic, VolumeX, Send, PlayCircle, RefreshCw, Volume2 } from "lucide-react"
-import { AudioVisualizer } from "@/components/audio-visualizer"
-import { motion, AnimatePresence } from "framer-motion"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Mic,
+  VolumeX,
+  Send,
+  PlayCircle,
+  RefreshCw,
+  Volume2,
+} from 'lucide-react';
+import { AudioVisualizer } from '@/components/audio-visualizer';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface ConversationControlsProps {
-  isListening: boolean
-  isSpeaking: boolean
-  hasStarted: boolean
-  recognizedText?: string
-  resetUIState?: boolean
-  suggestionsEnabled: boolean
-  suggestionText?: string
-  isLoadingSuggestion: boolean
-  ieltsLevel: string
-  onStartListening: () => void
-  onStopListening: () => void
-  onStartConversation: () => void
-  onSubmitResponse?: () => void
-  onReplayRecording?: () => void
-  onToggleSuggestions: (enabled: boolean) => void
-  onIeltsLevelChange: (level: string) => void
-  getAudioData?: () => Uint8Array | null
+  isListening: boolean;
+  isSpeaking: boolean;
+  hasStarted: boolean;
+  recognizedText?: string;
+  resetUIState?: boolean;
+  suggestionsEnabled: boolean;
+  suggestionText?: string;
+  isLoadingSuggestion: boolean;
+  ieltsLevel: string;
+  onStartListening: () => void;
+  onStopListening: () => void;
+  onStartConversation: () => void;
+  onSubmitResponse?: () => void;
+  onReplayRecording?: () => void;
+  onToggleSuggestions: (enabled: boolean) => void;
+  onIeltsLevelChange: (level: string) => void;
+  getAudioData?: () => Uint8Array | null;
 }
 
 export function ConversationControls({
@@ -48,7 +61,9 @@ export function ConversationControls({
   onIeltsLevelChange,
   getAudioData,
 }: ConversationControlsProps) {
-  const [internalRecognizedText, setInternalRecognizedText] = React.useState<string | undefined>(recognizedText);
+  const [internalRecognizedText, setInternalRecognizedText] = React.useState<
+    string | undefined
+  >(recognizedText);
   React.useEffect(() => {
     setInternalRecognizedText(recognizedText);
   }, [recognizedText]);
@@ -66,10 +81,10 @@ export function ConversationControls({
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="flex justify-center w-full"
+          className="flex w-full justify-center"
         >
-          <Button onClick={onStartConversation} >
-            <PlayCircle className="h-5 w-5 mr-2" />
+          <Button onClick={onStartConversation}>
+            <PlayCircle className="mr-2 h-5 w-5" />
             <span className="font-medium text-white">Start conversation</span>
           </Button>
         </motion.div>
@@ -90,7 +105,7 @@ export function ConversationControls({
           <Button
             onClick={onStartListening}
             disabled={isSpeaking}
-            className="w-14 h-14 rounded-full"
+            className="h-14 w-14 rounded-full"
             size="lg"
           >
             <Mic className="h-10 w-10 text-white transition-transform group-hover:scale-110" />
@@ -113,7 +128,7 @@ export function ConversationControls({
         >
           <Button
             onClick={onStopListening}
-            className="w-14 h-14 rounded-full"
+            className="h-14 w-14 rounded-full"
             variant="destructive"
           >
             <VolumeX className="h-10 w-10 text-white transition-transform group-hover:scale-110" />
@@ -136,7 +151,7 @@ export function ConversationControls({
         <Button
           onClick={onStartListening}
           variant="outline"
-          className="w-12 h-12 rounded-full"
+          className="h-12 w-12 rounded-full"
           size="icon"
           disabled={isSpeaking}
         >
@@ -153,7 +168,7 @@ export function ConversationControls({
                 setInternalRecognizedText(undefined);
               }
             }}
-            className="w-14 h-14 rounded-full"
+            className="h-14 w-14 rounded-full"
             disabled={isSpeaking}
           >
             <Send className="h-8 w-8 text-white transition-transform group-hover:scale-110" />
@@ -166,7 +181,7 @@ export function ConversationControls({
           <Button
             onClick={onReplayRecording}
             variant="outline"
-            className="w-12 h-12 rounded-full"
+            className="h-12 w-12 rounded-full"
             size="icon"
             disabled={isSpeaking}
           >
@@ -179,7 +194,7 @@ export function ConversationControls({
   };
 
   return (
-    <div className="flex flex-col space-y-6 items-center">
+    <div className="flex flex-col items-center space-y-6">
       {/* Hiển thị audio visualizer khi đang lắng nghe */}
       {getAudioData && isListening && (
         <motion.div
@@ -189,39 +204,36 @@ export function ConversationControls({
           exit={{ opacity: 0, height: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="relative h-16 shadow-lg rounded-lg overflow-hidden">
+          <div className="relative h-16 overflow-hidden rounded-lg shadow-lg">
             <AudioVisualizer
               getAudioData={getAudioData}
               isActive={isListening}
               height={60}
               barColor="#ef9493"
               backgroundColor="rgba(248, 250, 252, 0.8)"
-              className="rounded-lg overflow-hidden"
+              className="overflow-hidden rounded-lg"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-lg pointer-events-none"></div>
+            <div className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-r from-green-500/10 to-emerald-500/10"></div>
           </div>
         </motion.div>
       )}
 
       {/* Hiển thị UI theo trạng thái */}
-      <AnimatePresence mode="wait">
-        {renderStateContent()}
-      </AnimatePresence>
+      <AnimatePresence mode="wait">{renderStateContent()}</AnimatePresence>
 
       {/* Phần gợi ý */}
       {hasStarted && (
-        <div className="w-full flex flex-col items-center">
-          <div className="flex items-center mb-2 p-2 rounded-lg shadow-sm">
+        <div className="flex w-full flex-col items-center">
+          <div className="mb-2 flex items-center rounded-lg p-2 shadow-sm">
             <Label className="mr-2 font-medium">Suggest:</Label>
             <Switch
               checked={suggestionsEnabled}
               onCheckedChange={onToggleSuggestions}
-              className="w-10 h-6"
+              className="h-6 w-10"
             />
           </div>
 
           {/* Bộ chọn cấp độ IELTS */}
-
 
           {/* Danh sách gợi ý */}
           {suggestionsEnabled && (
@@ -230,22 +242,28 @@ export function ConversationControls({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.3 }}
-              className="w-full p-4 bg-gradient-to-t from-primary/10 to-background rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
+              className="from-primary/10 to-background w-full rounded-lg border border-gray-100 bg-gradient-to-t p-4 shadow-md dark:border-gray-700"
             >
               {isLoadingSuggestion ? (
                 <div className="flex items-center justify-center py-4">
-                  <div className="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-2"></div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Generating suggestions...</p>
-
+                  <div className="mr-2 h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Generating suggestions...
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-medium uppercase text-primary">Suggested answers </p>
+                    <p className="text-primary text-xs font-medium uppercase">
+                      Suggested answers{' '}
+                    </p>
                     {suggestionsEnabled && (
                       <div className="flex items-center gap-2">
                         <Label className="text-sm">IELTS:</Label>
-                        <Select value={ieltsLevel} onValueChange={onIeltsLevelChange}>
+                        <Select
+                          value={ieltsLevel}
+                          onValueChange={onIeltsLevelChange}
+                        >
                           <SelectTrigger className="border-none">
                             <SelectValue placeholder="IELTS" />
                           </SelectTrigger>
@@ -262,9 +280,8 @@ export function ConversationControls({
                         </Select>
                       </div>
                     )}
-
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                  <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
                     {suggestionText}
                   </p>
                 </div>

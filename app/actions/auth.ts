@@ -1,19 +1,19 @@
-"use server";
+'use server';
 
-import { signIn, signOut } from "@/lib/auth";
+import { signIn, signOut } from '@/lib/auth';
 
 export async function signInWithGithub() {
-    await signIn("github");
+  await signIn('github');
 }
 
 export async function signInWithGoogle() {
-    await signIn("google");
+  await signIn('google');
 }
 
 export async function signInWithFacebook() {
-    await signIn("facebook");
+  await signIn('facebook');
 }
 
 export async function logout() {
-    await signOut({ redirectTo: '/' });
+  await signOut({ redirectTo: '/' });
 }

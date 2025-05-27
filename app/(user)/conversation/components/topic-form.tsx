@@ -1,14 +1,14 @@
-"use client"
+'use client';
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button } from "@/components/ui/button"
-import { DialogFooter } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { CheckCircle, Loader2 } from "lucide-react"
-import { z } from "zod"
-import { conversationTopicSchema } from "@/schemas/conversation"
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@/components/ui/button';
+import { DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { CheckCircle, Loader2 } from 'lucide-react';
+import { z } from 'zod';
+import { conversationTopicSchema } from '@/schemas/conversation';
 import {
   Form,
   FormControl,
@@ -16,14 +16,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { createConversationTopic, updateConversationTopic } from "@/app/actions/conversation"
-import { useState, useEffect } from "react"
-import { toast } from "sonner"
-import { useRouter } from "next/navigation"
-import { ConversationTopic } from "@prisma/client"
+} from '@/components/ui/form';
+import {
+  createConversationTopic,
+  updateConversationTopic,
+} from '@/app/actions/conversation';
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { ConversationTopic } from '@prisma/client';
 
-type FormValues = z.infer<typeof conversationTopicSchema>
+type FormValues = z.infer<typeof conversationTopicSchema>;
 
 // Define the props for the form component
 interface TopicFormProps {
@@ -34,12 +37,12 @@ interface TopicFormProps {
   mode?: 'create' | 'edit';
 }
 
-export default function TopicForm({ 
-  userId, 
-  onCancel, 
-  onSuccess, 
-  topic, 
-  mode = 'create' 
+export default function TopicForm({
+  userId,
+  onCancel,
+  onSuccess,
+  topic,
+  mode = 'create',
 }: TopicFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
@@ -49,9 +52,9 @@ export default function TopicForm({
   const form = useForm<FormValues>({
     resolver: zodResolver(conversationTopicSchema),
     defaultValues: {
-      title: topic?.title || "",
-      description: topic?.description || "",
-    }
+      title: topic?.title || '',
+      description: topic?.description || '',
+    },
   });
 
   // Reset the form when topic changes (for edit mode)
@@ -59,7 +62,7 @@ export default function TopicForm({
     if (topic) {
       form.reset({
         title: topic.title,
-        description: topic.description ?? "", // Convert null to empty string
+        description: topic.description ?? '', // Convert null to empty string
       });
     }
   }, [topic, form]);
@@ -69,7 +72,7 @@ export default function TopicForm({
     try {
       setIsSubmitting(true);
       let response;
-      
+
       if (isEditMode && topic) {
         response = await updateConversationTopic(topic.id, data);
       } else {
@@ -82,8 +85,9 @@ export default function TopicForm({
         handleError(response.error?.message);
       }
     } catch (error) {
-      toast.error("Error submitting form", {
-        description: error instanceof Error ? error.message : "An unknown error occurred"
+      toast.error('Error submitting form', {
+        description:
+          error instanceof Error ? error.message : 'An unknown error occurred',
       });
     } finally {
       setIsSubmitting(false);
@@ -92,11 +96,14 @@ export default function TopicForm({
 
   // Handle successful form submission
   const handleSuccess = (isEdit: boolean) => {
-    toast.success(isEdit ? "Topic updated successfully" : "Topic created successfully", {
-      description: isEdit 
-        ? "Your changes have been saved" 
-        : "Redirecting to topics page..."
-    });
+    toast.success(
+      isEdit ? 'Topic updated successfully' : 'Topic created successfully',
+      {
+        description: isEdit
+          ? 'Your changes have been saved'
+          : 'Redirecting to topics page...',
+      },
+    );
 
     // Reset the form
     form.reset();
@@ -108,25 +115,25 @@ export default function TopicForm({
 
     // In create mode, redirect to the topics page after a short delay
     if (!isEdit) {
-      router.push("/conversation/topics");
+      router.push('/conversation/topics');
     }
   };
 
   // Handle form submission errors
   const handleError = (error?: string) => {
-    const errorMessage = "Failed to save topic";
-    const errorDescription = error || "An unknown error occurred";
-    
+    const errorMessage = 'Failed to save topic';
+    const errorDescription = error || 'An unknown error occurred';
+
     // Display different error message for "already exists" error
-    if (error && error.includes("already exists")) {
-      toast.error("Topic already exists", {
-        description: "Please use a different title for this topic"
+    if (error && error.includes('already exists')) {
+      toast.error('Topic already exists', {
+        description: 'Please use a different title for this topic',
       });
       return;
     }
-    
+
     toast.error(errorMessage, {
-      description: errorDescription
+      description: errorDescription,
     });
   };
 
@@ -140,9 +147,9 @@ export default function TopicForm({
             <FormItem>
               <FormLabel>Topic Title</FormLabel>
               <FormControl>
-                <Input 
-                  placeholder="Enter topic title" 
-                  {...field} 
+                <Input
+                  placeholder="Enter topic title"
+                  {...field}
                   disabled={isSubmitting}
                 />
               </FormControl>
@@ -158,9 +165,9 @@ export default function TopicForm({
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea 
-                  placeholder="Enter a description for this topic" 
-                  {...field} 
+                <Textarea
+                  placeholder="Enter a description for this topic"
+                  {...field}
                   disabled={isSubmitting}
                   className="min-h-[100px]"
                 />
@@ -171,10 +178,10 @@ export default function TopicForm({
         />
 
         <DialogFooter>
-          <Button 
-            type="button" 
-            variant="ghost" 
-            onClick={onCancel} 
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onCancel}
             disabled={isSubmitting}
           >
             Cancel
@@ -182,13 +189,13 @@ export default function TopicForm({
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                {isEditMode ? "Updating..." : "Creating..."}
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {isEditMode ? 'Updating...' : 'Creating...'}
               </>
             ) : (
               <>
-                <CheckCircle className="h-4 w-4 mr-2" />
-                {isEditMode ? "Update Topic" : "Create Topic"}
+                <CheckCircle className="mr-2 h-4 w-4" />
+                {isEditMode ? 'Update Topic' : 'Create Topic'}
               </>
             )}
           </Button>

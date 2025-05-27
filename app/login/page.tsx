@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { GoogleSignIn } from "./components/google-sign-in";
-import { FacebookSignIn } from "./components/facebook-sign-in";
+import Image from 'next/image';
+import { GoogleSignIn } from './components/google-sign-in';
+import { FacebookSignIn } from './components/facebook-sign-in';
 import { logo } from '@/assets/image';
 import {
   Card,
@@ -10,10 +10,10 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle
-} from "@/components/ui/card";
-import { motion } from "framer-motion";
-import { Separator } from "@/components/ui/separator";
+  CardTitle,
+} from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import { Separator } from '@/components/ui/separator';
 
 export default function LoginPage() {
   return (
@@ -23,26 +23,26 @@ export default function LoginPage() {
       transition={{ duration: 0.5 }}
       className="w-full max-w-md"
     >
-      <Card className="w-full overflow-hidden border-none shadow-lg bg-gradient-to-b from-primary/20 to-background">
-        <CardHeader className="flex flex-col items-center pb-2 space-y-4">
+      <Card className="from-primary/20 to-background w-full overflow-hidden border-none bg-gradient-to-b shadow-lg">
+        <CardHeader className="flex flex-col items-center space-y-4 pb-2">
           <motion.div
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="relative w-24 h-24"
+            className="relative h-24 w-24"
           >
             <Image
               src={logo}
               alt="SPEA-KING Logo"
               fill
-              className="object-contain block"
+              className="block object-contain"
               priority
             />
           </motion.div>
-          <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+          <CardTitle className="from-primary to-primary/60 bg-gradient-to-r bg-clip-text text-center text-3xl font-bold text-transparent">
             Đăng Nhập
           </CardTitle>
-          <CardDescription className="text-muted-foreground text-center max-w-sm">
+          <CardDescription className="text-muted-foreground max-w-sm text-center">
             Tiếp tục học tập để cải thiện kỹ năng nói tiếng Anh của bạn
           </CardDescription>
         </CardHeader>
@@ -53,9 +53,7 @@ export default function LoginPage() {
               <Separator className="w-full" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="px-2 text-muted-foreground">
-                login with
-              </span>
+              <span className="text-muted-foreground px-2">login with</span>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -64,7 +62,7 @@ export default function LoginPage() {
           </div>
         </CardContent>
 
-        <CardFooter className="flex flex-col p-6 mt-4 space-y-4">
+        <CardFooter className="mt-4 flex flex-col space-y-4 p-6">
           <p className="text-muted-foreground text-center text-sm">
             Học nói tiếng Anh mỗi ngày, tiến bộ mỗi ngày
           </p>

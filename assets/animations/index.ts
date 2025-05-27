@@ -6,10 +6,4 @@ import world from './world.json';
 // Import all animation files
 
 // Export all animations
-export {
-    loading,
-    notfound,
-    hi,
-    sing,
-    world
-};
+export { loading, notfound, hi, sing, world };

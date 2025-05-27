@@ -1,14 +1,21 @@
-"use client"
+'use client';
 
-import type React from "react"
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { Award, MessageSquare, Mic, MoreHorizontal, User, Zap } from "lucide-react"
-import { motion } from "framer-motion"
-import { logo } from "@/assets/image"
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import {
+  Award,
+  MessageSquare,
+  Mic,
+  MoreHorizontal,
+  User,
+  Zap,
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { logo } from '@/assets/image';
 
 import {
   Sidebar,
@@ -17,100 +24,104 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { ThemeSwitcher } from "./theme-switcher"
-import { LogoutButton } from "./logout-button"
+} from '@/components/ui/sidebar';
+import { ThemeSwitcher } from './theme-switcher';
+import { LogoutButton } from './logout-button';
 
 interface NavigationItem {
-  label: string
-  href: string
-  icon: React.ReactNode
-  iconColor?: string
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+  iconColor?: string;
 }
 
 export function AppSidebar() {
-  const pathname = usePathname()
-  const [isMobile, setIsMobile] = useState(false)
-  const [isIpad, setIsIpad] = useState(false)
+  const pathname = usePathname();
+  const [isMobile, setIsMobile] = useState(false);
+  const [isIpad, setIsIpad] = useState(false);
 
   // Check if we're on mobile or iPad
   useEffect(() => {
     const checkDeviceType = () => {
-      const width = window.innerWidth
-      setIsMobile(width < 768)
-      setIsIpad(width >= 768 && width <= 1024)
-    }
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsIpad(width >= 768 && width <= 1024);
+    };
 
-    checkDeviceType()
-    window.addEventListener("resize", checkDeviceType)
+    checkDeviceType();
+    window.addEventListener('resize', checkDeviceType);
 
     return () => {
-      window.removeEventListener("resize", checkDeviceType)
-    }
-  }, [])
+      window.removeEventListener('resize', checkDeviceType);
+    };
+  }, []);
 
   // Logo to use based on theme
 
   const navigation: NavigationItem[] = [
     {
-      label: "PHÁT ÂM",
-      href: "/pronunciation",
+      label: 'PHÁT ÂM',
+      href: '/pronunciation',
       icon: <Mic className="h-6 w-6" />,
-      iconColor: "text-primary",
+      iconColor: 'text-primary',
     },
     {
-      label: "PHẢN XẠ",
-      href: "/reflex",
+      label: 'PHẢN XẠ',
+      href: '/reflex',
       icon: <Zap className="h-6 w-6" />,
-      iconColor: "text-primary",
+      iconColor: 'text-primary',
     },
     {
-      label: "GIAO TIẾP",
-      href: "/conversation",
+      label: 'GIAO TIẾP',
+      href: '/conversation',
       icon: <MessageSquare className="h-6 w-6" />,
-      iconColor: "text-primary",
+      iconColor: 'text-primary',
     },
     {
-      label: "THỐNG KÊ",
-      href: "/progress",
+      label: 'THỐNG KÊ',
+      href: '/progress',
       icon: <Award className="h-6 w-6" />,
-      iconColor: "text-primary",
+      iconColor: 'text-primary',
     },
     {
-      label: "HỒ SƠ",
-      href: "/settings",
+      label: 'HỒ SƠ',
+      href: '/settings',
       icon: <User className="h-6 w-6" />,
-      iconColor: "text-primary",
+      iconColor: 'text-primary',
     },
     {
-      label: "XEM THÊM",
-      href: "/more",
+      label: 'XEM THÊM',
+      href: '/more',
       icon: <MoreHorizontal className="h-6 w-6" />,
-      iconColor: "text-primary",
+      iconColor: 'text-primary',
     },
-  ]
+  ];
 
   // Calculate if a menu item is active
   const isActive = (href: string) => {
-    if (href === "/") return pathname === href
+    if (href === '/') return pathname === href;
     // For other paths, check if pathname starts with the href
-    return pathname.startsWith(href)
-  }
+    return pathname.startsWith(href);
+  };
 
   // Desktop or iPad sidebar
   if (!isMobile) {
     return (
-      <motion.div initial={{ x: -100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="h-screen">
+      <motion.div
+        initial={{ x: -100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        className="h-screen"
+      >
         <Sidebar
           collapsible="none"
           className={cn(
-            "py-4 border-r shadow-sm bg-secondary",
-            isIpad ? "w-28" : "min-w-28 md:min-w-64",
+            'bg-secondary border-r py-4 shadow-sm',
+            isIpad ? 'w-28' : 'min-w-28 md:min-w-64',
           )}
         >
-          <SidebarHeader className="flex flex-col items-center gap-1 mb-6">
-            <Link href="/" className="flex justify-center w-full mb-6">
-              <div className="relative w-14 h-14">
+          <SidebarHeader className="mb-6 flex flex-col items-center gap-1">
+            <Link href="/" className="mb-6 flex w-full justify-center">
+              <div className="relative h-14 w-14">
                 <Image
                   src={logo}
                   alt="SPEA-KING Logo"
@@ -121,7 +132,7 @@ export function AppSidebar() {
               </div>
             </Link>
           </SidebarHeader>
-          <SidebarContent className="flex-1 flex flex-col items-center gap-2 px-4 overflow-y-auto">
+          <SidebarContent className="flex flex-1 flex-col items-center gap-2 overflow-y-auto px-4">
             <SidebarMenu className="flex-1">
               {navigation.map((item) => (
                 <SidebarMenuItem key={item.href}>
@@ -129,35 +140,31 @@ export function AppSidebar() {
                     asChild
                     isActive={isActive(item.href)}
                     className={cn(
-                      "w-full h-14 flex items-center rounded-xl transition-all",
-                      isIpad ? "justify-center" : "justify-center md:justify-start",
+                      'flex h-14 w-full items-center rounded-xl transition-all',
+                      isIpad
+                        ? 'justify-center'
+                        : 'justify-center md:justify-start',
                       isActive(item.href)
-                        ? "bg-primary border-primary/60"
-                        : "border-transparent",
+                        ? 'bg-primary border-primary/60'
+                        : 'border-transparent',
                     )}
                     data-active={isActive(item.href)}
                   >
                     <Link
                       href={item.href}
                       className={cn(
-                        "flex items-center justify-bg",
+                        'justify-bg flex items-center',
                         isActive(item.href)
-                          ? "bg-primary border-primary/60"
-                          : "border-transparent",
+                          ? 'bg-primary border-primary/60'
+                          : 'border-transparent',
                       )}
                     >
-                      <div
-                        className={cn(
-                          isIpad ? "mx-auto" : "ml-2 mr-5",
-                        )}
-                      >
+                      <div className={cn(isIpad ? 'mx-auto' : 'mr-5 ml-2')}>
                         {item.icon}
                       </div>
                       {!isIpad && (
                         <span
-                          className={cn(
-                            "text-xs font-bold hidden md:block",
-                          )}
+                          className={cn('hidden text-xs font-bold md:block')}
                         >
                           {item.label}
                         </span>
@@ -167,34 +174,36 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
-            <div className="mt-auto w-full flex flex-col gap-2">
+            <div className="mt-auto flex w-full flex-col gap-2">
               <ThemeSwitcher />
               <LogoutButton isIpad={isIpad} />
             </div>
           </SidebarContent>
         </Sidebar>
       </motion.div>
-    )
+    );
   }
 
   // Mobile sidebar (bottom navigation)
   return (
-    <div
-      className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-secondary border-t border-gray-200 dark:border-gray-800 shadow-lg"
-    >
-      <div className="flex justify-between items-center px-1 py-2">
+    <div className="bg-secondary fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 shadow-lg md:hidden dark:border-gray-800">
+      <div className="flex items-center justify-between px-1 py-2">
         {navigation.slice(0, 5).map((item) => (
           <Link key={item.href} href={item.href} className="w-full">
             <div className="flex flex-col items-center">
               <div
                 className={cn(
-                  "w-12 h-12 flex items-center justify-center rounded-xl transition-all",
+                  'flex h-12 w-12 items-center justify-center rounded-xl transition-all',
                   isActive(item.href)
-                    ? "bg-primary text-white"
-                    : "text-muted-foreground"
+                    ? 'bg-primary text-white'
+                    : 'text-muted-foreground',
                 )}
               >
-                <div className={isActive(item.href) ? "text-white" : item.iconColor}>
+                <div
+                  className={
+                    isActive(item.href) ? 'text-white' : item.iconColor
+                  }
+                >
                   {item.icon}
                 </div>
               </div>
@@ -203,5 +212,5 @@ export function AppSidebar() {
         ))}
       </div>
     </div>
-  )
+  );
 }

@@ -1,6 +1,7 @@
 # Sơ đồ Quan hệ Cơ sở Dữ liệu - Hệ thống Quản lý Người dùng
 
 ## Mô tả
+
 Sơ đồ dưới đây mô tả mối quan hệ giữa các bảng trong cơ sở dữ liệu của ứng dụng.
 
 ```mermaid
@@ -14,7 +15,7 @@ erDiagram
         string image
         enum role
     }
-    
+
     Account {
         string id PK
         string userId FK
@@ -29,20 +30,20 @@ erDiagram
         string id_token
         string session_state
     }
-    
+
     Session {
         string id PK
         string sessionToken UK
         string userId FK
         datetime expires
     }
-    
+
     VerificationToken {
         string identifier
         string token
         datetime expires
     }
-    
+
     UserPreference {
         string id PK
         string userId FK "UK"
@@ -51,7 +52,7 @@ erDiagram
         boolean notificationsEnabled
         boolean speechRecognitionEnabled
     }
-    
+
     ExerciseResult {
         string id PK
         enum exerciseType
@@ -62,7 +63,7 @@ erDiagram
         string userId FK
         string exerciseId FK
     }
-    
+
     CustomLesson {
         string id PK
         string title
@@ -73,7 +74,7 @@ erDiagram
         datetime updatedAt
         string userId FK
     }
-    
+
     Exercise {
         string id PK
         string title
@@ -86,7 +87,7 @@ erDiagram
         string createdBy FK
         boolean isPublic
     }
-    
+
     Question {
         string id PK
         string exerciseId FK
@@ -94,7 +95,7 @@ erDiagram
         string answer
         json options
     }
-    
+
     Progress {
         string id PK
         string userId FK
@@ -104,7 +105,7 @@ erDiagram
         float bestScore
         int completionCount
     }
-    
+
     Achievement {
         string id PK
         string name
@@ -112,14 +113,14 @@ erDiagram
         json criteria
         string image
     }
-    
+
     UserAchievement {
         string id PK
         string userId FK
         string achievementId FK
         datetime unlockedAt
     }
-    
+
     StudySession {
         string id PK
         string userId FK
@@ -127,7 +128,7 @@ erDiagram
         datetime endTime
         int duration
     }
-    
+
     ActivityLog {
         string id PK
         string sessionId FK
@@ -137,7 +138,7 @@ erDiagram
         datetime timestamp
         json metadata
     }
-    
+
     User ||--o{ Account : "has"
     User ||--o{ Session : "has"
     User ||--o{ ExerciseResult : "has"
@@ -147,45 +148,52 @@ erDiagram
     User ||--o{ UserAchievement : "earns"
     User ||--o{ StudySession : "has"
     User ||--|| UserPreference : "has"
-    
+
     Exercise ||--o{ Question : "contains"
     Exercise ||--o{ ExerciseResult : "has"
     Exercise ||--o{ Progress : "tracks"
-    
+
     Achievement ||--o{ UserAchievement : "awarded as"
-    
+
     StudySession ||--o{ ActivityLog : "records"
 ```
 
 ## Giải thích Các Quan hệ
 
 ### Người dùng và Xác thực
+
 - Một **User** có thể có nhiều **Account** (xác thực bên thứ 3)
 - Một **User** có thể có nhiều **Session** (phiên đăng nhập)
 - Mỗi **User** có chính xác một **UserPreference** (thiết lập người dùng)
 
 ### Người dùng và Nội dung
+
 - Một **User** có thể tạo nhiều **CustomLesson** (bài học tùy chỉnh)
 - Một **User** có thể tạo nhiều **Exercise** (bài tập)
 - Một **User** có thể có nhiều **ExerciseResult** (kết quả bài tập)
 
 ### Người dùng và Tiến độ
+
 - Một **User** có thể có nhiều **Progress** (tiến độ học tập)
 - Một **User** có thể đạt được nhiều **UserAchievement** (thành tích)
 - Một **User** có thể có nhiều **StudySession** (phiên học tập)
 
 ### Bài tập và Câu hỏi
+
 - Một **Exercise** chứa nhiều **Question** (câu hỏi)
 - Một **Exercise** có thể có nhiều **ExerciseResult** (kết quả)
 - Một **Exercise** có thể có nhiều **Progress** (tiến độ học tập)
 
 ### Thành tích
+
 - Một **Achievement** có thể được cấp cho nhiều người dùng qua **UserAchievement**
 
 ### Phiên học
+
 - Một **StudySession** ghi lại nhiều **ActivityLog** (hoạt động học tập)
 
 ## Các Enum
+
 - **Role**: USER, ADMIN
 - **ExerciseType**: REFLEX, PRONUNCIATION, VOCABULARY, GRAMMAR, LISTENING, SPEAKING
 - **Difficulty**: EASY, MEDIUM, HARD

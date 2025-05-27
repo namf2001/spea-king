@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { signInWithGoogle } from "@/app/actions/auth";
-import { useFormStatus } from "react-dom";
+import { Button } from '@/components/ui/button';
+import { signInWithGoogle } from '@/app/actions/auth';
+import { useFormStatus } from 'react-dom';
 
 const GoogleSignInButton = () => {
   const { pending } = useFormStatus();
-  
+
   return (
     <Button
       variant="outline"
-      className="w-full relative overflow-hidden group"
+      className="group relative w-full overflow-hidden"
       disabled={pending}
       aria-label="Sign in with Google"
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+      <div className="absolute inset-0 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-1000 group-hover:translate-x-[100%]" />
       {pending ? (
         <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
       ) : (

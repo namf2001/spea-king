@@ -1,13 +1,16 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { LottieAnimation, LottieSize } from "@/components/animations/lottie-animation";
-import { cn } from "@/lib/utils";
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  LottieAnimation,
+  LottieSize,
+} from '@/components/animations/lottie-animation';
+import { cn } from '@/lib/utils';
 
 // Định nghĩa type cho LottieButtonProps bằng cách mở rộng từ props của Button
 export interface LottieButtonProps
-  extends Omit<React.ComponentPropsWithoutRef<typeof Button>, "asChild"> {
+  extends Omit<React.ComponentPropsWithoutRef<typeof Button>, 'asChild'> {
   /**
    * Đường dẫn đến file animation Lottie
    */
@@ -23,7 +26,7 @@ export interface LottieButtonProps
    * Vị trí của animation (trái hoặc phải)
    * @default "left"
    */
-  animationPosition?: "left" | "right";
+  animationPosition?: 'left' | 'right';
 
   /**
    * Có hiển thị animation chỉ khi hover không
@@ -47,8 +50,8 @@ export interface LottieButtonProps
 export function LottieButton({
   children,
   lottieAnimation,
-  animationSize = "sm",
-  animationPosition = "left",
+  animationSize = 'sm',
+  animationPosition = 'left',
   animateOnHover = false,
   className,
   loop = true,
@@ -62,9 +65,9 @@ export function LottieButton({
   return (
     <Button
       className={cn(
-        "flex items-center gap-2",
-        animationPosition === "right" && "flex-row-reverse",
-        className
+        'flex items-center gap-2',
+        animationPosition === 'right' && 'flex-row-reverse',
+        className,
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -80,9 +83,9 @@ export function LottieButton({
           autoplay={true}
           speed={speed}
           className={cn(
-            "shrink-0",
-            animateOnHover && "transition-opacity",
-            animateOnHover && !isHovered && "opacity-0"
+            'shrink-0',
+            animateOnHover && 'transition-opacity',
+            animateOnHover && !isHovered && 'opacity-0',
           )}
         />
       )}

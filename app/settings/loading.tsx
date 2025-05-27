@@ -1,22 +1,22 @@
-import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 export default function SettingsLoading() {
   return (
     <div className="container mx-auto my-8 space-y-6">
       {/* Tiêu đề trang */}
-      <div className="flex items-center gap-2 mb-8">
+      <div className="mb-8 flex items-center gap-2">
         <Skeleton className="h-8 w-8 rounded-full" />
         <Skeleton className="h-8 w-40" />
       </div>
-      
+
       {/* Tabs cài đặt */}
-      <div className="flex gap-4 border-b mb-6">
+      <div className="mb-6 flex gap-4 border-b">
         {[1, 2, 3, 4].map((i) => (
           <Skeleton key={i} className="h-10 w-24" />
         ))}
       </div>
-      
+
       {/* Form cài đặt */}
       <Card>
         <CardHeader>
@@ -34,7 +34,7 @@ export default function SettingsLoading() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Thẻ thông tin tài khoản */}
       <Card>
         <CardHeader>
@@ -51,5 +51,5 @@ export default function SettingsLoading() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

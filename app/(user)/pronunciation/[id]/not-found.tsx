@@ -1,19 +1,26 @@
-import Link from 'next/link'
-import { ArrowLeft, FolderSearch } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import Link from 'next/link';
+import { ArrowLeft, FolderSearch } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 export default function PronunciationExerciseNotFound() {
   return (
     <div className="container mx-auto my-12 flex flex-col items-center justify-center">
-      <Card className="max-w-md w-full">
+      <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <FolderSearch className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+          <FolderSearch className="text-muted-foreground mx-auto mb-2 h-12 w-12" />
           <CardTitle className="text-xl">Không tìm thấy bài tập</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground text-center">
-            Bài tập phát âm này không tồn tại hoặc đã bị xóa. Vui lòng thử một bài tập khác.
+            Bài tập phát âm này không tồn tại hoặc đã bị xóa. Vui lòng thử một
+            bài tập khác.
           </p>
         </CardContent>
         <CardFooter className="flex justify-center">
@@ -26,5 +33,5 @@ export default function PronunciationExerciseNotFound() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
