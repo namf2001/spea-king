@@ -21,19 +21,19 @@ export default async function ReflexPage() {
   const error = response.success ? undefined : response.error?.message;
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-2 py-8 sm:px-4 sm:py-12">
       <Suspense
         fallback={
           <div className="flex h-32 items-center justify-center">
             <div className="border-primary h-12 w-12 animate-spin rounded-full border-t-2 border-b-2"></div>
-            <p className="text-muted-foreground ml-2">Loading questions...</p>
+            <p className="text-muted-foreground ml-2 text-sm">Loading questions...</p>
           </div>
         }
       >
         {error ? (
-          <div className="bg-destructive/10 border-destructive/20 text-destructive rounded-md border p-4">
-            <p>Error loading questions: {error}</p>
-            <p>Using default questions instead.</p>
+          <div className="bg-destructive/10 border-destructive/20 text-destructive mb-6 rounded-md border p-4">
+            <p className="text-sm font-medium">Error loading questions: {error}</p>
+            <p className="text-xs mt-1">Using default questions instead.</p>
           </div>
         ) : null}
 

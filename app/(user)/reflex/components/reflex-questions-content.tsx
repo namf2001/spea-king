@@ -141,7 +141,7 @@ export default function ReflexQuestionsContent({
 
       {!error && questions.length > 0 && (
         <>
-          <div className="animate-slideInLeft mb-8 flex items-center justify-between">
+          <div className="animate-slideInLeft mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <motion.div
                 className="bg-primary relative overflow-hidden rounded-full p-2"
@@ -164,7 +164,7 @@ export default function ReflexQuestionsContent({
                 />
                 <BrainCircuit className="relative z-10 h-5 w-5 text-white sm:h-6 sm:w-6" />
               </motion.div>
-              <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
+              <h1 className="text-lg font-bold sm:text-xl md:text-2xl lg:text-3xl">
                 Reflex Questions
               </h1>
             </div>
@@ -174,15 +174,17 @@ export default function ReflexQuestionsContent({
                   setEditingQuestion(null); // Ensure we're in create mode
                   setIsModalOpen(true);
                 }}
-                className="flex items-center gap-2"
+                className="flex w-full items-center gap-2 sm:w-auto"
                 size="sm"
               >
-                <Plus className="h-4 w-4" /> New Question
+                <Plus className="h-4 w-4" /> 
+                <span className="sm:hidden">New</span>
+                <span className="hidden sm:inline">New Question</span>
               </Button>
             </motion.div>
           </div>
           <motion.div
-            className="grid grid-cols-1 gap-6 md:grid-cols-2"
+            className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:gap-8"
             initial="hidden"
             animate="show"
             variants={{
@@ -217,22 +219,22 @@ export default function ReflexQuestionsContent({
                   transition={{ type: 'spring', stiffness: 400, damping: 10 }}
                 >
                   <Card className="hover:border-primary/50 overflow-hidden border transition-all">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <CardTitle className="text-lg leading-tight font-bold">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <CardTitle className="text-base font-bold leading-tight sm:text-lg">
                           {question.question}
                         </CardTitle>
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="flex-shrink-0 text-xs">
                           {new Date(question.createdAt).toLocaleDateString()}
                         </Badge>
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground mb-2 line-clamp-3 text-sm">
+                    <CardContent className="pb-3">
+                      <p className="text-muted-foreground line-clamp-3 text-xs sm:text-sm">
                         {question.answer}
                       </p>
                     </CardContent>
-                    <CardFooter className="bg-muted flex items-center justify-between border-t px-4">
+                    <CardFooter className="bg-muted flex flex-col gap-3 border-t px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
                       <DropdownMenu>
                         <motion.div
                           whileHover={{ scale: 1.05 }}
@@ -242,7 +244,7 @@ export default function ReflexQuestionsContent({
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="flex items-center gap-1 text-xs"
+                              className="flex w-full items-center gap-1 text-xs sm:w-auto"
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -256,7 +258,7 @@ export default function ReflexQuestionsContent({
                                 strokeLinejoin="round"
                                 className="lucide lucide-settings"
                               >
-                                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
                                 <circle cx="12" cy="12" r="3"></circle>
                               </svg>
                               Actions
@@ -300,11 +302,12 @@ export default function ReflexQuestionsContent({
                       >
                         <Button
                           size="sm"
-                          className="flex items-center gap-1"
+                          className="flex w-full items-center gap-1 sm:w-auto"
                           asChild
                         >
                           <Link href={`/reflex?question=${question.id}`}>
-                            Practice
+                            <span className="sm:hidden">Practice</span>
+                            <span className="hidden sm:inline">Practice</span>
                             <motion.svg
                               xmlns="http://www.w3.org/2000/svg"
                               width="14"

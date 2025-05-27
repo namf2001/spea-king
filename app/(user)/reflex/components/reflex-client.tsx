@@ -337,13 +337,13 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
 
   return (
     <motion.div
-      className="mx-auto max-w-4xl"
+      className="mx-auto w-full max-w-4xl px-2 sm:px-4"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
       <motion.div
-        className="mb-8 flex items-center justify-between"
+        className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
@@ -352,16 +352,16 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
           <div className="bg-primary relative overflow-hidden rounded-full p-2">
             <BrainCircuit className="relative z-10 h-5 w-5 text-white sm:h-6 sm:w-6" />
           </div>
-          <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
+          <h1 className="text-lg font-bold sm:text-xl md:text-2xl lg:text-3xl">
             Conversation Practice
           </h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
-                className="flex items-center gap-2"
+                className="flex w-full items-center justify-center gap-2 sm:w-auto"
                 onClick={() => setShowCustomForm(!showCustomForm)}
               >
                 {showCustomForm ? (
@@ -369,7 +369,12 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
                 ) : (
                   <PenSquare className="h-4 w-4" />
                 )}
-                {showCustomForm ? 'Cancel' : 'Custom Question'}
+                <span className="sm:hidden">
+                  {showCustomForm ? 'Cancel' : 'Custom'}
+                </span>
+                <span className="hidden sm:inline">
+                  {showCustomForm ? 'Cancel' : 'Custom Question'}
+                </span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -382,10 +387,12 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
               <Button
                 asChild
                 variant="outline"
-                className="flex items-center gap-2"
+                className="flex w-full items-center justify-center gap-2 sm:w-auto"
               >
                 <Link href="/reflex/question">
-                  <ListPlus className="h-4 w-4" /> My Questions
+                  <ListPlus className="h-4 w-4" />
+                  <span className="sm:hidden">Questions</span>
+                  <span className="hidden sm:inline">My Questions</span>
                 </Link>
               </Button>
             </TooltipTrigger>
@@ -404,16 +411,16 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
             className="mb-6"
           >
             <Card className="border-2 shadow-md">
-              <CardHeader>
-                <CardTitle className="text-lg">Custom Question</CardTitle>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-base sm:text-lg">Custom Question</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 <form
                   onSubmit={handleCustomQuestionSubmit}
                   className="space-y-4"
                 >
                   <div className="space-y-2">
-                    <Label htmlFor="customQuestion">Your Question</Label>
+                    <Label htmlFor="customQuestion" className="text-sm font-medium">Your Question</Label>
                     <Input
                       id="customQuestion"
                       value={customQuestion}
@@ -425,7 +432,7 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
                   <div className="space-y-2">
                     <Label
                       htmlFor="customAnswer"
-                      className="flex items-center justify-between"
+                      className="flex items-center justify-between text-sm font-medium"
                     >
                       <span>Sample Answer (Optional)</span>
                     </Label>
@@ -434,18 +441,19 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
                       value={customAnswer}
                       onChange={(e) => setCustomAnswer(e.target.value)}
                       placeholder="Enter a sample answer or leave empty to practice without one..."
-                      className="min-h-[100px] w-full"
+                      className="min-h-[80px] w-full sm:min-h-[100px]"
                     />
                   </div>
-                  <div className="flex justify-end gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
                     <Button
                       variant="outline"
                       type="button"
                       onClick={() => setShowCustomForm(false)}
+                      className="w-full sm:w-auto"
                     >
                       Cancel
                     </Button>
-                    <Button type="submit">Use This Question</Button>
+                    <Button type="submit" className="w-full sm:w-auto">Use This Question</Button>
                   </div>
                 </form>
               </CardContent>
@@ -458,10 +466,10 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="mb-6 flex items-center justify-between rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20"
+          className="mb-6 flex flex-col gap-3 rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20 sm:flex-row sm:items-center sm:justify-between"
         >
           <div className="flex items-center gap-2">
-            <InfoIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <InfoIcon className="h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-400" />
             <p className="text-sm text-blue-700 dark:text-blue-300">
               Using custom question mode
             </p>
@@ -470,7 +478,7 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
             variant="ghost"
             size="sm"
             onClick={handleResetToDefaultQuestions}
-            className="text-blue-700 hover:bg-blue-100 dark:text-blue-300 dark:hover:bg-blue-800"
+            className="w-full text-blue-700 hover:bg-blue-100 dark:text-blue-300 dark:hover:bg-blue-800 sm:w-auto"
           >
             Return to Standard Questions
           </Button>

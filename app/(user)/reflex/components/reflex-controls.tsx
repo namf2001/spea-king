@@ -61,21 +61,21 @@ export function ReflexControls({
   };
 
   return (
-    <div className="mb-10">
+    <div className="mb-6 sm:mb-10">
       <motion.div
-        className="from-primary/20 to-background flex flex-col items-center rounded-xl bg-gradient-to-t p-6"
+        className="from-primary/20 to-background flex flex-col items-center rounded-xl bg-gradient-to-t p-4 sm:p-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         {isListening && getAudioData && (
           <motion.div
-            className="mb-6 w-full"
+            className="mb-4 w-full sm:mb-6"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
           >
-            <div className="mb-2 flex items-center justify-between">
+            <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
                 <div className="bg-primary h-3 w-3 animate-pulse rounded-full"></div>
                 <p className="text-primary text-sm font-medium">Recording...</p>
@@ -98,7 +98,7 @@ export function ReflexControls({
           </motion.div>
         )}
 
-        <div className="flex w-full max-w-lg flex-col items-center justify-center gap-4 sm:flex-row">
+        <div className="flex w-full max-w-lg flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
           <AnimatePresence mode="wait">
             {/* Extract nested ternary operation into independent conditional statements */}
             {isCountingDown && (
@@ -109,10 +109,10 @@ export function ReflexControls({
                 exit={{ scale: 0.8, opacity: 0 }}
                 className="flex flex-col items-center justify-center gap-2"
               >
-                <div className="text-primary text-4xl font-bold">
+                <div className="text-primary text-3xl font-bold sm:text-4xl">
                   {countdown}
                 </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
                   Chuẩn bị trả lời...
                 </p>
               </motion.div>
@@ -130,10 +130,10 @@ export function ReflexControls({
                   onClick={onStopListening}
                   variant="destructive"
                   size="lg"
-                  className="pulse-animation relative flex h-14 w-full items-center gap-2 rounded-xl px-6 shadow-md sm:w-auto"
+                  className="pulse-animation relative flex h-12 w-full items-center gap-2 rounded-xl px-4 shadow-md sm:h-14 sm:w-auto sm:px-6"
                 >
-                  <StopCircle className="h-5 w-5" />
-                  <span className="font-medium">Dừng</span>
+                  <StopCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="text-sm font-medium sm:text-base">Dừng</span>
                 </Button>
               </motion.div>
             )}
@@ -148,10 +148,12 @@ export function ReflexControls({
               >
                 <Button
                   onClick={handlePrepareStartListening}
-                  disabled={isRecognizing}
+                  disabled={isRecognizing || disabled}
+                  size="lg"
+                  className="flex h-12 w-full items-center gap-2 rounded-xl px-4 shadow-md sm:h-14 sm:w-auto sm:px-6"
                 >
-                  <Mic className="h-5 w-5" />
-                  <span className="font-medium">
+                  <Mic className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="text-sm font-medium sm:text-base">
                     {isRecognizing ? 'Đang nghe...' : 'Trả lời'}
                   </span>
                 </Button>
@@ -163,17 +165,21 @@ export function ReflexControls({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.2, delay: 0.1 }}
-            className="mt-2 flex w-full justify-center sm:mt-0 sm:w-auto"
+            className="flex w-full justify-center sm:w-auto"
           >
-            <Button onClick={onNextQuestion} variant="ghost">
-              <SkipForward className="h-5 w-5" />
-              <span>Câu tiếp</span>
+            <Button 
+              onClick={onNextQuestion} 
+              variant="ghost"
+              className="flex h-10 w-full items-center gap-2 sm:h-auto sm:w-auto"
+            >
+              <SkipForward className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="text-sm sm:text-base">Câu tiếp</span>
             </Button>
           </motion.div>
         </div>
 
-        <div className="mt-8 flex items-center gap-2 text-sm">
-          <Clock className="h-4 w-4" />
+        <div className="mt-6 flex items-center gap-2 text-xs sm:mt-8 sm:text-sm">
+          <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
           <span>Time remaining: {formatTime(timeRemaining)}</span>
         </div>
       </motion.div>

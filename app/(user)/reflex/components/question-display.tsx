@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { Volume2 } from 'lucide-react';
+import { Volume2, Mic } from 'lucide-react';
 import { useSpeechSynthesis } from '@/hooks/use-speech-synthesis';
 import { toast } from 'sonner';
 
@@ -30,8 +31,8 @@ export function QuestionDisplay({
   timeRemaining = 45, // Default value if not provided
   isAnswering,
 }: QuestionDisplayProps) {
-  const { speak, isSpeaking, error } = useSpeechSynthesis();
   const [showAnswer, setShowAnswer] = useState(false);
+  const { speak, isSpeaking, error } = useSpeechSynthesis();
 
   useEffect(() => {
     setShowAnswer(false);
@@ -56,6 +57,17 @@ export function QuestionDisplay({
     }
   };
 
+  const handlePlayAnswer = async () => {
+    try {
+      await speak(question.answer);
+    } catch (err) {
+      toast.error('Error', {
+        description:
+          err instanceof Error ? err.message : 'Không thể phát câu trả lời',
+      });
+    }
+  };
+
   // Calculate progress percentage
   const calculateProgressPercentage = () => {
     if (timeRemaining) {
@@ -73,7 +85,6 @@ export function QuestionDisplay({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       key={question.id}
-      className="mb-8"
     >
       <Card className="gap-0 overflow-hidden border-2 pt-0 shadow-md">
         {/* Thanh thời gian */}
@@ -88,27 +99,27 @@ export function QuestionDisplay({
           </div>
         )}
 
-        <CardHeader className="from-primary/20 to-background bg-gradient-to-b py-4">
-          <CardTitle className="flex items-center justify-between">
-            <h3 className="font-medium">
+        <CardHeader className="from-primary/20 to-background bg-gradient-to-b py-3 sm:py-4">
+          <CardTitle className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h3 className="text-sm font-medium sm:text-base">
               Câu hỏi {currentIndex + 1}/{totalQuestions}
             </h3>
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="p-6">
-          <div className="flex flex-col gap-6">
-            <div className="bg-primary/10 border-primary/20 relative rounded-lg border p-6 text-center shadow-inner">
-              <p className="text-2xl font-medium tracking-wide">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex flex-col gap-4 sm:gap-6">
+            <div className="bg-primary/10 border-primary/20 relative rounded-lg border p-4 text-center shadow-inner sm:p-6">
+              <p className="text-lg font-medium tracking-wide sm:text-xl lg:text-2xl">
                 {question.question}
               </p>
               <button
                 onClick={handlePlayQuestion}
                 disabled={isSpeaking}
-                className="text-primary hover:text-primary/80 hover:bg-primary/10 absolute top-3 right-3 rounded-full p-2 transition-colors"
+                className="text-primary hover:text-primary/80 hover:bg-primary/10 absolute top-2 right-2 rounded-full p-1.5 transition-colors sm:top-3 sm:right-3 sm:p-2"
                 aria-label="Phát câu hỏi"
               >
-                <Volume2 className="h-5 w-5" />
+                <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             </div>
 
@@ -117,22 +128,53 @@ export function QuestionDisplay({
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 transition={{ duration: 0.3 }}
-                className="bg-primary/10 border-primary/20 relative rounded-lg border p-6 text-center shadow-inner"
+                className="bg-primary/10 border-primary/20 relative rounded-lg border p-4 text-center shadow-inner sm:p-6"
               >
-                <div className="mb-2 flex items-start gap-2">
-                  <Badge variant="secondary">Câu trả lời mẫu</Badge>
+                <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-2">
+                  <Badge variant="secondary" className="text-xs">
+                    Câu trả lời mẫu
+                  </Badge>
+                  <button
+                    onClick={handlePlayAnswer}
+                    disabled={isSpeaking}
+                    className="text-primary hover:text-primary/80 hover:bg-primary/10 ml-auto rounded-full p-1 transition-colors sm:p-1.5"
+                    aria-label="Phát câu trả lời"
+                  >
+                    <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </button>
                 </div>
-                <p>{question.answer}</p>
+                <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300 sm:text-base">
+                  {question.answer}
+                </p>
               </motion.div>
             )}
 
             {isAnswering && !showAnswer && (
-              <button
-                onClick={() => setShowAnswer(true)}
-                className="self-end text-sm text-blue-600 hover:underline dark:text-blue-400"
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center gap-3 rounded-lg border-2 border-dashed border-gray-300 p-4 dark:border-gray-600 sm:gap-4 sm:p-6"
               >
-                Xem câu trả lời mẫu
-              </button>
+                <div className="bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-full sm:h-16 sm:w-16">
+                  <Mic className="h-5 w-5 animate-pulse sm:h-6 sm:w-6" />
+                </div>
+                <div className="text-center">
+                  <p className="text-primary text-sm font-medium sm:text-base">
+                    Đang nghe câu trả lời của bạn...
+                  </p>
+                  <p className="text-muted-foreground mt-1 text-xs sm:text-sm">
+                    Nói câu trả lời của bạn một cách tự nhiên
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAnswer(true)}
+                  className="text-xs sm:text-sm"
+                >
+                  Xem câu trả lời mẫu
+                </Button>
+              </motion.div>
             )}
           </div>
         </CardContent>
