@@ -2,6 +2,9 @@ import { Suspense } from "react"
 import { getUserSpeakingStats } from "@/app/actions/speech"
 import ProgressClient from "./components/progress-client"
 
+// Force dynamic rendering since we use authentication
+export const dynamic = 'force-dynamic'
+
 export default async function ProgressPage() {
     const response = await getUserSpeakingStats()
     const stats = response.success && response.data ? response.data : null
