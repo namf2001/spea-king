@@ -1,21 +1,21 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-
-export const lessonSchema = z.object({
+export const lessonSchema = z
+  .object({
     title: z.string().min(1, {
-      message: "Title is required",
+      message: 'Title is required',
     }),
     words: z
       .array(
         z.object({
           id: z.string(),
           word: z.string().min(1, {
-            message: "Word is required",
+            message: 'Word is required',
           }),
-        })
+        }),
       )
       .min(1, {
-        message: "At least one word is required",
+        message: 'At least one word is required',
       }),
-  }).strict();
-
+  })
+  .strict();

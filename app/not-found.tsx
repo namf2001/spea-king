@@ -1,17 +1,19 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
-import { logo } from "@/assets/image";
-import { notfound } from "@/assets/animations";
-import { Button } from "@/components/ui/button";
-import { LottieAnimation } from "@/components/animations/lottie-animation";
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import Link from 'next/link';
+import Image from 'next/image';
+import { logo } from '@/assets/image';
+import { notfound } from '@/assets/animations';
+import { Button } from '@/components/ui/button';
+import { LottieAnimation } from '@/components/animations/lottie-animation';
+import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
 // Tách Stars background thành component riêng
 const StarsBackground = () => {
-  const [stars, setStars] = useState<Array<{ key: number; size: number; top: number; left: number }>>([]);
+  const [stars, setStars] = useState<
+    Array<{ key: number; size: number; top: number; left: number }>
+  >([]);
 
   useEffect(() => {
     // Tạo các ngôi sao chỉ ở phía client
@@ -30,7 +32,7 @@ const StarsBackground = () => {
       {stars.map((star) => (
         <div
           key={star.key}
-          className="absolute bg-white dark:bg-gray-400 rounded-full opacity-30"
+          className="absolute rounded-full bg-white opacity-30 dark:bg-gray-400"
           style={{
             width: `${star.size}px`,
             height: `${star.size}px`,
@@ -45,13 +47,13 @@ const StarsBackground = () => {
 
 export default function NotFound() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-b from-primary/5 to-background">
+    <main className="from-primary/5 to-background relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-b">
       {/* Stars background effect */}
       <StarsBackground />
 
-      <div className="container mx-auto px-4 py-8 z-10 text-center">
+      <div className="z-10 container mx-auto px-4 py-8 text-center">
         {/* Header with logo */}
-        <div className="flex justify-center mb-8">
+        <div className="mb-8 flex justify-center">
           <Link href="/" className="flex items-center space-x-2">
             <Image
               src={logo}
@@ -69,12 +71,12 @@ export default function NotFound() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="max-w-md mx-auto mb-8"
+          className="mx-auto mb-8 max-w-md"
         >
           <LottieAnimation
             src={notfound}
             size="full"
-            className="w-full max-w-sm mx-auto"
+            className="mx-auto w-full max-w-sm"
             loop={true}
             autoplay={true}
           />
@@ -87,11 +89,12 @@ export default function NotFound() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mb-10"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">
+          <h1 className="text-primary mb-4 text-4xl font-bold md:text-5xl">
             Oops! Trang không tìm thấy
           </h1>
-          <p className="text-muted-foreground text-lg max-w-md mx-auto mb-8">
-            Trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển sang địa chỉ khác.
+          <p className="text-muted-foreground mx-auto mb-8 max-w-md text-lg">
+            Trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển sang địa
+            chỉ khác.
           </p>
           <Link href="/">
             <Button size="lg" className="px-8">

@@ -1,18 +1,25 @@
-"use client"
+'use client';
 
-import { useState, useTransition } from "react"
-import { AlertTriangle, Loader2, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { deleteReflexQuestion } from "@/app/actions/reflex"
+import { useState, useTransition } from 'react';
+import { AlertTriangle, Loader2, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { deleteReflexQuestion } from '@/app/actions/reflex';
 
 interface DeleteQuestionDialogProps {
-  isOpen: boolean
-  questionId: string
-  questionText: string
-  userId: string
-  onClose: () => void
+  isOpen: boolean;
+  questionId: string;
+  questionText: string;
+  userId: string;
+  onClose: () => void;
 }
 
 export default function DeleteQuestionDialog({
@@ -20,62 +27,61 @@ export default function DeleteQuestionDialog({
   questionId,
   questionText,
   userId,
-  onClose
+  onClose,
 }: DeleteQuestionDialogProps) {
-  const [isPending, startTransition] = useTransition()
-  const [error, setError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   const handleDelete = () => {
-    setError(null)
-    
+    setError(null);
+
     startTransition(async () => {
       try {
-        const response = await deleteReflexQuestion(questionId)
-        
+        const response = await deleteReflexQuestion(questionId);
+
         if (!response.success) {
-          throw new Error(response.error?.message || "Failed to delete question")
+          throw new Error(
+            response.error?.message || 'Failed to delete question',
+          );
         }
-        
-        onClose()
+
+        onClose();
       } catch (error) {
         if (error instanceof Error) {
-          setError(error.message)
+          setError(error.message);
         } else {
-          setError("An unexpected error occurred")
+          setError('An unexpected error occurred');
         }
       }
-    })
-  }
+    });
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-destructive" />
+            <AlertTriangle className="text-destructive h-5 w-5" />
             Delete Question
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete this question? This action cannot be undone.
+            Are you sure you want to delete this question? This action cannot be
+            undone.
           </DialogDescription>
         </DialogHeader>
-        
-        <div className="border rounded-md p-3 bg-muted/50 my-2">
-          <p className="font-medium text-sm truncate">{questionText}</p>
+
+        <div className="bg-muted/50 my-2 rounded-md border p-3">
+          <p className="truncate text-sm font-medium">{questionText}</p>
         </div>
-        
+
         {error && (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        
-        <DialogFooter className="gap-2 flex justify-end">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={isPending}
-          >
+
+        <DialogFooter className="flex justify-end gap-2">
+          <Button variant="outline" onClick={onClose} disabled={isPending}>
             Cancel
           </Button>
           <Button
@@ -86,12 +92,12 @@ export default function DeleteQuestionDialog({
           >
             {isPending ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" /> 
+                <Loader2 className="h-4 w-4 animate-spin" />
                 Deleting...
               </>
             ) : (
               <>
-                <Trash2 className="h-4 w-4" /> 
+                <Trash2 className="h-4 w-4" />
                 Delete
               </>
             )}
@@ -99,5 +105,5 @@ export default function DeleteQuestionDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

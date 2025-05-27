@@ -1,23 +1,21 @@
-import { auth } from "@/lib/auth";
-import { Header } from "./components/header";
-import { redirect } from "next/navigation";
+import { auth } from '@/lib/auth';
+import { Header } from './components/header';
+import { redirect } from 'next/navigation';
 
 export default async function LoginLayout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    const session = await auth();
-    if (session?.user) {
-        redirect("/pronunciation");
-    }
+  const session = await auth();
+  if (session?.user) {
+    redirect('/pronunciation');
+  }
 
-    return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-primary/5">
-            <Header />
-            <div className="mt-16">
-                {children}
-            </div>
-        </div>
-    );
+  return (
+    <div className="from-background to-primary/5 flex min-h-screen flex-col items-center justify-center bg-gradient-to-b p-4">
+      <Header />
+      <div className="mt-16">{children}</div>
+    </div>
+  );
 }

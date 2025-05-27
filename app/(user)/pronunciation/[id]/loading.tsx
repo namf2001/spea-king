@@ -1,19 +1,24 @@
-import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '@/components/ui/card';
 
 export default function PronunciationExerciseLoading() {
   return (
     <div className="container mx-auto my-8 space-y-6">
       {/* Tiêu đề */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <Skeleton className="h-10 w-3/4 max-w-md" />
         <Skeleton className="h-10 w-24" />
       </div>
-      
+
       {/* Nội dung bài tập */}
       <Card>
         <CardHeader>
-          <Skeleton className="h-6 w-1/2 mb-2" />
+          <Skeleton className="mb-2 h-6 w-1/2" />
           <Skeleton className="h-4 w-3/4" />
         </CardHeader>
         <CardContent className="space-y-4">
@@ -28,7 +33,7 @@ export default function PronunciationExerciseLoading() {
           <Skeleton className="h-10 w-24" />
         </CardFooter>
       </Card>
-      
+
       {/* Khu vực phản hồi */}
       <Card>
         <CardHeader>
@@ -44,5 +49,5 @@ export default function PronunciationExerciseLoading() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
