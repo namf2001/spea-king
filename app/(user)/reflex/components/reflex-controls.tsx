@@ -112,7 +112,7 @@ export function ReflexControls({
                 <div className="text-primary text-3xl font-bold sm:text-4xl">
                   {countdown}
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
+                <p className="text-xs text-gray-500 sm:text-sm dark:text-gray-400">
                   Chuẩn bị trả lời...
                 </p>
               </motion.div>
@@ -167,8 +167,8 @@ export function ReflexControls({
             transition={{ duration: 0.2, delay: 0.1 }}
             className="flex w-full justify-center sm:w-auto"
           >
-            <Button 
-              onClick={onNextQuestion} 
+            <Button
+              onClick={onNextQuestion}
               variant="ghost"
               className="flex h-10 w-full items-center gap-2 sm:h-auto sm:w-auto"
             >

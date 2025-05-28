@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Shield, ShieldAlert, Database, Settings } from 'lucide-react';
+import {
+  RefreshCw,
+  Shield,
+  ShieldAlert,
+  Database,
+  Settings,
+} from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -37,13 +43,13 @@ export default function AdminError({
 
   const handleRetry = async () => {
     setIsRetrying(true);
-    setRetryCount(prev => prev + 1);
-    
+    setRetryCount((prev) => prev + 1);
+
     try {
       // Clear any cached admin data
       sessionStorage.removeItem('admin-cache');
-      
-      await new Promise(resolve => setTimeout(resolve, 800));
+
+      await new Promise((resolve) => setTimeout(resolve, 800));
       reset();
     } catch (retryError) {
       console.error('Admin retry failed:', retryError);
@@ -53,8 +59,14 @@ export default function AdminError({
   };
 
   const isMaxRetries = retryCount >= 2;
-  const isAuthError = error.message.includes('auth') || error.message.includes('permission') || error.message.includes('unauthorized');
-  const isDataError = error.message.includes('database') || error.message.includes('prisma') || error.message.includes('sql');
+  const isAuthError =
+    error.message.includes('auth') ||
+    error.message.includes('permission') ||
+    error.message.includes('unauthorized');
+  const isDataError =
+    error.message.includes('database') ||
+    error.message.includes('prisma') ||
+    error.message.includes('sql');
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center p-4">
@@ -73,31 +85,34 @@ export default function AdminError({
             Lỗi Admin Panel
           </CardTitle>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           {isAuthError ? (
             <Alert>
               <Shield className="h-4 w-4" />
               <AlertDescription>
-                Phiên đăng nhập admin đã hết hạn hoặc không có quyền truy cập. Vui lòng đăng nhập lại.
+                Phiên đăng nhập admin đã hết hạn hoặc không có quyền truy cập.
+                Vui lòng đăng nhập lại.
               </AlertDescription>
             </Alert>
           ) : isDataError ? (
             <Alert>
               <Database className="h-4 w-4" />
               <AlertDescription>
-                Không thể kết nối tới cơ sở dữ liệu. Vui lòng kiểm tra kết nối và thử lại.
+                Không thể kết nối tới cơ sở dữ liệu. Vui lòng kiểm tra kết nối
+                và thử lại.
               </AlertDescription>
             </Alert>
           ) : (
-            <p className="text-center text-muted-foreground">
-              Đã xảy ra lỗi trong admin panel. Vui lòng thử lại hoặc liên hệ support.
+            <p className="text-muted-foreground text-center">
+              Đã xảy ra lỗi trong admin panel. Vui lòng thử lại hoặc liên hệ
+              support.
             </p>
           )}
 
           {error.digest && (
             <Alert>
-              <AlertDescription className="text-xs font-mono">
+              <AlertDescription className="font-mono text-xs">
                 Admin Error ID: {error.digest}
               </AlertDescription>
             </Alert>
@@ -106,17 +121,18 @@ export default function AdminError({
           {retryCount > 0 && (
             <Alert>
               <AlertDescription>
-                Đã thử lại {retryCount} lần {isMaxRetries && '(đã đạt giới hạn)'}
+                Đã thử lại {retryCount} lần{' '}
+                {isMaxRetries && '(đã đạt giới hạn)'}
               </AlertDescription>
             </Alert>
           )}
 
           {process.env.NODE_ENV === 'development' && (
             <details className="mt-4">
-              <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+              <summary className="text-muted-foreground hover:text-foreground cursor-pointer text-sm">
                 Chi tiết lỗi Admin (Development)
               </summary>
-              <pre className="mt-2 rounded bg-muted p-2 text-xs overflow-auto">
+              <pre className="bg-muted mt-2 overflow-auto rounded p-2 text-xs">
                 {error.stack || error.message}
               </pre>
             </details>
@@ -125,8 +141,8 @@ export default function AdminError({
 
         <CardFooter className="flex flex-col gap-2">
           {!isMaxRetries && !isAuthError ? (
-            <Button 
-              onClick={handleRetry} 
+            <Button
+              onClick={handleRetry}
               disabled={isRetrying}
               className="w-full"
               variant="destructive"
@@ -146,14 +162,14 @@ export default function AdminError({
           ) : (
             <Alert className="mb-2">
               <AlertDescription className="text-sm">
-                {isAuthError 
+                {isAuthError
                   ? 'Cần đăng nhập lại để tiếp tục sử dụng admin panel.'
                   : 'Không thể khôi phục admin panel. Vui lòng liên hệ support.'}
               </AlertDescription>
             </Alert>
           )}
 
-          <div className="flex gap-2 w-full">
+          <div className="flex w-full gap-2">
             <Button variant="outline" className="flex-1" asChild>
               <Link href="/login">
                 <Shield className="mr-2 h-4 w-4" />

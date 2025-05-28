@@ -4,12 +4,7 @@ import Image from 'next/image';
 import { GoogleSignIn } from './components/google-sign-in';
 import { FacebookSignIn } from './components/facebook-sign-in';
 import { logo } from '@/assets/image';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { Separator } from '@/components/ui/separator';
 
@@ -23,7 +18,7 @@ export default function LoginPage() {
         className="w-full max-w-[95%] sm:max-w-[420px] md:max-w-md"
       >
         <Card className="from-primary/20 to-background w-full overflow-hidden border-none bg-gradient-to-b shadow-lg">
-          <CardHeader className="flex flex-col items-center space-y-3 sm:space-y-4 pb-2 px-4 sm:px-6">
+          <CardHeader className="flex flex-col items-center space-y-3 px-4 pb-2 sm:space-y-4 sm:px-6">
             <motion.div
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
@@ -38,21 +33,23 @@ export default function LoginPage() {
                 priority
               />
             </motion.div>
-            <CardTitle className="from-primary to-primary/60 bg-gradient-to-r bg-clip-text text-center text-2xl sm:text-3xl font-bold text-transparent">
+            <CardTitle className="from-primary to-primary/60 bg-gradient-to-r bg-clip-text text-center text-2xl font-bold text-transparent sm:text-3xl">
               Đăng Nhập
             </CardTitle>
           </CardHeader>
 
-          <CardContent className="space-y-5 sm:space-y-6 px-4 sm:px-6 md:px-8">
+          <CardContent className="space-y-5 px-4 sm:space-y-6 sm:px-6 md:px-8">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <Separator className="w-full" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="text-muted-foreground bg-gradient-to-b from-primary/20 to-background px-2">login with</span>
+                <span className="text-muted-foreground from-primary/20 to-background bg-gradient-to-b px-2">
+                  login with
+                </span>
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
               <GoogleSignIn />
               <FacebookSignIn />
             </div>

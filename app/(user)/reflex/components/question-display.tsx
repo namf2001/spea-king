@@ -143,7 +143,7 @@ export function QuestionDisplay({
                     <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
                   </button>
                 </div>
-                <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300 sm:text-base">
+                <p className="text-sm leading-relaxed text-gray-700 sm:text-base dark:text-gray-300">
                   {question.answer}
                 </p>
               </motion.div>
@@ -153,7 +153,7 @@ export function QuestionDisplay({
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col items-center gap-3 rounded-lg border-2 border-dashed border-gray-300 p-4 dark:border-gray-600 sm:gap-4 sm:p-6"
+                className="flex flex-col items-center gap-3 rounded-lg border-2 border-dashed border-gray-300 p-4 sm:gap-4 sm:p-6 dark:border-gray-600"
               >
                 <div className="bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-full sm:h-16 sm:w-16">
                   <Mic className="h-5 w-5 animate-pulse sm:h-6 sm:w-6" />

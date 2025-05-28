@@ -16,17 +16,23 @@ export interface SpeechRecognition extends EventTarget {
   lang: string;
   maxAlternatives: number;
   serviceURI: string;
-  
+
   start(): void;
   stop(): void;
   abort(): void;
-  
+
   onaudiostart: ((this: SpeechRecognition, ev: Event) => any) | null;
   onaudioend: ((this: SpeechRecognition, ev: Event) => any) | null;
   onend: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null;
-  onnomatch: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
-  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
+  onerror:
+    | ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any)
+    | null;
+  onnomatch:
+    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any)
+    | null;
+  onresult:
+    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any)
+    | null;
   onsoundstart: ((this: SpeechRecognition, ev: Event) => any) | null;
   onsoundend: ((this: SpeechRecognition, ev: Event) => any) | null;
   onspeechstart: ((this: SpeechRecognition, ev: Event) => any) | null;
@@ -86,11 +92,15 @@ declare global {
 
 // Utility functions for checking speech API support
 export const isSpeechRecognitionSupported = (): boolean => {
-  return typeof window !== 'undefined' && 
-    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+  return (
+    typeof window !== 'undefined' &&
+    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
+  );
 };
 
-export const getSpeechRecognition = (): (new () => SpeechRecognition) | null => {
+export const getSpeechRecognition = ():
+  | (new () => SpeechRecognition)
+  | null => {
   if (typeof window === 'undefined') return null;
   return window.SpeechRecognition || window.webkitSpeechRecognition || null;
 };

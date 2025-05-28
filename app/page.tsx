@@ -52,7 +52,7 @@ export default function Home() {
       <div className="z-10 container mx-auto flex flex-1 flex-col items-center justify-center gap-12 px-4 md:flex-row md:justify-between md:gap-16">
         {/* World animation with enhanced visual effects */}
         <div className="relative mx-auto w-full max-w-xs md:mx-0 md:max-w-md">
-          <div className="absolute -inset-4 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 blur-xl"></div>
+          <div className="from-primary/20 to-accent/20 absolute -inset-4 rounded-full bg-gradient-to-br blur-xl"></div>
           <LottieAnimation
             src={world}
             size="full"
@@ -64,18 +64,27 @@ export default function Home() {
 
         {/* Text and CTA with enhanced typography and button styling */}
         <div className="mb-10 w-full max-w-xl text-center md:mt-0 md:text-right">
-          <h1 className="bg-gradient-to-r from-primary to-accent bg-clip-text text-3xl font-extrabold leading-tight tracking-tight text-transparent md:text-5xl lg:text-6xl">
+          <h1 className="from-primary to-accent bg-gradient-to-r bg-clip-text text-3xl leading-tight font-extrabold tracking-tight text-transparent md:text-5xl lg:text-6xl">
             The free, fun, and effective way to learn a language!
           </h1>
 
           <div className="mt-10 flex w-full flex-col items-center space-y-4 md:items-end">
-            <Link href="/login" className="block w-full max-w-md transition-transform hover:scale-105">
-              <Button className="w-full bg-gradient-to-r from-primary to-accent text-lg font-bold shadow-lg transition-all hover:shadow-xl">
+            <Link
+              href="/login"
+              className="block w-full max-w-md transition-transform hover:scale-105"
+            >
+              <Button className="from-primary to-accent w-full bg-gradient-to-r text-lg font-bold shadow-lg transition-all hover:shadow-xl">
                 GET STARTED
               </Button>
             </Link>
-            <Link href="/login" className="block w-full max-w-md transition-transform hover:scale-105">
-              <Button variant="outline" className="w-full border-2 text-lg font-semibold shadow-sm transition-all hover:bg-accent/5">
+            <Link
+              href="/login"
+              className="block w-full max-w-md transition-transform hover:scale-105"
+            >
+              <Button
+                variant="outline"
+                className="hover:bg-accent/5 w-full border-2 text-lg font-semibold shadow-sm transition-all"
+              >
                 I ALREADY HAVE AN ACCOUNT
               </Button>
             </Link>
@@ -84,7 +93,7 @@ export default function Home() {
       </div>
 
       {/* Enhanced Motivational quote slider with gradient background */}
-      <div className="mt-auto bg-gradient-to-r from-primary/10 to-accent/10">
+      <div className="from-primary/10 to-accent/10 mt-auto bg-gradient-to-r">
         <MotivationalQuotesSlider />
       </div>
     </main>

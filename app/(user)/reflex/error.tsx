@@ -36,8 +36,8 @@ export default function ReflexError({
 
   const handleRetry = async () => {
     setIsRetrying(true);
-    setRetryCount(prev => prev + 1);
-    
+    setRetryCount((prev) => prev + 1);
+
     try {
       // Clear any running timers or animations - safer approach
       // Instead of trying to clear all possible timeouts, we'll just ensure cleanup
@@ -46,8 +46,8 @@ export default function ReflexError({
         let animationId = requestAnimationFrame(() => {});
         cancelAnimationFrame(animationId);
       }
-      
-      await new Promise(resolve => setTimeout(resolve, 300));
+
+      await new Promise((resolve) => setTimeout(resolve, 300));
       reset();
     } catch (retryError) {
       console.error('Reflex retry failed:', retryError);
@@ -57,8 +57,10 @@ export default function ReflexError({
   };
 
   const isMaxRetries = retryCount >= 2;
-  const isTimingError = error.message.includes('timer') || error.message.includes('timeout');
-  const isPerformanceError = error.message.includes('performance') || error.message.includes('memory');
+  const isTimingError =
+    error.message.includes('timer') || error.message.includes('timeout');
+  const isPerformanceError =
+    error.message.includes('performance') || error.message.includes('memory');
 
   return (
     <Card className="border-purple-200 bg-purple-50/50 dark:border-purple-800 dark:bg-purple-950/20">
@@ -76,7 +78,7 @@ export default function ReflexError({
           Lỗi luyện tập phản xạ
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {isTimingError ? (
           <Alert>
@@ -93,7 +95,7 @@ export default function ReflexError({
             </AlertDescription>
           </Alert>
         ) : (
-          <p className="text-center text-muted-foreground">
+          <p className="text-muted-foreground text-center">
             Đã xảy ra lỗi với bài tập luyện phản xạ. Vui lòng thử lại.
           </p>
         )}
@@ -108,10 +110,10 @@ export default function ReflexError({
 
         {process.env.NODE_ENV === 'development' && (
           <details className="mt-4">
-            <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+            <summary className="text-muted-foreground hover:text-foreground cursor-pointer text-sm">
               Chi tiết lỗi (Development)
             </summary>
-            <pre className="mt-2 rounded bg-muted p-2 text-xs overflow-auto">
+            <pre className="bg-muted mt-2 overflow-auto rounded p-2 text-xs">
               {error.stack || error.message}
             </pre>
           </details>
@@ -120,8 +122,8 @@ export default function ReflexError({
 
       <CardFooter>
         {!isMaxRetries ? (
-          <Button 
-            onClick={handleRetry} 
+          <Button
+            onClick={handleRetry}
             disabled={isRetrying}
             className="w-full"
             variant="outline"

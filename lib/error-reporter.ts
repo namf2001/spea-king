@@ -36,13 +36,14 @@ class ErrorReporter {
       digest: (error as any).digest,
       timestamp: new Date().toISOString(),
       url: typeof window !== 'undefined' ? window.location.href : 'server',
-      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'server',
+      userAgent:
+        typeof navigator !== 'undefined' ? navigator.userAgent : 'server',
       context,
     };
 
     // Store locally for debugging
     this.reports.push(report);
-    
+
     // Log to console in development
     if (process.env.NODE_ENV === 'development') {
       console.group('🚨 Error Report');

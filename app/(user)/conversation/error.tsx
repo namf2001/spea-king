@@ -36,7 +36,7 @@ export default function SpeechError({
 
   const handleRetry = async () => {
     setIsRetrying(true);
-    setRetryCount(prev => prev + 1);
+    setRetryCount((prev) => prev + 1);
 
     try {
       // Check microphone permissions before retry
@@ -44,7 +44,7 @@ export default function SpeechError({
         await navigator.mediaDevices.getUserMedia({ audio: true });
       }
 
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       reset();
     } catch (retryError) {
       console.error('Speech retry failed:', retryError);
@@ -55,9 +55,11 @@ export default function SpeechError({
 
   const isMaxRetries = retryCount >= 2;
   const isPermissionError =
-    error.message.includes('permission') || error.message.includes('NotAllowedError');
+    error.message.includes('permission') ||
+    error.message.includes('NotAllowedError');
   const isMicrophoneError =
-    error.message.includes('microphone') || error.message.includes('MediaDeviceError');
+    error.message.includes('microphone') ||
+    error.message.includes('MediaDeviceError');
 
   return (
     <Card className="border-orange-200 bg-orange-50/50 dark:border-orange-800 dark:bg-orange-950/20">
@@ -79,19 +81,20 @@ export default function SpeechError({
           <Alert>
             <Mic className="h-4 w-4" />
             <AlertDescription>
-              Vui lòng cho phép truy cập microphone để sử dụng tính năng nhận diện
-              giọng nói.
+              Vui lòng cho phép truy cập microphone để sử dụng tính năng nhận
+              diện giọng nói.
             </AlertDescription>
           </Alert>
         ) : isMicrophoneError ? (
           <Alert>
             <MicOff className="h-4 w-4" />
             <AlertDescription>
-              Không thể truy cập microphone. Vui lòng kiểm tra thiết bị và thử lại.
+              Không thể truy cập microphone. Vui lòng kiểm tra thiết bị và thử
+              lại.
             </AlertDescription>
           </Alert>
         ) : (
-          <p className="text-center text-muted-foreground">
+          <p className="text-muted-foreground text-center">
             Đã xảy ra lỗi với tính năng nhận diện giọng nói. Vui lòng thử lại.
           </p>
         )}
@@ -106,10 +109,10 @@ export default function SpeechError({
 
         {process.env.NODE_ENV === 'development' && (
           <details className="mt-4">
-            <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+            <summary className="text-muted-foreground hover:text-foreground cursor-pointer text-sm">
               Chi tiết lỗi (Development)
             </summary>
-            <pre className="mt-2 rounded bg-muted p-2 text-xs overflow-auto">
+            <pre className="bg-muted mt-2 overflow-auto rounded p-2 text-xs">
               {error.stack || error.message}
             </pre>
           </details>
@@ -139,8 +142,8 @@ export default function SpeechError({
         ) : (
           <Alert className="w-full">
             <AlertDescription className="text-sm">
-              Không thể khôi phục tính năng nhận diện giọng nói. Vui lòng tải lại
-              trang hoặc liên hệ hỗ trợ.
+              Không thể khôi phục tính năng nhận diện giọng nói. Vui lòng tải
+              lại trang hoặc liên hệ hỗ trợ.
             </AlertDescription>
           </Alert>
         )}

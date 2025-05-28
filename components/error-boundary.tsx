@@ -91,10 +91,10 @@ export default function ErrorBoundary({
 
   const handleRetry = async () => {
     setIsRetrying(true);
-    setRetryCount(prev => prev + 1);
-    
+    setRetryCount((prev) => prev + 1);
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       reset();
     } catch (retryError) {
       console.error('Retry failed:', retryError);
@@ -131,23 +131,24 @@ export default function ErrorBoundary({
   return (
     <Card className={colors.card}>
       <CardHeader className="text-center">
-        <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${colors.icon}`}>
+        <div
+          className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${colors.icon}`}
+        >
           <AlertTriangle className={`h-6 w-6 ${colors.iconColor}`} />
         </div>
-        <CardTitle className={colors.title}>
-          {title}
-        </CardTitle>
+        <CardTitle className={colors.title}>{title}</CardTitle>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
-        <p className="text-center text-muted-foreground">
-          {description ?? 'Đã xảy ra lỗi không mong muốn. Vui lòng thử lại sau.'}
+        <p className="text-muted-foreground text-center">
+          {description ??
+            'Đã xảy ra lỗi không mong muốn. Vui lòng thử lại sau.'}
         </p>
 
         {error.digest && (
           <Alert>
             <Bug className="h-4 w-4" />
-            <AlertDescription className="text-xs font-mono">
+            <AlertDescription className="font-mono text-xs">
               Error ID: {error.digest}
             </AlertDescription>
           </Alert>
@@ -156,17 +157,18 @@ export default function ErrorBoundary({
         {retryCount > 0 && (
           <Alert>
             <AlertDescription>
-              Đã thử lại {retryCount}/{maxRetries} lần {isMaxRetries && '(đã đạt giới hạn)'}
+              Đã thử lại {retryCount}/{maxRetries} lần{' '}
+              {isMaxRetries && '(đã đạt giới hạn)'}
             </AlertDescription>
           </Alert>
         )}
 
         {variant === 'detailed' && process.env.NODE_ENV === 'development' && (
           <details className="mt-4">
-            <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+            <summary className="text-muted-foreground hover:text-foreground cursor-pointer text-sm">
               Chi tiết lỗi (Development)
             </summary>
-            <pre className="mt-2 rounded bg-muted p-2 text-xs overflow-auto">
+            <pre className="bg-muted mt-2 overflow-auto rounded p-2 text-xs">
               {error.stack ?? error.message}
             </pre>
           </details>
@@ -175,8 +177,8 @@ export default function ErrorBoundary({
 
       <CardFooter className="flex flex-col gap-2">
         {!isMaxRetries ? (
-          <Button 
-            onClick={handleRetry} 
+          <Button
+            onClick={handleRetry}
             disabled={isRetrying}
             className="w-full"
             variant="outline"
@@ -196,7 +198,8 @@ export default function ErrorBoundary({
         ) : (
           <Alert className="mb-2">
             <AlertDescription className="text-sm">
-              Đã thử lại {maxRetries} lần không thành công. Vui lòng tải lại trang.
+              Đã thử lại {maxRetries} lần không thành công. Vui lòng tải lại
+              trang.
             </AlertDescription>
           </Alert>
         )}
@@ -217,7 +220,7 @@ export default function ErrorBoundary({
 // Higher-order component for wrapping components with error boundary
 export function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
-  errorBoundaryProps?: Partial<ErrorBoundaryProps>
+  errorBoundaryProps?: Partial<ErrorBoundaryProps>,
 ) {
   return function WrappedComponent(props: P) {
     return (
@@ -235,9 +238,5 @@ function ErrorBoundaryWrapper({
 }: {
   children: ReactNode;
 } & Partial<ErrorBoundaryProps>) {
-  return (
-    <div>
-      {children}
-    </div>
-  );
+  return <div>{children}</div>;
 }

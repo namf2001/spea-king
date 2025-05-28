@@ -412,7 +412,9 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
           >
             <Card className="border-2 shadow-md">
               <CardHeader className="pb-4">
-                <CardTitle className="text-base sm:text-lg">Custom Question</CardTitle>
+                <CardTitle className="text-base sm:text-lg">
+                  Custom Question
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <form
@@ -420,7 +422,12 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
                   className="space-y-4"
                 >
                   <div className="space-y-2">
-                    <Label htmlFor="customQuestion" className="text-sm font-medium">Your Question</Label>
+                    <Label
+                      htmlFor="customQuestion"
+                      className="text-sm font-medium"
+                    >
+                      Your Question
+                    </Label>
                     <Input
                       id="customQuestion"
                       value={customQuestion}
@@ -453,7 +460,9 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
                     >
                       Cancel
                     </Button>
-                    <Button type="submit" className="w-full sm:w-auto">Use This Question</Button>
+                    <Button type="submit" className="w-full sm:w-auto">
+                      Use This Question
+                    </Button>
                   </div>
                 </form>
               </CardContent>
@@ -466,7 +475,7 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="mb-6 flex flex-col gap-3 rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20 sm:flex-row sm:items-center sm:justify-between"
+          className="mb-6 flex flex-col gap-3 rounded-md border border-blue-200 bg-blue-50 p-3 sm:flex-row sm:items-center sm:justify-between dark:border-blue-800 dark:bg-blue-900/20"
         >
           <div className="flex items-center gap-2">
             <InfoIcon className="h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-400" />
@@ -478,7 +487,7 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
             variant="ghost"
             size="sm"
             onClick={handleResetToDefaultQuestions}
-            className="w-full text-blue-700 hover:bg-blue-100 dark:text-blue-300 dark:hover:bg-blue-800 sm:w-auto"
+            className="w-full text-blue-700 hover:bg-blue-100 sm:w-auto dark:text-blue-300 dark:hover:bg-blue-800"
           >
             Return to Standard Questions
           </Button>

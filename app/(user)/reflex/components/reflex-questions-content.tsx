@@ -177,7 +177,7 @@ export default function ReflexQuestionsContent({
                 className="flex w-full items-center gap-2 sm:w-auto"
                 size="sm"
               >
-                <Plus className="h-4 w-4" /> 
+                <Plus className="h-4 w-4" />
                 <span className="sm:hidden">New</span>
                 <span className="hidden sm:inline">New Question</span>
               </Button>
@@ -221,10 +221,13 @@ export default function ReflexQuestionsContent({
                   <Card className="hover:border-primary/50 overflow-hidden border transition-all">
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between gap-3">
-                        <CardTitle className="text-base font-bold leading-tight sm:text-lg">
+                        <CardTitle className="text-base leading-tight font-bold sm:text-lg">
                           {question.question}
                         </CardTitle>
-                        <Badge variant="outline" className="flex-shrink-0 text-xs">
+                        <Badge
+                          variant="outline"
+                          className="flex-shrink-0 text-xs"
+                        >
                           {new Date(question.createdAt).toLocaleDateString()}
                         </Badge>
                       </div>

@@ -14,8 +14,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Utility functions for speech API support checking
 const isSpeechRecognitionSupported = (): boolean => {
-  return typeof window !== 'undefined' && 
-    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+  return (
+    typeof window !== 'undefined' &&
+    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
+  );
 };
 
 const isSpeechSynthesisSupported = (): boolean => {
@@ -47,15 +49,15 @@ export default function PronunciationError({
 
   const handleRetry = async () => {
     setIsRetrying(true);
-    setRetryCount(prev => prev + 1);
-    
+    setRetryCount((prev) => prev + 1);
+
     try {
       // Check for microphone permissions before retry
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         await navigator.mediaDevices.getUserMedia({ audio: true });
       }
-      
-      await new Promise(resolve => setTimeout(resolve, 500));
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
       reset();
     } catch (retryError) {
       console.error('Pronunciation retry failed:', retryError);
@@ -65,8 +67,11 @@ export default function PronunciationError({
   };
 
   const isMaxRetries = retryCount >= 2;
-  const isPermissionError = error.message.includes('NotAllowedError') || error.message.includes('permission');
-  const isNetworkError = error.message.includes('network') || error.message.includes('fetch');
+  const isPermissionError =
+    error.message.includes('NotAllowedError') ||
+    error.message.includes('permission');
+  const isNetworkError =
+    error.message.includes('network') || error.message.includes('fetch');
 
   return (
     <Card className="border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/20">
@@ -84,24 +89,26 @@ export default function PronunciationError({
           Lỗi đánh giá phát âm
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {isPermissionError ? (
           <Alert>
             <Mic className="h-4 w-4" />
             <AlertDescription>
-              Không thể truy cập microphone. Vui lòng cho phép quyền truy cập và thử lại.
+              Không thể truy cập microphone. Vui lòng cho phép quyền truy cập và
+              thử lại.
             </AlertDescription>
           </Alert>
         ) : isNetworkError ? (
           <Alert>
             <VolumeX className="h-4 w-4" />
             <AlertDescription>
-              Không thể kết nối tới dịch vụ đánh giá phát âm. Kiểm tra kết nối mạng.
+              Không thể kết nối tới dịch vụ đánh giá phát âm. Kiểm tra kết nối
+              mạng.
             </AlertDescription>
           </Alert>
         ) : (
-          <p className="text-center text-muted-foreground">
+          <p className="text-muted-foreground text-center">
             Đã xảy ra lỗi với tính năng đánh giá phát âm. Vui lòng thử lại.
           </p>
         )}
@@ -109,7 +116,8 @@ export default function PronunciationError({
         {!isSpeechRecognitionSupported() && (
           <Alert>
             <AlertDescription>
-              Trình duyệt không hỗ trợ nhận diện giọng nói. Hãy sử dụng Chrome hoặc Edge.
+              Trình duyệt không hỗ trợ nhận diện giọng nói. Hãy sử dụng Chrome
+              hoặc Edge.
             </AlertDescription>
           </Alert>
         )}
@@ -124,10 +132,10 @@ export default function PronunciationError({
 
         {process.env.NODE_ENV === 'development' && (
           <details className="mt-4">
-            <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+            <summary className="text-muted-foreground hover:text-foreground cursor-pointer text-sm">
               Chi tiết lỗi (Development)
             </summary>
-            <pre className="mt-2 rounded bg-muted p-2 text-xs overflow-auto">
+            <pre className="bg-muted mt-2 overflow-auto rounded p-2 text-xs">
               {error.stack ?? error.message}
             </pre>
           </details>
@@ -136,8 +144,8 @@ export default function PronunciationError({
 
       <CardFooter>
         {!isMaxRetries ? (
-          <Button 
-            onClick={handleRetry} 
+          <Button
+            onClick={handleRetry}
             disabled={isRetrying}
             className="w-full"
             variant="outline"
@@ -157,7 +165,8 @@ export default function PronunciationError({
         ) : (
           <Alert className="w-full">
             <AlertDescription className="text-sm">
-              Không thể khôi phục tính năng đánh giá phát âm. Vui lòng tải lại trang.
+              Không thể khôi phục tính năng đánh giá phát âm. Vui lòng tải lại
+              trang.
             </AlertDescription>
           </Alert>
         )}

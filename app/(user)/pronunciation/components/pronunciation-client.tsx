@@ -12,7 +12,11 @@ import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mic } from 'lucide-react';
-import type { PronunciationLesson, PronunciationWord, PronunciationLessonWord } from '@prisma/client';
+import type {
+  PronunciationLesson,
+  PronunciationWord,
+  PronunciationLessonWord,
+} from '@prisma/client';
 
 interface PronunciationClientProps {
   lessons: (PronunciationLesson & {

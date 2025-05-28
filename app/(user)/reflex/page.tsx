@@ -26,14 +26,18 @@ export default async function ReflexPage() {
         fallback={
           <div className="flex h-32 items-center justify-center">
             <div className="border-primary h-12 w-12 animate-spin rounded-full border-t-2 border-b-2"></div>
-            <p className="text-muted-foreground ml-2 text-sm">Loading questions...</p>
+            <p className="text-muted-foreground ml-2 text-sm">
+              Loading questions...
+            </p>
           </div>
         }
       >
         {error ? (
           <div className="bg-destructive/10 border-destructive/20 text-destructive mb-6 rounded-md border p-4">
-            <p className="text-sm font-medium">Error loading questions: {error}</p>
-            <p className="text-xs mt-1">Using default questions instead.</p>
+            <p className="text-sm font-medium">
+              Error loading questions: {error}
+            </p>
+            <p className="mt-1 text-xs">Using default questions instead.</p>
           </div>
         ) : null}
 

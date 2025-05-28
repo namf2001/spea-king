@@ -2,7 +2,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import type { PronunciationLesson, PronunciationWord, PronunciationLessonWord } from '@prisma/client';
+import type {
+  PronunciationLesson,
+  PronunciationWord,
+  PronunciationLessonWord,
+} from '@prisma/client';
 
 interface ExerciseDisplayProps {
   readonly exercise: PronunciationLesson & {

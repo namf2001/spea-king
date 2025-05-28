@@ -18,10 +18,7 @@ interface ErrorPageProps {
   readonly reset: () => void;
 }
 
-export default function GlobalError({
-  error,
-  reset,
-}: ErrorPageProps) {
+export default function GlobalError({ error, reset }: ErrorPageProps) {
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
 
@@ -42,11 +39,11 @@ export default function GlobalError({
 
   const handleRetry = async () => {
     setIsRetrying(true);
-    setRetryCount(prev => prev + 1);
-    
+    setRetryCount((prev) => prev + 1);
+
     try {
       // Add a small delay for better UX
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       reset();
     } catch (retryError) {
       console.error('Retry failed:', retryError);
@@ -68,15 +65,16 @@ export default function GlobalError({
             Oops! Đã xảy ra lỗi
           </CardTitle>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
-          <p className="text-center text-muted-foreground">
-            Ứng dụng gặp sự cố không mong muốn. Chúng tôi đã ghi nhận lỗi này và sẽ khắc phục sớm nhất.
+          <p className="text-muted-foreground text-center">
+            Ứng dụng gặp sự cố không mong muốn. Chúng tôi đã ghi nhận lỗi này và
+            sẽ khắc phục sớm nhất.
           </p>
 
           {error.digest && (
             <Alert>
-              <AlertDescription className="text-xs font-mono">
+              <AlertDescription className="font-mono text-xs">
                 Error ID: {error.digest}
               </AlertDescription>
             </Alert>
@@ -85,17 +83,18 @@ export default function GlobalError({
           {retryCount > 0 && (
             <Alert>
               <AlertDescription>
-                Đã thử lại {retryCount} lần {isMaxRetries && '(đã đạt giới hạn)'}
+                Đã thử lại {retryCount} lần{' '}
+                {isMaxRetries && '(đã đạt giới hạn)'}
               </AlertDescription>
             </Alert>
           )}
 
           {process.env.NODE_ENV === 'development' && (
             <details className="mt-4">
-              <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+              <summary className="text-muted-foreground hover:text-foreground cursor-pointer text-sm">
                 Chi tiết lỗi (Development)
               </summary>
-              <pre className="mt-2 rounded bg-muted p-2 text-xs overflow-auto">
+              <pre className="bg-muted mt-2 overflow-auto rounded p-2 text-xs">
                 {error.stack ?? error.message}
               </pre>
             </details>
@@ -104,8 +103,8 @@ export default function GlobalError({
 
         <CardFooter className="flex flex-col gap-2">
           {!isMaxRetries ? (
-            <Button 
-              onClick={handleRetry} 
+            <Button
+              onClick={handleRetry}
               disabled={isRetrying}
               className="w-full"
               variant="destructive"
@@ -125,7 +124,8 @@ export default function GlobalError({
           ) : (
             <Alert className="mb-2">
               <AlertDescription className="text-sm">
-                Đã thử lại nhiều lần không thành công. Vui lòng quay về trang chủ.
+                Đã thử lại nhiều lần không thành công. Vui lòng quay về trang
+                chủ.
               </AlertDescription>
             </Alert>
           )}

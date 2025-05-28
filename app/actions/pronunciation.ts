@@ -346,7 +346,7 @@ export async function searchPronunciationWords(
 
     // Check if we have a valid cached result
     const cachedResult = searchCache.get(cacheKey);
-    if (cachedResult && (now - cachedResult.timestamp) < CACHE_TTL) {
+    if (cachedResult && now - cachedResult.timestamp < CACHE_TTL) {
       return createSuccessResponse(cachedResult.data);
     }
 
