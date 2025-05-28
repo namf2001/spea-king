@@ -11,6 +11,29 @@ import {
   createErrorResponse,
 } from '@/types/response';
 
+// Cache for search results with TTL
+const searchCache = new Map<string, { data: any[]; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+/**
+ * Clean up expired cache entries
+ */
+function cleanupCache() {
+  const now = Date.now();
+  for (const [key, value] of searchCache.entries()) {
+    if (now - value.timestamp >= CACHE_TTL) {
+      searchCache.delete(key);
+    }
+  }
+}
+
+/**
+ * Clear the search cache (useful when new words are added)
+ */
+export async function clearSearchCache() {
+  searchCache.clear();
+}
+
 /**
  * Server action to create a new pronunciation lesson
  * @param formData - The lesson data from the form
@@ -32,18 +55,47 @@ export async function createPronunciationLesson(
     // Validate the form data
     const validatedData = lessonSchema.parse(formData);
 
-    // Create the lesson in the database
+    // Create the lesson first
     const lesson = await prisma.pronunciationLesson.create({
       data: {
         title: validatedData.title,
         userId: session.user.id,
-        words: {
-          create: validatedData.words.map((wordItem) => ({
-            word: wordItem.word,
-          })),
-        },
       },
     });
+
+    // Process each word: reuse existing or create new
+    const wordIds: string[] = [];
+    let hasNewWords = false;
+
+    for (const wordItem of validatedData.words) {
+      // Check if word already exists
+      let existingWord = await prisma.pronunciationWord.findUnique({
+        where: { word: wordItem.word },
+      });
+
+      // If word doesn't exist, create it
+      if (!existingWord) {
+        existingWord = await prisma.pronunciationWord.create({
+          data: { word: wordItem.word },
+        });
+        hasNewWords = true;
+      }
+
+      wordIds.push(existingWord.id);
+    }
+
+    // Create lesson-word relationships
+    await prisma.pronunciationLessonWord.createMany({
+      data: wordIds.map((wordId) => ({
+        lessonId: lesson.id,
+        wordId: wordId,
+      })),
+    });
+
+    // Clear search cache if new words were added
+    if (hasNewWords) {
+      clearSearchCache();
+    }
 
     // Revalidate the lessons page to show the new lesson
     revalidatePath('/pronunciation');
@@ -89,7 +141,11 @@ export async function getPronunciationLessonsByUserId(): Promise<ApiResponse> {
         userId: session.user.id,
       },
       include: {
-        words: true,
+        words: {
+          include: {
+            word: true,
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -121,7 +177,11 @@ export async function getPronunciationLessonById(
         id: lessonId,
       },
       include: {
-        words: true,
+        words: {
+          include: {
+            word: true,
+          },
+        },
       },
     });
 
@@ -153,27 +213,56 @@ export async function updatePronunciationLesson(
     // Validate the form data
     const validatedData = lessonSchema.parse(formData);
 
-    // First, delete existing words for the lesson
-    await prisma.pronunciationWord.deleteMany({
+    // Delete existing lesson-word relationships
+    await prisma.pronunciationLessonWord.deleteMany({
       where: {
         lessonId,
       },
     });
 
-    // Update the lesson and create new words
+    // Update lesson title
     const updatedLesson = await prisma.pronunciationLesson.update({
       where: {
         id: lessonId,
       },
       data: {
         title: validatedData.title,
-        words: {
-          create: validatedData.words.map((wordItem) => ({
-            word: wordItem.word,
-          })),
-        },
       },
     });
+
+    // Process each word: reuse existing or create new
+    const wordIds: string[] = [];
+    let hasNewWords = false;
+
+    for (const wordItem of validatedData.words) {
+      // Check if word already exists
+      let existingWord = await prisma.pronunciationWord.findUnique({
+        where: { word: wordItem.word },
+      });
+
+      // If word doesn't exist, create it
+      if (!existingWord) {
+        existingWord = await prisma.pronunciationWord.create({
+          data: { word: wordItem.word },
+        });
+        hasNewWords = true;
+      }
+
+      wordIds.push(existingWord.id);
+    }
+
+    // Create new lesson-word relationships
+    await prisma.pronunciationLessonWord.createMany({
+      data: wordIds.map((wordId) => ({
+        lessonId: lessonId,
+        wordId: wordId,
+      })),
+    });
+
+    // Clear search cache if new words were added
+    if (hasNewWords) {
+      clearSearchCache();
+    }
 
     // Revalidate the lessons page to show the updated lesson
     revalidatePath('/pronunciation');
@@ -208,19 +297,21 @@ export async function deletePronunciationLesson(
   lessonId: string,
 ): Promise<ApiResponse> {
   try {
-    // Delete all words associated with the lesson first
-    await prisma.pronunciationWord.deleteMany({
+    // Delete lesson-word relationships first (cascade will handle this automatically, but being explicit)
+    await prisma.pronunciationLessonWord.deleteMany({
       where: {
         lessonId,
       },
     });
 
-    // Now delete the lesson itself
+    // Delete the lesson itself
     await prisma.pronunciationLesson.delete({
       where: {
         id: lessonId,
       },
     });
+
+    // Note: We don't delete PronunciationWord records as they might be used by other lessons
 
     // Revalidate the lessons page
     revalidatePath('/pronunciation');
@@ -233,6 +324,67 @@ export async function deletePronunciationLesson(
     return createErrorResponse(
       'DELETE_LESSON_ERROR',
       'Failed to delete lesson. Please try again later.',
+    );
+  }
+}
+
+/**
+ * Server action to search for pronunciation words with caching
+ * @param query - The search query string
+ * @returns ApiResponse containing matching words
+ */
+export async function searchPronunciationWords(
+  query: string,
+): Promise<ApiResponse> {
+  try {
+    if (!query || query.length < 1) {
+      return createSuccessResponse([]);
+    }
+
+    const cacheKey = query.toLowerCase().trim();
+    const now = Date.now();
+
+    // Check if we have a valid cached result
+    const cachedResult = searchCache.get(cacheKey);
+    if (cachedResult && (now - cachedResult.timestamp) < CACHE_TTL) {
+      return createSuccessResponse(cachedResult.data);
+    }
+
+    // Search for words that start with the query string
+    const words = await prisma.pronunciationWord.findMany({
+      where: {
+        word: {
+          startsWith: query.toLowerCase(),
+          mode: 'insensitive',
+        },
+      },
+      select: {
+        id: true,
+        word: true,
+      },
+      orderBy: {
+        word: 'asc',
+      },
+      take: 10, // Limit to 10 suggestions
+    });
+
+    // Cache the result
+    searchCache.set(cacheKey, {
+      data: words,
+      timestamp: now,
+    });
+
+    // Clean up old cache entries periodically
+    if (searchCache.size > 100) {
+      cleanupCache();
+    }
+
+    return createSuccessResponse(words);
+  } catch (error) {
+    console.error('Error searching pronunciation words:', error);
+    return createErrorResponse(
+      'SEARCH_WORDS_ERROR',
+      'Failed to search words. Please try again later.',
     );
   }
 }

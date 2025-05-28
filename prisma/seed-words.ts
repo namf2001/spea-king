@@ -1,0 +1,356 @@
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+// Danh sách 3000 từ tiếng Anh phổ biến được sắp xếp theo độ phổ biến
+const commonWords = [
+  // 100 từ phổ biến nhất
+  'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i',
+  'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at',
+  'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she',
+  'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what',
+  'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me',
+  'when', 'make', 'can', 'like', 'time', 'no', 'just', 'him', 'know', 'take',
+  'people', 'into', 'year', 'your', 'good', 'some', 'could', 'them', 'see', 'other',
+  'than', 'then', 'now', 'look', 'only', 'come', 'its', 'over', 'think', 'also',
+  'back', 'after', 'use', 'two', 'how', 'our', 'work', 'first', 'well', 'way',
+  'even', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us',
+
+  // 200 từ tiếp theo
+  'is', 'was', 'are', 'been', 'has', 'had', 'were', 'said', 'each', 'which',
+  'she', 'do', 'how', 'their', 'if', 'will', 'up', 'other', 'about', 'out',
+  'many', 'then', 'them', 'these', 'so', 'some', 'her', 'would', 'make', 'like',
+  'into', 'him', 'time', 'has', 'two', 'more', 'very', 'what', 'know', 'just',
+  'first', 'get', 'over', 'think', 'also', 'your', 'work', 'life', 'only', 'can',
+  'still', 'should', 'after', 'being', 'now', 'made', 'before', 'here', 'through', 'when',
+  'where', 'much', 'go', 'well', 'were', 'been', 'have', 'had', 'has', 'said',
+  'each', 'which', 'their', 'time', 'will', 'about', 'if', 'up', 'out', 'many',
+  'then', 'them', 'these', 'so', 'some', 'her', 'would', 'make', 'like', 'into',
+  'him', 'time', 'has', 'two', 'more', 'very', 'what', 'know', 'just', 'first',
+
+  // Từ vựng chủ đề gia đình và con người
+  'family', 'mother', 'father', 'parent', 'child', 'children', 'son', 'daughter', 'brother', 'sister',
+  'grandmother', 'grandfather', 'aunt', 'uncle', 'cousin', 'husband', 'wife', 'friend', 'neighbor', 'person',
+  'man', 'woman', 'boy', 'girl', 'baby', 'adult', 'teenager', 'elder', 'young', 'old',
+  'name', 'age', 'birthday', 'address', 'phone', 'email', 'job', 'work', 'career', 'student',
+
+  // Từ vựng về thời gian
+  'today', 'tomorrow', 'yesterday', 'morning', 'afternoon', 'evening', 'night', 'week', 'month', 'year',
+  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'January', 'February', 'March',
+  'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'spring',
+  'summer', 'autumn', 'winter', 'season', 'hour', 'minute', 'second', 'clock', 'watch', 'calendar',
+
+  // Từ vựng về số đếm
+  'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+  'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen',
+  'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety', 'hundred', 'thousand',
+  'million', 'billion', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth',
+
+  // Từ vựng về màu sắc
+  'red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'brown', 'black', 'white',
+  'gray', 'grey', 'silver', 'gold', 'dark', 'light', 'bright', 'color', 'colour', 'colorful',
+
+  // Từ vựng về thức ăn và đồ uống
+  'food', 'eat', 'drink', 'water', 'milk', 'coffee', 'tea', 'juice', 'bread', 'rice',
+  'meat', 'fish', 'chicken', 'beef', 'pork', 'vegetable', 'fruit', 'apple', 'banana', 'orange',
+  'grape', 'strawberry', 'tomato', 'potato', 'onion', 'carrot', 'lettuce', 'cheese', 'egg', 'sugar',
+  'salt', 'pepper', 'oil', 'butter', 'cake', 'cookie', 'chocolate', 'candy', 'restaurant', 'kitchen',
+
+  // Từ vựng về nhà cửa
+  'house', 'home', 'room', 'bedroom', 'bathroom', 'kitchen', 'living', 'dining', 'door', 'window',
+  'wall', 'floor', 'ceiling', 'roof', 'garden', 'yard', 'garage', 'stairs', 'elevator', 'apartment',
+  'building', 'office', 'school', 'hospital', 'hotel', 'store', 'shop', 'market', 'bank', 'library',
+
+  // Từ vựng về quần áo
+  'clothes', 'shirt', 'pants', 'dress', 'skirt', 'jacket', 'coat', 'sweater', 'shoes', 'socks',
+  'hat', 'cap', 'gloves', 'belt', 'tie', 'watch', 'glasses', 'bag', 'purse', 'wallet',
+
+  // Từ vựng về giao thông
+  'car', 'bus', 'train', 'plane', 'bicycle', 'motorcycle', 'boat', 'ship', 'truck', 'taxi',
+  'road', 'street', 'highway', 'bridge', 'tunnel', 'station', 'airport', 'port', 'traffic', 'drive',
+  'walk', 'run', 'fly', 'travel', 'trip', 'journey', 'vacation', 'holiday', 'visit', 'tour',
+
+  // Từ vựng về thể thao và sở thích
+  'sport', 'football', 'basketball', 'tennis', 'swimming', 'running', 'dancing', 'singing', 'reading', 'writing',
+  'music', 'movie', 'book', 'game', 'play', 'fun', 'hobby', 'exercise', 'fitness', 'health',
+
+  // Từ vựng về cảm xúc
+  'happy', 'sad', 'angry', 'excited', 'nervous', 'tired', 'hungry', 'thirsty', 'hot', 'cold',
+  'warm', 'cool', 'comfortable', 'uncomfortable', 'easy', 'difficult', 'hard', 'soft', 'loud', 'quiet',
+  'fast', 'slow', 'big', 'small', 'tall', 'short', 'long', 'wide', 'narrow', 'thick',
+
+  // Từ vựng về công việc
+  'teacher', 'doctor', 'nurse', 'engineer', 'lawyer', 'businessman', 'artist', 'writer', 'singer', 'actor',
+  'police', 'firefighter', 'farmer', 'chef', 'driver', 'pilot', 'scientist', 'programmer', 'designer', 'manager',
+
+  // Từ vựng về học tập
+  'learn', 'study', 'teach', 'education', 'lesson', 'class', 'student', 'teacher', 'professor', 'university',
+  'college', 'school', 'homework', 'test', 'exam', 'grade', 'book', 'pen', 'pencil', 'paper',
+  'computer', 'internet', 'website', 'email', 'phone', 'mobile', 'camera', 'television', 'radio', 'newspaper',
+
+  // Từ vựng về thiên nhiên
+  'nature', 'tree', 'flower', 'grass', 'mountain', 'river', 'lake', 'ocean', 'sea', 'beach',
+  'forest', 'desert', 'island', 'sky', 'cloud', 'sun', 'moon', 'star', 'rain', 'snow',
+  'wind', 'storm', 'weather', 'temperature', 'degree', 'animal', 'dog', 'cat', 'bird', 'fish',
+
+  // Từ vựng về hoạt động hàng ngày
+  'wake', 'sleep', 'brush', 'wash', 'shower', 'dress', 'breakfast', 'lunch', 'dinner', 'cook',
+  'clean', 'shop', 'buy', 'sell', 'pay', 'money', 'dollar', 'cent', 'price', 'cheap',
+  'expensive', 'free', 'open', 'close', 'start', 'stop', 'begin', 'end', 'finish', 'continue',
+
+  // Động từ phổ biến
+  'have', 'do', 'say', 'go', 'get', 'make', 'know', 'think', 'take', 'see',
+  'come', 'want', 'look', 'use', 'find', 'give', 'tell', 'ask', 'work', 'seem',
+  'feel', 'try', 'leave', 'call', 'move', 'live', 'believe', 'hold', 'bring', 'happen',
+  'write', 'sit', 'stand', 'lose', 'pay', 'meet', 'include', 'continue', 'set', 'learn',
+  'change', 'lead', 'understand', 'watch', 'follow', 'stop', 'create', 'speak', 'read', 'allow',
+  'add', 'spend', 'grow', 'open', 'walk', 'win', 'offer', 'remember', 'love', 'consider',
+
+  // Tính từ phổ biến
+  'good', 'new', 'first', 'last', 'long', 'great', 'little', 'own', 'other', 'old',
+  'right', 'big', 'high', 'different', 'small', 'large', 'next', 'early', 'young', 'important',
+  'few', 'public', 'bad', 'same', 'able', 'local', 'sure', 'social', 'late', 'hard',
+  'far', 'close', 'serious', 'better', 'economic', 'strong', 'possible', 'whole', 'free', 'military',
+  'true', 'federal', 'international', 'full', 'special', 'easy', 'clear', 'recent', 'available', 'likely',
+
+  // Từ vựng về địa lý
+  'country', 'city', 'town', 'village', 'state', 'province', 'region', 'area', 'place', 'location',
+  'north', 'south', 'east', 'west', 'center', 'middle', 'left', 'right', 'up', 'down',
+  'here', 'there', 'where', 'near', 'far', 'close', 'distance', 'map', 'direction', 'address',
+
+  // Từ vựng về sức khỏe
+  'health', 'healthy', 'sick', 'ill', 'doctor', 'hospital', 'medicine', 'drug', 'pain', 'hurt',
+  'fever', 'cold', 'cough', 'headache', 'stomach', 'heart', 'blood', 'body', 'hand', 'foot',
+  'head', 'eye', 'ear', 'nose', 'mouth', 'tooth', 'hair', 'skin', 'bone', 'muscle',
+
+  // Từ vựng về công nghệ
+  'technology', 'computer', 'internet', 'website', 'software', 'hardware', 'program', 'application', 'system', 'network',
+  'data', 'information', 'digital', 'online', 'offline', 'download', 'upload', 'email', 'message', 'social',
+  'media', 'platform', 'device', 'smartphone', 'tablet', 'laptop', 'desktop', 'screen', 'keyboard', 'mouse',
+
+  // Từ vựng về kinh doanh
+  'business', 'company', 'organization', 'corporation', 'enterprise', 'industry', 'market', 'customer', 'client', 'service',
+  'product', 'brand', 'quality', 'management', 'employee', 'staff', 'team', 'leader', 'boss', 'colleague',
+  'meeting', 'conference', 'presentation', 'project', 'plan', 'strategy', 'goal', 'target', 'success', 'failure',
+
+  // Từ vựng về môi trường
+  'environment', 'pollution', 'climate', 'global', 'warming', 'green', 'energy', 'renewable', 'sustainable', 'recycle',
+  'waste', 'plastic', 'carbon', 'emission', 'forest', 'deforestation', 'conservation', 'wildlife', 'ecosystem', 'biodiversity',
+
+  // Từ vựng về văn hóa
+  'culture', 'tradition', 'custom', 'festival', 'celebration', 'holiday', 'religion', 'belief', 'language', 'art',
+  'music', 'literature', 'history', 'heritage', 'museum', 'gallery', 'theater', 'concert', 'performance', 'entertainment',
+
+  // Từ vựng về pháp luật
+  'law', 'legal', 'illegal', 'court', 'judge', 'lawyer', 'police', 'crime', 'criminal', 'justice',
+  'right', 'responsibility', 'rule', 'regulation', 'policy', 'government', 'political', 'democracy', 'election', 'vote',
+
+  // Từ vựng về kinh tế
+  'economy', 'economic', 'finance', 'financial', 'money', 'currency', 'bank', 'investment', 'profit', 'loss',
+  'income', 'salary', 'wage', 'tax', 'budget', 'cost', 'price', 'value', 'worth', 'expensive',
+  'cheap', 'affordable', 'trade', 'import', 'export', 'market', 'stock', 'share', 'bond', 'loan',
+
+  // Từ vựng về khoa học
+  'science', 'scientific', 'research', 'study', 'experiment', 'theory', 'hypothesis', 'evidence', 'proof', 'discovery',
+  'invention', 'innovation', 'technology', 'method', 'process', 'result', 'conclusion', 'analysis', 'data', 'statistics',
+  'mathematics', 'physics', 'chemistry', 'biology', 'medicine', 'psychology', 'sociology', 'anthropology', 'geography', 'astronomy',
+
+  // Từ vựng về du lịch
+  'travel', 'trip', 'journey', 'vacation', 'holiday', 'tourist', 'tourism', 'destination', 'hotel', 'accommodation',
+  'flight', 'airline', 'ticket', 'passport', 'visa', 'customs', 'luggage', 'suitcase', 'backpack', 'guide',
+  'tour', 'excursion', 'adventure', 'exploration', 'culture', 'local', 'foreign', 'international', 'domestic', 'overseas',
+
+  // Từ vựng về thể thao chi tiết
+  'soccer', 'football', 'basketball', 'baseball', 'tennis', 'golf', 'swimming', 'running', 'cycling', 'skiing',
+  'hockey', 'volleyball', 'badminton', 'table', 'ping', 'pong', 'boxing', 'wrestling', 'martial', 'arts',
+  'yoga', 'fitness', 'gym', 'exercise', 'training', 'coach', 'player', 'team', 'match', 'game',
+  'competition', 'tournament', 'championship', 'winner', 'loser', 'score', 'goal', 'point', 'record', 'performance',
+
+  // Từ vựng về âm nhạc
+  'music', 'song', 'singer', 'musician', 'band', 'orchestra', 'concert', 'performance', 'stage', 'audience',
+  'instrument', 'piano', 'guitar', 'violin', 'drum', 'trumpet', 'saxophone', 'flute', 'voice', 'vocal',
+  'melody', 'rhythm', 'beat', 'tempo', 'harmony', 'chord', 'note', 'scale', 'genre', 'classical',
+  'rock', 'pop', 'jazz', 'blues', 'country', 'folk', 'electronic', 'hip', 'hop', 'rap',
+
+  // Từ vựng về phim ảnh
+  'movie', 'film', 'cinema', 'theater', 'screen', 'actor', 'actress', 'director', 'producer', 'script',
+  'scene', 'character', 'plot', 'story', 'dialogue', 'action', 'drama', 'comedy', 'horror', 'thriller',
+  'romance', 'adventure', 'science', 'fiction', 'fantasy', 'documentary', 'animation', 'cartoon', 'series', 'episode',
+
+  // Từ vựng về nấu ăn
+  'cook', 'cooking', 'recipe', 'ingredient', 'kitchen', 'stove', 'oven', 'microwave', 'refrigerator', 'freezer',
+  'pot', 'pan', 'knife', 'spoon', 'fork', 'plate', 'bowl', 'cup', 'glass', 'bottle',
+  'boil', 'fry', 'bake', 'roast', 'grill', 'steam', 'mix', 'stir', 'chop', 'slice',
+  'dice', 'season', 'flavor', 'taste', 'smell', 'texture', 'temperature', 'hot', 'cold', 'warm',
+
+  // Từ vựng về mua sắm
+  'shop', 'shopping', 'store', 'market', 'supermarket', 'mall', 'boutique', 'department', 'cashier', 'customer',
+  'buy', 'purchase', 'sell', 'sale', 'discount', 'price', 'cost', 'expensive', 'cheap', 'affordable',
+  'receipt', 'change', 'cash', 'credit', 'card', 'payment', 'checkout', 'basket', 'cart', 'bag',
+
+  // Từ vựng về giao tiếp
+  'speak', 'talk', 'say', 'tell', 'ask', 'answer', 'reply', 'respond', 'communicate', 'conversation',
+  'discussion', 'debate', 'argument', 'opinion', 'idea', 'thought', 'feeling', 'emotion', 'expression', 'language',
+  'word', 'sentence', 'paragraph', 'text', 'message', 'letter', 'email', 'phone', 'call', 'meeting',
+
+  // Từ vựng về giáo dục nâng cao
+  'education', 'academic', 'curriculum', 'subject', 'course', 'lecture', 'seminar', 'workshop', 'assignment', 'essay',
+  'thesis', 'research', 'scholarship', 'degree', 'bachelor', 'master', 'doctorate', 'graduate', 'undergraduate', 'postgraduate',
+  'professor', 'instructor', 'tutor', 'mentor', 'library', 'laboratory', 'experiment', 'theory', 'practice', 'knowledge',
+
+  // Từ vựng về thời tiết chi tiết
+  'weather', 'forecast', 'temperature', 'hot', 'cold', 'warm', 'cool', 'sunny', 'cloudy', 'rainy',
+  'snowy', 'windy', 'stormy', 'foggy', 'humid', 'dry', 'wet', 'freezing', 'boiling', 'mild',
+  'severe', 'extreme', 'climate', 'season', 'spring', 'summer', 'autumn', 'fall', 'winter', 'monsoon',
+
+  // Từ vựng về cảm xúc chi tiết
+  'emotion', 'feeling', 'mood', 'happy', 'sad', 'angry', 'excited', 'nervous', 'worried', 'anxious',
+  'calm', 'peaceful', 'stressed', 'relaxed', 'confident', 'shy', 'proud', 'ashamed', 'guilty', 'innocent',
+  'surprised', 'shocked', 'amazed', 'confused', 'curious', 'interested', 'bored', 'tired', 'energetic', 'lazy',
+
+  // Từ vựng về mô tả
+  'beautiful', 'ugly', 'pretty', 'handsome', 'attractive', 'plain', 'gorgeous', 'stunning', 'elegant', 'stylish',
+  'modern', 'traditional', 'ancient', 'old', 'new', 'fresh', 'stale', 'clean', 'dirty', 'neat',
+  'messy', 'organized', 'chaotic', 'simple', 'complex', 'complicated', 'easy', 'difficult', 'hard', 'soft',
+  'rough', 'smooth', 'sharp', 'dull', 'bright', 'dark', 'light', 'heavy', 'thick', 'thin',
+
+  // Từ vựng về động vật
+  'animal', 'pet', 'wild', 'domestic', 'mammal', 'bird', 'fish', 'reptile', 'insect', 'amphibian',
+  'dog', 'cat', 'rabbit', 'hamster', 'mouse', 'rat', 'horse', 'cow', 'pig', 'sheep',
+  'goat', 'chicken', 'duck', 'goose', 'turkey', 'lion', 'tiger', 'elephant', 'giraffe', 'zebra',
+  'monkey', 'gorilla', 'bear', 'wolf', 'fox', 'deer', 'rabbit', 'squirrel', 'snake', 'lizard',
+
+  // Từ vựng về thực vật
+  'plant', 'tree', 'flower', 'grass', 'leaf', 'branch', 'trunk', 'root', 'seed', 'fruit',
+  'vegetable', 'herb', 'spice', 'rose', 'tulip', 'daisy', 'sunflower', 'lily', 'orchid', 'jasmine',
+  'oak', 'pine', 'maple', 'bamboo', 'palm', 'cactus', 'fern', 'moss', 'mushroom', 'algae',
+
+  // Từ vựng về vật liệu
+  'material', 'wood', 'metal', 'plastic', 'glass', 'paper', 'cloth', 'fabric', 'leather', 'rubber',
+  'stone', 'rock', 'marble', 'granite', 'concrete', 'brick', 'steel', 'iron', 'aluminum', 'copper',
+  'gold', 'silver', 'diamond', 'crystal', 'ceramic', 'porcelain', 'silk', 'cotton', 'wool', 'linen',
+
+  // Từ vựng về hình dạng
+  'shape', 'circle', 'square', 'rectangle', 'triangle', 'oval', 'round', 'flat', 'curved', 'straight',
+  'line', 'point', 'angle', 'corner', 'edge', 'side', 'surface', 'dimension', 'length', 'width',
+  'height', 'depth', 'size', 'measurement', 'meter', 'centimeter', 'inch', 'foot', 'yard', 'mile',
+
+  // Từ vựng về vị trí
+  'position', 'location', 'place', 'spot', 'area', 'region', 'zone', 'section', 'part', 'piece',
+  'front', 'back', 'side', 'top', 'bottom', 'above', 'below', 'under', 'over', 'inside',
+  'outside', 'between', 'among', 'around', 'through', 'across', 'along', 'beside', 'next', 'near',
+
+  // Từ vựng về thời gian chi tiết
+  'time', 'period', 'moment', 'instant', 'second', 'minute', 'hour', 'day', 'week', 'month',
+  'year', 'decade', 'century', 'millennium', 'past', 'present', 'future', 'history', 'modern', 'contemporary',
+  'ancient', 'medieval', 'recent', 'current', 'latest', 'earliest', 'beginning', 'middle', 'end', 'duration',
+
+  // Từ vựng về số lượng
+  'number', 'amount', 'quantity', 'count', 'total', 'sum', 'average', 'minimum', 'maximum', 'equal',
+  'more', 'less', 'most', 'least', 'many', 'few', 'several', 'some', 'all', 'none',
+  'half', 'quarter', 'third', 'double', 'triple', 'multiple', 'single', 'pair', 'dozen', 'score',
+
+  // Từ vựng về hoạt động xã hội
+  'social', 'society', 'community', 'group', 'organization', 'association', 'club', 'team', 'member', 'leader',
+  'follower', 'participant', 'volunteer', 'citizen', 'neighbor', 'stranger', 'acquaintance', 'colleague', 'partner', 'companion',
+  'guest', 'host', 'visitor', 'tourist', 'resident', 'inhabitant', 'population', 'crowd', 'audience', 'public',
+
+  // Từ vựng về cảm giác
+  'sense', 'feel', 'touch', 'see', 'hear', 'smell', 'taste', 'sensation', 'perception', 'awareness',
+  'conscious', 'unconscious', 'awake', 'asleep', 'dream', 'nightmare', 'memory', 'remember', 'forget', 'recall',
+  'recognize', 'familiar', 'strange', 'unusual', 'normal', 'typical', 'common', 'rare', 'unique', 'special',
+
+  // Từ vựng về tính cách
+  'personality', 'character', 'nature', 'behavior', 'attitude', 'manner', 'style', 'way', 'habit', 'custom',
+  'kind', 'cruel', 'gentle', 'harsh', 'friendly', 'unfriendly', 'polite', 'rude', 'honest', 'dishonest',
+  'brave', 'coward', 'patient', 'impatient', 'generous', 'selfish', 'humble', 'arrogant', 'optimistic', 'pessimistic',
+
+  // Từ vựng về công việc nhà
+  'housework', 'chore', 'clean', 'wash', 'dry', 'iron', 'fold', 'sweep', 'mop', 'vacuum',
+  'dust', 'polish', 'scrub', 'wipe', 'organize', 'arrange', 'tidy', 'mess', 'garbage', 'trash',
+  'recycle', 'compost', 'repair', 'fix', 'maintain', 'replace', 'install', 'remove', 'move', 'carry',
+
+  // Từ vựng về sở thích
+  'hobby', 'interest', 'passion', 'enthusiasm', 'collection', 'stamp', 'coin', 'painting', 'drawing', 'sculpture',
+  'photography', 'gardening', 'fishing', 'hunting', 'camping', 'hiking', 'climbing', 'dancing', 'singing', 'playing',
+  'instrument', 'reading', 'writing', 'cooking', 'baking', 'knitting', 'sewing', 'crafting', 'building', 'making'
+];
+
+async function seedPronunciationWords() {
+  console.log('🌱 Starting to seed pronunciation words...');
+  
+  try {
+    // Loại bỏ các từ trung lặp và chuyển về lowercase
+    const uniqueWords = [...new Set(commonWords.map(word => word.toLowerCase()))];
+    
+    console.log(`📊 Total unique words to seed: ${uniqueWords.length}`);
+    
+    // Chia thành các batch để tránh timeout
+    const batchSize = 100;
+    const batches = [];
+    
+    for (let i = 0; i < uniqueWords.length; i += batchSize) {
+      batches.push(uniqueWords.slice(i, i + batchSize));
+    }
+    
+    console.log(`📦 Processing ${batches.length} batches...`);
+    
+    let totalCreated = 0;
+    let totalSkipped = 0;
+    
+    for (let i = 0; i < batches.length; i++) {
+      const batch = batches[i];
+      console.log(`⏳ Processing batch ${i + 1}/${batches.length} (${batch.length} words)...`);
+      
+      try {
+        // Sử dụng createMany với skipDuplicates để tránh lỗi unique constraint
+        const result = await prisma.pronunciationWord.createMany({
+          data: batch.map(word => ({ word })),
+          skipDuplicates: true,
+        });
+        
+        totalCreated += result.count;
+        totalSkipped += (batch.length - result.count);
+        
+        console.log(`✅ Batch ${i + 1} completed: ${result.count} created, ${batch.length - result.count} skipped`);
+        
+        // Delay nhỏ giữa các batch để tránh overwhelm database
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+      } catch (error) {
+        console.error(`❌ Error in batch ${i + 1}:`, error);
+        // Continue với batch tiếp theo thay vì dừng hoàn toàn
+      }
+    }
+    
+    // Thống kê cuối cùng
+    const totalWordsInDb = await prisma.pronunciationWord.count();
+    
+    console.log('🎉 Seeding completed!');
+    console.log(`📈 Statistics:`);
+    console.log(`   - Words created: ${totalCreated}`);
+    console.log(`   - Words skipped (already exist): ${totalSkipped}`);
+    console.log(`   - Total words in database: ${totalWordsInDb}`);
+    
+  } catch (error) {
+    console.error('💥 Error during seeding:', error);
+    process.exit(1);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+// Chạy seed function
+if (require.main === module) {
+  seedPronunciationWords()
+    .then(() => {
+      console.log('✨ Seeding process finished successfully!');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('💥 Seeding process failed:', error);
+      process.exit(1);
+    });
+}
+
+export { seedPronunciationWords };

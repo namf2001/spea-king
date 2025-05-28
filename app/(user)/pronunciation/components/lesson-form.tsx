@@ -24,12 +24,15 @@ import {
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { PronunciationLesson, PronunciationWord } from '@prisma/client';
+import { PronunciationLesson, PronunciationWord, PronunciationLessonWord } from '@prisma/client';
+import { WordAutocomplete } from './word-autocomplete';
 
 type FormValues = z.infer<typeof lessonSchema>;
 
 type LessonWithWords = PronunciationLesson & {
-  words: PronunciationWord[];
+  words: (PronunciationLessonWord & {
+    word: PronunciationWord;
+  })[];
 };
 
 interface LessonFormProps {
@@ -56,7 +59,7 @@ export default function LessonForm({
     defaultValues: {
       title: isEditMode ? lesson.title : '',
       words: isEditMode
-        ? lesson.words.map((word) => ({ id: word.id, word: word.word }))
+        ? lesson.words.map((lessonWord) => ({ id: lessonWord.id, word: lessonWord.word.word }))
         : [{ id: nanoid(), word: '' }],
     },
   });
@@ -66,7 +69,7 @@ export default function LessonForm({
     if (isEditMode) {
       form.reset({
         title: lesson.title,
-        words: lesson.words.map((word) => ({ id: word.id, word: word.word })),
+        words: lesson.words.map((lessonWord) => ({ id: lessonWord.id, word: lessonWord.word.word })),
       });
     }
   }, [lesson, isEditMode, form]);
@@ -196,9 +199,11 @@ export default function LessonForm({
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormControl>
-                      <Input
+                      <WordAutocomplete
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
                         placeholder="Enter a word"
-                        {...field}
                         disabled={isSubmitting}
                       />
                     </FormControl>

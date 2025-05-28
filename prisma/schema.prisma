@@ -70,28 +70,37 @@ model VerificationToken {
 }
 
 model PronunciationLesson {
-  id        String              @id @default(cuid())
+  id        String                    @id @default(cuid())
   title     String
   userId    String
-  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  words     PronunciationWord[]
-  createdAt DateTime            @default(now()) @map("created_at")
-  updatedAt DateTime            @updatedAt @map("updated_at")
+  user      User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  words     PronunciationLessonWord[]
+  createdAt DateTime                  @default(now()) @map("created_at")
+  updatedAt DateTime                  @updatedAt @map("updated_at")
 
   @@map("pronunciation_lessons")
 }
 
 model PronunciationWord {
-  id        String              @id @default(cuid())
-  word      String
-  lessonId  String
-  lesson    PronunciationLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  createdAt DateTime            @default(now()) @map("created_at")
-  updatedAt DateTime            @updatedAt @map("updated_at")
+  id        String                    @id @default(cuid())
+  word      String                    @unique
+  lessons   PronunciationLessonWord[]
+  createdAt DateTime                  @default(now()) @map("created_at")
+  updatedAt DateTime                  @updatedAt @map("updated_at")
 
-  @@unique([word, lessonId])
   @@index([word])
   @@map("pronunciation_words")
+}
+
+model PronunciationLessonWord {
+  id       String              @id @default(cuid())
+  lessonId String
+  wordId   String
+  lesson   PronunciationLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  word     PronunciationWord   @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, wordId])
+  @@map("pronunciation_lesson_words")
 }
 
 model ReflexQuestion {

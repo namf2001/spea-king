@@ -31,12 +31,15 @@ import LessonForm from './lesson-form';
 import DeleteConfirmationDialog from './delete-pronunciation-dialog';
 import {
   type PronunciationLesson,
+  type PronunciationLessonWord,
   type PronunciationWord,
 } from '@prisma/client';
 
 // Define a type that includes the words relation
 type PronunciationLessonWithWords = PronunciationLesson & {
-  words: PronunciationWord[];
+  words: (PronunciationLessonWord & {
+    word: PronunciationWord;
+  })[];
 };
 
 export default function PronunciationContent({
@@ -221,13 +224,13 @@ export default function PronunciationContent({
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-1">
-                        {lesson.words.slice(0, 3).map((word) => (
+                        {lesson.words.slice(0, 3).map((lessonWord) => (
                           <Badge
-                            key={word.id}
+                            key={lessonWord.id}
                             variant="secondary"
                             className="text-xs"
                           >
-                            {word.word}
+                            {lessonWord.word.word}
                           </Badge>
                         ))}
                         {lesson.words.length > 3 && (

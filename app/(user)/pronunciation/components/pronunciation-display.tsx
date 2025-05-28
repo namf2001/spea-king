@@ -2,11 +2,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import type { PronunciationLesson, PronunciationWord } from '@prisma/client';
+import type { PronunciationLesson, PronunciationWord, PronunciationLessonWord } from '@prisma/client';
 
 interface ExerciseDisplayProps {
   readonly exercise: PronunciationLesson & {
-    words: PronunciationWord[];
+    words: (PronunciationLessonWord & {
+      word: PronunciationWord;
+    })[];
   };
   readonly currentIndex: number;
   readonly totalExercises: number;
@@ -44,7 +46,7 @@ export function ExerciseDisplay({
         <CardContent className="pb-2">
           <div className="bg-primary/10 relative mb-6 rounded-lg p-6 text-center shadow-inner">
             <p className="text-2xl font-medium tracking-wide">
-              {currentWord.word}
+              {currentWord.word.word}
             </p>
           </div>
         </CardContent>

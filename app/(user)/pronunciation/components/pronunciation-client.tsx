@@ -12,11 +12,13 @@ import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mic } from 'lucide-react';
-import type { PronunciationLesson, PronunciationWord } from '@prisma/client';
+import type { PronunciationLesson, PronunciationWord, PronunciationLessonWord } from '@prisma/client';
 
 interface PronunciationClientProps {
   lessons: (PronunciationLesson & {
-    words: PronunciationWord[];
+    words: (PronunciationLessonWord & {
+      word: PronunciationWord;
+    })[];
   })[];
   userId: string;
   error?: string;
@@ -56,7 +58,7 @@ export default function PronunciationClient({
 
   // Current exercise and its current word
   const currentExercise = lessons[currentExerciseIndex];
-  const currentWord = currentExercise?.words[currentWordIndex]?.word || '';
+  const currentWord = currentExercise?.words[currentWordIndex]?.word.word || '';
 
   // Display errors as toasts
   useEffect(() => {
