@@ -164,7 +164,7 @@ export default function PronunciationContent({
             </motion.div>
           </div>
           <motion.div
-            className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+            className="grid grid-cols-1 gap-6  lg:grid-cols-2"
             initial="hidden"
             animate="show"
             variants={{
@@ -199,7 +199,7 @@ export default function PronunciationContent({
                   transition={{ type: 'spring', stiffness: 400, damping: 10 }}
                   className="rounded-2xl"
                 >
-                  <Card className="hover:border-primary/50 overflow-hidden border transition-all">
+                  <Card className=" overflow-hidden border-2 border-gray-200 dark:border-gray-600">
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <CardTitle className="font-bold">
