@@ -371,6 +371,7 @@ Keep it under 3 sentences, and do not respond with another question.`;
 export async function suggestUserAnswer(
   question: string,
   wordLimit: number = 70,
+  ieltsLevel: string = '6.0',
 ): Promise<ApiResponse<{ response: string }>> {
   const API_KEY = process.env.GROQ_API_KEY;
   const API_ENDPOINT = process.env.GROQ_API_ENDPOINT;
@@ -385,10 +386,17 @@ export async function suggestUserAnswer(
   // Validate word limit to be between 70 and 100
   const validatedWordLimit = Math.min(Math.max(wordLimit || 70, 70), 100);
 
+  // Validate IELTS level input
+  const validLevels = ['4.0', '5.0', '6.0', '6.5', '7.0', '7.5', '8.0', '8.5', '9.0'];
+  const level = validLevels.includes(ieltsLevel) ? ieltsLevel : '6.0';
+
   const systemContent = `You are an English learning assistant.
 Answer the user's question clearly and concisely.
-Your response must be around ${validatedWordLimit} words, suitable for an IELTS Band 6.0 to 7.0 candidate.
-Use natural grammar and vocabulary, and avoid long or complex sentences.
+Your response must be around ${validatedWordLimit} words, suitable for an IELTS Band ${level} candidate.
+Use natural grammar and vocabulary appropriate for IELTS Band ${level} level.
+For lower bands (4.0-5.0), use simpler words and shorter sentences.
+For middle bands (6.0-7.0), use more varied vocabulary and some complex sentences.
+For higher bands (7.5-9.0), use sophisticated vocabulary and complex sentence structures.
 Do not exceed ${validatedWordLimit + 5} words.`;
 
   const messages = [
@@ -595,7 +603,6 @@ export async function getUserSpeakingStats(): Promise<
     for (let i = 6; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
 
       const dayStart = new Date(date);
       const dayEnd = new Date(date);

@@ -233,6 +233,28 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
     setResponseStartTime(null);
   };
 
+  // Handler for moving to the previous question
+  const handlePreviousQuestion = () => {
+    if (isCustomMode) {
+      // In custom mode, just clear the transcript and results
+      setTranscript('');
+      setCurrentResult(null);
+      setResponseStartTime(null);
+      return;
+    }
+
+    const totalQuestions =
+      userQuestions.length > 0 ? userQuestions.length : defaultQuestions.length;
+
+    setCurrentQuestionIndex((prev) => 
+      prev === 0 ? totalQuestions - 1 : prev - 1
+    );
+    setTimeRemaining(45);
+    setTranscript('');
+    setCurrentResult(null);
+    setResponseStartTime(null);
+  };
+
   // Handle custom question submission
   const handleCustomQuestionSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -514,6 +536,7 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
         onStartListening={handleStartListening}
         onStopListening={handleStopListening}
         onNextQuestion={handleNextQuestion}
+        onPreviousQuestion={handlePreviousQuestion}
         timeRemaining={timeRemaining}
         getAudioData={audioVisualizerEnabled ? safeGetAudioData : undefined}
         disabled={currentResult !== null}

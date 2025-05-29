@@ -25,6 +25,7 @@ import {
 import { suggestUserAnswer } from '@/app/actions/speech';
 import { ReflexQuestion } from '@prisma/client';
 import { reflexSchema } from '@/schemas/reflex';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 interface QuestionFormProps {
   userId: string;
   onSuccess: () => void;
@@ -68,7 +69,7 @@ export default function QuestionForm({
 
     setIsGenerating(true);
     try {
-      const response = await suggestUserAnswer(currentQuestion, wordLimit);
+      const response = await suggestUserAnswer(currentQuestion, wordLimit, brandPoint);
 
       if (response.success && response.data) {
         form.setValue('answer', response.data.response);
@@ -87,14 +88,12 @@ export default function QuestionForm({
     }
   };
 
-  // Validate word limit input
-  const handleWordLimitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value, 10);
-    if (!isNaN(value)) {
-      // Keep value between 70-100
-      const limitedValue = Math.min(Math.max(value, 70), 100);
-      setWordLimit(limitedValue);
-    }
+  // Add brand point selection
+  const [brandPoint, setBrandPoint] = useState<string>('6.0');
+
+  // Function to handle brand point change
+  const handleBrandPointChange = (value: string) => {
+    setBrandPoint(value);
   };
 
   const onSubmit = (values: z.infer<typeof reflexSchema>) => {
@@ -207,6 +206,34 @@ export default function QuestionForm({
                 onValueChange={(value) => setWordLimit(value[0])}
                 disabled={isPending || isGenerating || !questionText.trim()}
               />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-primary text-xs font-medium">IELTS BRAND POINT</p>
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={brandPoint}
+                    onValueChange={handleBrandPointChange}
+                    disabled={isPending || isGenerating || !questionText.trim()}
+                  >
+                    <SelectTrigger className="w-24 h-8">
+                      <SelectValue placeholder="6.0" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="4.0">4.0</SelectItem>
+                      <SelectItem value="5.0">5.0</SelectItem>
+                      <SelectItem value="6.0">6.0</SelectItem>
+                      <SelectItem value="6.5">6.5</SelectItem>
+                      <SelectItem value="7.0">7.0</SelectItem>
+                      <SelectItem value="7.5">7.5</SelectItem>
+                      <SelectItem value="8.0">8.0</SelectItem>
+                      <SelectItem value="8.5">8.5</SelectItem>
+                      <SelectItem value="9.0">9.0</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
           </div>
 

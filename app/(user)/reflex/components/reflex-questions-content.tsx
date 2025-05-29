@@ -217,8 +217,9 @@ export default function ReflexQuestionsContent({
                       '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
                   }}
                   transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                  className="rounded-xl"
                 >
-                  <Card className="hover:border-primary/50 overflow-hidden border transition-all">
+                  <Card className="overflow-hidden border-2 border-gray-200 dark:border-gray-600 shadow-sm">
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between gap-3">
                         <CardTitle className="text-base leading-tight font-bold sm:text-lg">
