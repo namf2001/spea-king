@@ -92,7 +92,7 @@ export function ExerciseControls({
           </motion.div>
         )}
 
-        <div className="flex w-full max-w-lg flex-col items-center justify-between gap-4 sm:flex-row">
+        <div className="flex w-full max-w-lg items-center justify-center gap-4 px-4">
           <AnimatePresence mode="wait">
             <motion.div
               key="previous-button"
@@ -108,8 +108,8 @@ export function ExerciseControls({
                 className="w-full"
               >
                 <div className="flex items-center gap-2">
-                  <SkipBack className="mr-2 h-5 w-5" />
-                  <span>Trước đó</span>
+                  <SkipBack className="h-5 w-5" />
+                  <span className="hidden md:block ml-2">Trước đó</span>
                 </div>
               </Button>
             </motion.div>
@@ -131,7 +131,7 @@ export function ExerciseControls({
                   className="w-full"
                 >
                   <VolumeX className="mr-2 h-5 w-5" />
-                  <span className="font-medium">
+                  <span className="font-medium" >
                     {isProcessing ? 'Processing...' : 'Stop'}
                   </span>
                 </Button>
@@ -149,8 +149,8 @@ export function ExerciseControls({
                   disabled={isProcessing}
                   className="from-primary to-primary/90 w-full bg-gradient-to-r"
                 >
-                  <Mic className="mr-2 h-5 w-5" />
-                  <span className="font-medium">Start Assessment</span>
+                  <Mic className="h-5 w-5" />
+                  <span className="hidden md:block ml-2">Start Assessment</span>
                 </Button>
               </motion.div>
             )}
@@ -167,8 +167,8 @@ export function ExerciseControls({
               variant="secondary"
               className="w-full"
             >
-              <SkipForward className="mr-2 h-5 w-5" />
-              <span>Next</span>
+              <SkipForward className="h-5 w-5" />
+              <span className="hidden md:block ml-2">Next</span>
             </Button>
           </motion.div>
         </div>
