@@ -66,15 +66,15 @@ export function AppSidebar() {
         <Image
           src={pronunciationIcon}
           alt="Pronunciation"
-          width={24}
-          height={24}
+          width={32}
+          height={32}
         />
       ),
     },
     {
       label: 'PHẢN XẠ',
       href: '/reflex',
-      icon: <Image src={reflexIcon} alt="Reflex" width={24} height={24} />,
+      icon: <Image src={reflexIcon} alt="Reflex" width={32} height={32} />,
     },
     {
       label: 'GIAO TIẾP',
@@ -83,25 +83,25 @@ export function AppSidebar() {
         <Image
           src={conversationIcon}
           alt="Conversation"
-          width={24}
-          height={24}
+          width={32}
+          height={32}
         />
       ),
     },
     {
       label: 'THỐNG KÊ',
       href: '/progress',
-      icon: <Image src={progressIcon} alt="Progress" width={24} height={24} />,
+      icon: <Image src={progressIcon} alt="Progress" width={32} height={32} />,
     },
     {
       label: 'HỒ SƠ',
       href: '/settings',
-      icon: <Image src={userIcon} alt="User" width={24} height={24} />,
+      icon: <Image src={userIcon} alt="User" width={32} height={32} />,
     },
     {
       label: 'XEM THÊM',
       href: '/more',
-      icon: <Image src={seeMoreIcon} alt="See More" width={24} height={24} />,
+      icon: <Image src={seeMoreIcon} alt="See More" width={32} height={32} />,
     },
   ];
 
@@ -129,12 +129,12 @@ export function AppSidebar() {
           <SidebarHeader className="mb-8 flex flex-col items-center gap-1">
             <Link href="/" className="flex w-full justify-center">
               {isIpad ? (
-                <div className="relative h-20 w-20">
+                <div className="relative h-14 w-14">
                   <Image
                     src={logo}
                     alt="SPEA-KING Logo"
                     fill
-                    sizes="(max-width: 768px) 56px, 80px"
+                    sizes="(max-width: 768px) 40px, 56px"
                     className="object-contain"
                   />
                 </div>
@@ -153,9 +153,9 @@ export function AppSidebar() {
                     asChild
                     isActive={isActive(item.href)}
                     className={cn(
-                      'flex h-13 w-full items-center rounded-xl transition-all',
+                      'flex h-14 w-full items-center rounded-xl transition-all',
                       isIpad
-                        ? 'mx-auto w-16 justify-center'
+                        ? 'mx-auto w-14 justify-center'
                         : 'justify-center md:justify-start',
                       isActive(item.href) ? 'border-2' : 'border-transparent',
                     )}
