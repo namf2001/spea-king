@@ -83,7 +83,7 @@ export function ConversationControls({
           transition={{ duration: 0.3 }}
           className="flex w-full justify-center"
         >
-          <Button onClick={onStartConversation}>
+          <Button onClick={onStartConversation} className="from-primary to-primary/90 bg-gradient-to-r">
             <PlayCircle className="mr-2 h-5 w-5" />
             <span className="font-medium text-white">Start conversation</span>
           </Button>
@@ -105,7 +105,7 @@ export function ConversationControls({
           <Button
             onClick={onStartListening}
             disabled={isSpeaking}
-            className="h-14 w-14 rounded-full"
+            className="from-primary to-primary/90 bg-gradient-to-r h-14 w-14 rounded-full"
             size="lg"
           >
             <Mic className="h-10 w-10 text-white transition-transform group-hover:scale-110" />
@@ -164,11 +164,10 @@ export function ConversationControls({
             onClick={() => {
               if (onSubmitResponse) {
                 onSubmitResponse();
-                // Reset internal state ngay khi nhấn nút gửi
                 setInternalRecognizedText(undefined);
               }
             }}
-            className="h-14 w-14 rounded-full"
+            className="from-primary to-primary/90 bg-gradient-to-r h-14 w-14 rounded-full"
             disabled={isSpeaking}
           >
             <Send className="h-8 w-8 text-white transition-transform group-hover:scale-110" />
@@ -204,16 +203,16 @@ export function ConversationControls({
           exit={{ opacity: 0, height: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="relative h-16 overflow-hidden rounded-lg shadow-lg">
+          <div className="relative h-16 overflow-hidden rounded-lg shadow-lg border-2 border-gray-200 dark:border-gray-600">
             <AudioVisualizer
               getAudioData={getAudioData}
               isActive={isListening}
               height={60}
-              barColor="#ef9493"
+              barColor="#ed9392"
               backgroundColor="rgba(248, 250, 252, 0.8)"
               className="overflow-hidden rounded-lg"
             />
-            <div className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-r from-green-500/10 to-emerald-500/10"></div>
+            <div className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10"></div>
           </div>
         </motion.div>
       )}
@@ -224,7 +223,7 @@ export function ConversationControls({
       {/* Phần gợi ý */}
       {hasStarted && (
         <div className="flex w-full flex-col items-center">
-          <div className="mb-2 flex items-center rounded-lg p-2 shadow-sm">
+          <div className="mb-2 flex items-center rounded-lg p-2 shadow-sm border-2 border-gray-200 dark:border-gray-600">
             <Label className="mr-2 font-medium">Suggest:</Label>
             <Switch
               checked={suggestionsEnabled}
@@ -233,16 +232,13 @@ export function ConversationControls({
             />
           </div>
 
-          {/* Bộ chọn cấp độ IELTS */}
-
-          {/* Danh sách gợi ý */}
           {suggestionsEnabled && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.3 }}
-              className="from-primary/10 to-background w-full rounded-lg border border-gray-100 bg-gradient-to-t p-4 shadow-md dark:border-gray-700"
+              className="from-primary/20 to-background w-full rounded-lg border-2 border-gray-200 dark:border-gray-600 bg-gradient-to-t p-4 shadow-lg"
             >
               {isLoadingSuggestion ? (
                 <div className="flex items-center justify-center py-4">
@@ -275,6 +271,7 @@ export function ConversationControls({
                             <SelectItem value="7.0">7.0</SelectItem>
                             <SelectItem value="7.5">7.5</SelectItem>
                             <SelectItem value="8.0">8.0</SelectItem>
+                            <SelectItem value="8.5">8.5</SelectItem>
                             <SelectItem value="9.0">9.0</SelectItem>
                           </SelectContent>
                         </Select>

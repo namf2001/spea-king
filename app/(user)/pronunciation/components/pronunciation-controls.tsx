@@ -59,7 +59,7 @@ export function ExerciseControls({
       className="mb-4"
     >
 
-      <Card className='flex w-full items-center justify-between border-2 border-gray-200 dark:border-gray-600'>
+      <Card className='items-center border-2 border-gray-200 dark:border-gray-600'>
         {isAssessing && getAudioData && (
           <motion.div
             className="mb-6 w-full px-6"

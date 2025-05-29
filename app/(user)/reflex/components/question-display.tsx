@@ -85,8 +85,9 @@ export function QuestionDisplay({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       key={question.id}
+      className="mb-4"
     >
-      <Card className="gap-0 overflow-hidden border-2 dark:border-gray-600 pt-0 shadow-md">
+      <Card className="gap-0 overflow-hidden border-2 border-gray-200 dark:border-gray-600 pt-0">
         {/* Thanh thời gian */}
         {timeRemaining !== undefined && (
           <div className="relative h-2 bg-gray-100 dark:bg-gray-800">
@@ -99,7 +100,7 @@ export function QuestionDisplay({
           </div>
         )}
 
-        <CardHeader className="from-primary/20 to-background bg-gradient-to-b py-3 sm:py-4">
+        <CardHeader className="py-3 sm:py-4">
           <CardTitle className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-sm font-medium sm:text-base">
               Câu hỏi {currentIndex + 1}/{totalQuestions}
