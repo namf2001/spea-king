@@ -10,13 +10,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-primary text-primary-foreground shadow-lg shadow-primary/60 border-b-4 border-primary/90 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/70 active:border-b-2 active:translate-y-0.5',
+          'bg-primary text-primary-foreground shadow-sm shadow-gray-400/50 border-b-4 border-destructive hover:bg-primary/90 hover:shadow-md hover:shadow-primary/30 active:border-b-2 active:translate-y-0.5',
         destructive:
           'bg-destructive text-white shadow-lg shadow-destructive/60 border-b-4 border-destructive/90 hover:bg-destructive/90 hover:shadow-xl hover:shadow-destructive/70 active:border-b-2 active:translate-y-0.5',
         outline:
           'border-2 border-input bg-background shadow-md shadow-gray-400/50 hover:bg-accent hover:text-accent-foreground hover:shadow-lg hover:shadow-gray-500/60 active:shadow-sm active:translate-y-0.5',
         secondary:
-          'bg-secondary text-secondary-foreground shadow-lg shadow-secondary/60 border-b-4 border-secondary/90 hover:bg-secondary/80 hover:shadow-xl hover:shadow-secondary/70 active:border-b-2 active:translate-y-0.5',
+          'bg-secondary border-1 text-secondary-foreground shadow-sm shadow-secondary/60 border-b-4 border-gray-300 hover:bg-secondary/80 hover:shadow-xl hover:shadow-secondary/70 active:border-b-2 active:translate-y-0.5',
         ghost:
           'hover:bg-accent hover:text-accent-foreground rounded-lg active:bg-accent/80',
         link: 'text-primary underline-offset-4 hover:underline font-semibold',
