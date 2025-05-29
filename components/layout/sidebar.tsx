@@ -139,7 +139,7 @@ export function AppSidebar() {
                   />
                 </div>
               ) : (
-                <span className="text-primary text-5xl font-extrabold">
+                <span className="text-primary text-5xl font-extrabold capitalize">
                   milo
                 </span>
               )}
