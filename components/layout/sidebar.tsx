@@ -112,20 +112,24 @@ export function AppSidebar() {
             isIpad ? 'w-26' : 'min-w-28 md:min-w-64',
           )}
         >
-          <SidebarHeader className="mb-6 flex flex-col items-center gap-1">
-            <Link href="/" className="mb-6 flex w-full justify-center">
-              <div className="relative h-14 w-14">
-                <Image
-                  src={logo}
-                  alt="SPEA-KING Logo"
-                  fill
-                  sizes="(max-width: 768px) 40px, 56px"
-                  className="object-contain"
-                />
-              </div>
+          <SidebarHeader className="mb-8 flex flex-col items-center gap-1">
+            <Link href="/" className="flex w-full justify-center">
+              {isIpad ? (
+                <div className="relative h-20 w-20">
+                  <Image
+                    src={logo}
+                    alt="SPEA-KING Logo"
+                    fill
+                    sizes="(max-width: 768px) 56px, 80px"
+                    className="object-contain"
+                  />
+                </div>
+              ) : (
+                <span className="text-5xl font-extrabold text-primary">milo</span>
+              )}
             </Link>
           </SidebarHeader>
-          <SidebarContent className="flex flex-1 flex-col items-center gap-2 overflow-y-auto px-4">
+          <SidebarContent className="flex flex-1 flex-col items-center gap-3 overflow-y-auto px-4">
             <SidebarMenu className="flex-1">
               {navigation.map((item) => (
                 <SidebarMenuItem key={item.href}>
@@ -133,9 +137,9 @@ export function AppSidebar() {
                     asChild
                     isActive={isActive(item.href)}
                     className={cn(
-                      'flex h-14 w-full items-center rounded-xl transition-all',
+                      'flex h- w-full items-center rounded-xl transition-all',
                       isIpad
-                        ? 'mx-auto w-14 justify-center'
+                        ? 'mx-auto w-16 justify-center'
                         : 'justify-center md:justify-start',
                       isActive(item.href) ? 'border-2' : 'border-transparent',
                     )}
@@ -144,18 +148,18 @@ export function AppSidebar() {
                     <Link
                       href={item.href}
                       className={cn(
-                        'justify-bg flex items-center',
+                        'justify-bg flex items-center py-0',
                         isActive(item.href)
                           ? 'bg-primary border-primary/60 text-primary'
                           : 'border-transparent',
                       )}
                     >
-                      <div className={cn(isIpad ? 'mx-auto' : 'mr-5 ml-2')}>
+                      <div className={cn(isIpad ? 'mx-auto' : 'mr-5 ml-3')}>
                         {item.icon}
                       </div>
                       {!isIpad && (
                         <span
-                          className={cn('hidden text-xs font-bold md:block')}
+                          className={cn('hidden text-base font-bold md:block')}
                         >
                           {item.label}
                         </span>
