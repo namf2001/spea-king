@@ -73,19 +73,8 @@ export default function Home() {
               href="/login"
               className="block w-full max-w-md transition-transform hover:scale-105"
             >
-              <Button className="from-primary to-accent w-full bg-gradient-to-r text-lg font-bold shadow-lg transition-all hover:shadow-xl">
+              <Button className="w-full">
                 GET STARTED
-              </Button>
-            </Link>
-            <Link
-              href="/login"
-              className="block w-full max-w-md transition-transform hover:scale-105"
-            >
-              <Button
-                variant="outline"
-                className="hover:bg-accent/5 w-full border-2 text-lg font-semibold shadow-sm transition-all"
-              >
-                I ALREADY HAVE AN ACCOUNT
               </Button>
             </Link>
           </div>

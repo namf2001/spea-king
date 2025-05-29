@@ -54,7 +54,7 @@ export function ExerciseControls({
   return (
     <div className="mb-10">
       <motion.div
-        className="from-primary/20 to-background flex flex-col items-center rounded-xl bg-gradient-to-t p-6"
+        className="flex flex-col items-center rounded-xl p-6 border-2 border-gray-200"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}

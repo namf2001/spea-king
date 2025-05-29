@@ -36,7 +36,7 @@ export function ExerciseDisplay({
       key={`${currentIndex}-${currentWordIndex}`}
       className="mb-8"
     >
-      <Card className="from-primary/10 to-background mb-8 border-2 bg-gradient-to-b pt-0 shadow-md">
+      <Card className=" mb-8 border-2 border-gray-200 pt-0 shadow-md">
         <CardHeader className="rounded-t-lg py-4">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
