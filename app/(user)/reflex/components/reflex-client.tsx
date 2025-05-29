@@ -410,7 +410,7 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
             exit={{ opacity: 0, height: 0 }}
             className="mb-6"
           >
-            <Card className="border-2 shadow-md">
+            <Card className="border-2 dark:border-gray-600 shadow-md">
               <CardHeader className="pb-4">
                 <CardTitle className="text-base sm:text-lg">
                   Custom Question

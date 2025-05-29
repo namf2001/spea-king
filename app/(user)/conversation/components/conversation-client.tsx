@@ -471,7 +471,7 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <Card className="from-primary/20 to-background mb-6 border-2 bg-gradient-to-t shadow-lg">
+          <Card className="from-primary/20 to-background mb-6 border-2 dark:border-gray-600 bg-gradient-to-t shadow-lg">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle>Conversation</CardTitle>

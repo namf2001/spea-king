@@ -1,10 +1,11 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Mic, SkipForward, VolumeX, Volume2, Headphones } from 'lucide-react';
+import { Mic, SkipBack, SkipForward, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AudioVisualizer } from '@/components/audio-visualizer';
 import { useState, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
 
 interface ExerciseControlsProps {
   readonly isAssessing: boolean;
@@ -12,7 +13,7 @@ interface ExerciseControlsProps {
   readonly isProcessing: boolean;
   readonly onStartAssessment: () => Promise<void>;
   readonly onStopAssessment: () => void;
-  readonly onPlayExample: () => Promise<void>;
+  readonly onPreviousExercise: () => void;
   readonly onNextExercise: () => void;
   readonly getAudioData?: () => Uint8Array | null;
 }
@@ -23,13 +24,12 @@ export function ExerciseControls({
   isProcessing,
   onStartAssessment,
   onStopAssessment,
-  onPlayExample,
+  onPreviousExercise,
   onNextExercise,
   getAudioData,
 }: ExerciseControlsProps) {
   const [recordingTime, setRecordingTime] = useState(0);
 
-  // Recording timer
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
@@ -52,16 +52,17 @@ export function ExerciseControls({
   };
 
   return (
-    <div className="mb-10">
-      <motion.div
-        className="flex flex-col items-center rounded-xl p-6 border-2 border-gray-200"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="mb-4"
+    >
+
+      <Card className='flex w-full items-center justify-between border-2 border-gray-200 dark:border-gray-600'>
         {isAssessing && getAudioData && (
           <motion.div
-            className="mb-6 w-full"
+            className="mb-6 w-full px-6"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -94,7 +95,7 @@ export function ExerciseControls({
         <div className="flex w-full max-w-lg flex-col items-center justify-between gap-4 sm:flex-row">
           <AnimatePresence mode="wait">
             <motion.div
-              key="listen-button"
+              key="previous-button"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -102,27 +103,14 @@ export function ExerciseControls({
               className="flex w-full justify-center sm:w-auto"
             >
               <Button
-                onClick={onPlayExample}
+                onClick={onPreviousExercise}
                 variant="secondary"
-                disabled={isSpeaking}
-                className="relative w-full overflow-hidden"
+                className="w-full"
               >
-                <div className="relative z-10 flex items-center gap-2">
-                  {isSpeaking ? (
-                    <Volume2 className="h-5 w-5 animate-pulse" />
-                  ) : (
-                    <Headphones className="h-5 w-5" />
-                  )}
-                  <span>{isSpeaking ? 'Playing...' : 'Listen'}</span>
+                <div className="flex items-center gap-2">
+                  <SkipBack className="mr-2 h-5 w-5" />
+                  <span>Trước đó</span>
                 </div>
-                {isSpeaking && (
-                  <motion.div
-                    className="absolute inset-0 bg-blue-100 dark:bg-blue-800/30"
-                    initial={{ width: 0 }}
-                    animate={{ width: '100%' }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
-                )}
               </Button>
             </motion.div>
           </AnimatePresence>
@@ -184,7 +172,7 @@ export function ExerciseControls({
             </Button>
           </motion.div>
         </div>
-      </motion.div>
-    </div>
+      </Card>
+    </motion.div>
   );
 }

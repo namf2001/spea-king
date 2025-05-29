@@ -108,7 +108,7 @@ export function AppSidebar() {
         <Sidebar
           collapsible="none"
           className={cn(
-            'border-r-2 border-gray-200 dark:border-gray-800 py-4',
+            'border-r-2 border-gray-200 dark:border-gray-600 py-4',
             isIpad ? 'w-26' : 'min-w-28 md:min-w-64',
           )}
         >

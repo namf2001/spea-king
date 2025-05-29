@@ -142,7 +142,7 @@ export function AnswerFeedback({
       animate="visible"
       className="mb-10"
     >
-      <Card className="gap-0 border-2 py-0">
+      <Card className="gap-0 border-2 dark:border-gray-600 py-0">
         <CardHeader className="from-primary/20 to-background rounded-lg bg-gradient-to-b p-6">
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="text-primary h-4 w-4" />

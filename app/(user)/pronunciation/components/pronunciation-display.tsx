@@ -2,6 +2,9 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
+import { Volume2 } from 'lucide-react';
+import { useSpeechSynthesis } from '@/hooks/use-speech-synthesis';
+import { toast } from 'sonner';
 import type {
   PronunciationLesson,
   PronunciationWord,
@@ -27,6 +30,19 @@ export function ExerciseDisplay({
 }: ExerciseDisplayProps) {
   const currentWord = exercise.words[currentWordIndex];
   const wordProgress = `${currentWordIndex + 1}/${exercise.words.length}`;
+  const { speak, isSpeaking } = useSpeechSynthesis();
+
+  const handlePlayWord = async () => {
+    try {
+      await speak(currentWord.word.word);
+    } catch (error: unknown) {
+      console.error('Speech synthesis error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.error('Error', {
+        description: `Không thể phát âm từ này: ${errorMessage}`,
+      });
+    }
+  };
 
   return (
     <motion.div
@@ -34,10 +50,10 @@ export function ExerciseDisplay({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       key={`${currentIndex}-${currentWordIndex}`}
-      className="mb-8"
+      className="mb-4"
     >
-      <Card className=" mb-8 border-2 border-gray-200 pt-0 shadow-md">
-        <CardHeader className="rounded-t-lg py-4">
+      <Card className="border-2 border-gray-200 dark:border-gray-600 pt-0 shadow-none">
+        <CardHeader className="py-4">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               {exercise.title} - {currentIndex + 1}/{totalExercises}
@@ -48,10 +64,18 @@ export function ExerciseDisplay({
           </div>
         </CardHeader>
         <CardContent className="pb-2">
-          <div className="bg-primary/10 relative mb-6 rounded-lg p-6 text-center shadow-inner">
+          <div className="bg-primary/10 relative rounded-lg border p-6 text-center shadow-inner">
             <p className="text-2xl font-medium tracking-wide">
               {currentWord.word.word}
             </p>
+            <button
+              onClick={handlePlayWord}
+              disabled={isSpeaking}
+              className="text-primary hover:text-primary/80 hover:bg-primary/10 absolute top-2 right-2 rounded-full p-1.5 transition-colors sm:top-3 sm:right-3 sm:p-2"
+              aria-label="Phát âm từ"
+            >
+              <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />
+            </button>
           </div>
         </CardContent>
       </Card>

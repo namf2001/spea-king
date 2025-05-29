@@ -50,7 +50,7 @@ export default function PronunciationClient({
     isProcessingResult,
   } = usePronunciationAssessment();
 
-  const { speak, isSpeaking, error: synthesisError } = useSpeechSynthesis();
+  const { isSpeaking, error: synthesisError } = useSpeechSynthesis();
   const {
     audioUrl,
     startRecording,
@@ -148,14 +148,26 @@ export default function PronunciationClient({
     });
   };
 
-  const handlePlayExample = async () => {
-    try {
-      await speak(currentWord);
-    } catch (err) {
-      toast.error('Error', {
-        description:
-          err instanceof Error ? err.message : 'Failed to play audio example',
-      });
+  const handlePreviousExercise = () => {
+    setResults(null);
+    resetResults();
+    assessmentProcessedRef.current = false;
+    
+    if (currentWordIndex > 0) {
+      // Go to previous word in current lesson
+      setCurrentWordIndex(currentWordIndex - 1);
+    } else if (currentExerciseIndex > 0) {
+      // Go to previous lesson and last word
+      const prevExerciseIndex = currentExerciseIndex - 1;
+      const prevExercise = lessons[prevExerciseIndex];
+      setCurrentExerciseIndex(prevExerciseIndex);
+      setCurrentWordIndex(prevExercise.words.length - 1);
+    } else {
+      // Already at first word of first lesson - go to last word of last lesson (loop)
+      const lastExerciseIndex = lessons.length - 1;
+      const lastExercise = lessons[lastExerciseIndex];
+      setCurrentExerciseIndex(lastExerciseIndex);
+      setCurrentWordIndex(lastExercise.words.length - 1);
     }
   };
 
@@ -231,18 +243,6 @@ export default function PronunciationClient({
         >
           <div className="flex items-center gap-2">
             <div className="bg-primary relative overflow-hidden rounded-full p-2">
-              <motion.div
-                className="bg-primary-foreground/20 absolute inset-0"
-                animate={{
-                  scale: [1, 1.5, 1],
-                  opacity: [0, 0.3, 0],
-                }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 2,
-                  ease: 'easeInOut',
-                }}
-              />
               <Mic className="relative z-10 h-5 w-5 text-white sm:h-6 sm:w-6" />
             </div>
             <h1 className="flex items-center gap-2 text-xl font-bold sm:text-2xl lg:text-3xl">
@@ -250,7 +250,6 @@ export default function PronunciationClient({
             </h1>
           </div>
         </motion.div>
-
         <AnimatePresence mode="wait">
           <ExerciseDisplay
             exercise={currentExercise}
@@ -259,14 +258,13 @@ export default function PronunciationClient({
             currentWordIndex={currentWordIndex}
           />
         </AnimatePresence>
-
         <ExerciseControls
           isAssessing={isAssessing}
           isSpeaking={isSpeaking}
           isProcessing={isProcessingResult}
           onStartAssessment={handleStartAssessment}
           onStopAssessment={handleStopAssessment}
-          onPlayExample={handlePlayExample}
+          onPreviousExercise={handlePreviousExercise}
           onNextExercise={handleNextExercise}
           getAudioData={audioVisualizerEnabled ? safeGetAudioData : undefined}
         />
