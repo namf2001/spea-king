@@ -6,16 +6,16 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import {
-  Award,
-  MessageSquare,
-  Mic,
-  MoreHorizontal,
-  User,
-  Zap,
-} from 'lucide-react';
 import { motion } from 'framer-motion';
 import { logo } from '@/assets/image';
+import { 
+  conversationIcon, 
+  progressIcon,
+  pronunciationIcon, 
+  reflexIcon, 
+  seeMoreIcon,
+  userIcon
+} from '@/assets/image/icon';
 
 import {
   Sidebar,
@@ -62,32 +62,32 @@ export function AppSidebar() {
     {
       label: 'PHÁT ÂM',
       href: '/pronunciation',
-      icon: <Mic className="h-6 w-6" />,
+      icon: <Image src={pronunciationIcon} alt="Pronunciation" width={24} height={24} />,
     },
     {
       label: 'PHẢN XẠ',
       href: '/reflex',
-      icon: <Zap className="h-6 w-6" />,
+      icon: <Image src={reflexIcon} alt="Reflex" width={24} height={24} />,
     },
     {
       label: 'GIAO TIẾP',
       href: '/conversation',
-      icon: <MessageSquare className="h-6 w-6" />,
+      icon: <Image src={conversationIcon} alt="Conversation" width={24} height={24} />,
     },
     {
       label: 'THỐNG KÊ',
       href: '/progress',
-      icon: <Award className="h-6 w-6" />,
+      icon: <Image src={progressIcon} alt="Progress" width={24} height={24} />,
     },
     {
       label: 'HỒ SƠ',
       href: '/settings',
-      icon: <User className="h-6 w-6" />,
+      icon: <Image src={userIcon} alt="User" width={24} height={24} />,
     },
     {
       label: 'XEM THÊM',
       href: '/more',
-      icon: <MoreHorizontal className="h-6 w-6" />,
+      icon: <Image src={seeMoreIcon} alt="See More" width={24} height={24} />,
     },
   ];
 
@@ -108,7 +108,7 @@ export function AppSidebar() {
         <Sidebar
           collapsible="none"
           className={cn(
-            'border-r py-4 shadow-sm',
+            'border-r-2 border-gray-200 dark:border-gray-800 py-4',
             isIpad ? 'w-26' : 'min-w-28 md:min-w-64',
           )}
         >
@@ -177,7 +177,7 @@ export function AppSidebar() {
 
   // Mobile sidebar (bottom navigation)
   return (
-    <div className="bg-secondary fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 shadow-lg md:hidden dark:border-gray-800">
+    <div className="bg-secondary fixed right-0 bottom-0 left-0 z-50 border-t-2 border-gray-200  md:hidden dark:border-gray-800">
       <div className="flex items-center justify-between px-1 py-2">
         {navigation.slice(0, 5).map((item) => (
           <Link key={item.href} href={item.href} className="w-full">
