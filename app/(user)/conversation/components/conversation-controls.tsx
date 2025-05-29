@@ -238,7 +238,7 @@ export function ConversationControls({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.3 }}
-              className="from-primary/20 to-background w-full rounded-lg border-2 border-gray-200 dark:border-gray-600 bg-gradient-to-t p-4 shadow-lg"
+              className=" w-full rounded-lg border-2 border-gray-200 dark:border-gray-600 p-4"
             >
               {isLoadingSuggestion ? (
                 <div className="flex items-center justify-center py-4">

@@ -112,11 +112,11 @@ export function ReflexControls({
             <Button
               onClick={onPreviousQuestion}
               variant="secondary"
-              className="flex h-10 w-10 items-center justify-center gap-2 sm:h-auto sm:w-auto sm:px-4"
               disabled={disabled}
+              className="w-full"
             >
               <SkipBack className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span className="hidden text-sm sm:inline sm:text-base">Câu trước</span>
+              <span className="hidden text-sm sm:block sm:text-base">Câu trước</span>
             </Button>
           </motion.div>
 
@@ -170,11 +170,10 @@ export function ReflexControls({
                 <Button
                   onClick={handlePrepareStartListening}
                   disabled={isRecognizing || disabled}
-                  size="lg"
-                  className="from-primary to-primary/90 flex h-12 w-12 items-center justify-center gap-2 rounded-xl px-2 shadow-md sm:h-14 sm:w-auto sm:px-6 bg-gradient-to-r"
+                  className="w-full"
                 >
                   <Mic className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span className="hidden text-sm font-medium sm:inline sm:text-base">
+                  <span className="hidden text-sm font-medium sm:block sm:text-base">
                     {isRecognizing ? 'Đang nghe...' : 'Trả lời'}
                   </span>
                 </Button>
@@ -191,7 +190,7 @@ export function ReflexControls({
             <Button
               onClick={onNextQuestion}
               variant="secondary"
-              className="flex h-10 w-10 items-center justify-center gap-2 sm:h-auto sm:w-auto sm:px-4"
+              className="w-full"
             >
               <span className="hidden text-sm sm:inline sm:text-base">Câu tiếp</span>
               <SkipForward className="h-4 w-4 sm:h-5 sm:w-5" />
