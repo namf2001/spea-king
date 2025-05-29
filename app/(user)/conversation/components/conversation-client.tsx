@@ -236,7 +236,13 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
     const estimatedDuration = recognizedText
       ? Math.max(Math.floor(recognizedText.length / 5), 3)
       : 3; // Estimate ~5 chars per second
-    saveSpeakingRecord('conversation', estimatedDuration, activeTopic.id).catch(
+
+    // Only pass conversationTopicId if it's a user-created topic (not a default topic)
+    // Default topics have hardcoded IDs that don't exist in the database
+    const isUserTopic = !['restaurant', 'interview', 'shopping'].includes(activeTopic.id);
+    const conversationTopicId = isUserTopic ? activeTopic.id : undefined;
+
+    saveSpeakingRecord('conversation', estimatedDuration, conversationTopicId).catch(
       (err) => {
         console.error('Error saving speaking record:', err);
       },
