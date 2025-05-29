@@ -387,7 +387,17 @@ export async function suggestUserAnswer(
   const validatedWordLimit = Math.min(Math.max(wordLimit || 70, 70), 100);
 
   // Validate IELTS level input
-  const validLevels = ['4.0', '5.0', '6.0', '6.5', '7.0', '7.5', '8.0', '8.5', '9.0'];
+  const validLevels = [
+    '4.0',
+    '5.0',
+    '6.0',
+    '6.5',
+    '7.0',
+    '7.5',
+    '8.0',
+    '8.5',
+    '9.0',
+  ];
   const level = validLevels.includes(ieltsLevel) ? ieltsLevel : '6.0';
 
   const systemContent = `You are an English learning assistant.

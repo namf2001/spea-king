@@ -73,9 +73,7 @@ export default function Home() {
               href="/login"
               className="block w-full max-w-md transition-transform hover:scale-105"
             >
-              <Button className="w-full">
-                GET STARTED
-              </Button>
+              <Button className="w-full">GET STARTED</Button>
             </Link>
           </div>
         </div>

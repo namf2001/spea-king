@@ -37,7 +37,8 @@ export function ExerciseDisplay({
       await speak(currentWord.word.word);
     } catch (error: unknown) {
       console.error('Speech synthesis error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       toast.error('Error', {
         description: `Không thể phát âm từ này: ${errorMessage}`,
       });
@@ -52,7 +53,7 @@ export function ExerciseDisplay({
       key={`${currentIndex}-${currentWordIndex}`}
       className="mb-4"
     >
-      <Card className="border-2 border-gray-200 dark:border-gray-600 pt-0 shadow-none">
+      <Card className="pt-0">
         <CardHeader className="py-4">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">

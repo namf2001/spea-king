@@ -87,7 +87,7 @@ export function QuestionDisplay({
       key={question.id}
       className="mb-4"
     >
-      <Card className="gap-0 overflow-hidden border-2 border-gray-200 dark:border-gray-600 pt-0">
+      <Card className="gap-0 overflow-hidden pt-0">
         {/* Thanh thời gian */}
         {timeRemaining !== undefined && (
           <div className="relative h-2 bg-gray-100 dark:bg-gray-800">
@@ -154,7 +154,7 @@ export function QuestionDisplay({
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col items-center gap-3 rounded-lg border-2 border-dashed `p-4 sm:gap-4 sm:p-6 dark:border-gray-600"
+                className="`p-4 flex flex-col items-center gap-3 rounded-lg border-2 border-dashed sm:gap-4 sm:p-6 dark:border-gray-600"
               >
                 <div className="bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-full sm:h-16 sm:w-16">
                   <Mic className="h-5 w-5 animate-pulse sm:h-6 sm:w-6" />

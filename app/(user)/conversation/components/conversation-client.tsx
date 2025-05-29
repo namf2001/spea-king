@@ -239,14 +239,18 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
 
     // Only pass conversationTopicId if it's a user-created topic (not a default topic)
     // Default topics have hardcoded IDs that don't exist in the database
-    const isUserTopic = !['restaurant', 'interview', 'shopping'].includes(activeTopic.id);
+    const isUserTopic = !['restaurant', 'interview', 'shopping'].includes(
+      activeTopic.id,
+    );
     const conversationTopicId = isUserTopic ? activeTopic.id : undefined;
 
-    saveSpeakingRecord('conversation', estimatedDuration, conversationTopicId).catch(
-      (err) => {
-        console.error('Error saving speaking record:', err);
-      },
-    );
+    saveSpeakingRecord(
+      'conversation',
+      estimatedDuration,
+      conversationTopicId,
+    ).catch((err) => {
+      console.error('Error saving speaking record:', err);
+    });
   };
 
   const handleTopicChange = (topicId: string) => {
@@ -477,7 +481,7 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <Card className=" mb-6 border-2 border-gray-200 dark:border-gray-600">
+          <Card className="mb-6">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle>Conversation</CardTitle>

@@ -219,7 +219,7 @@ export default function ReflexQuestionsContent({
                   transition={{ type: 'spring', stiffness: 400, damping: 10 }}
                   className="rounded-xl"
                 >
-                  <Card className="overflow-hidden border-2 border-gray-200 dark:border-gray-600 shadow-sm">
+                  <Card className="overflow-hidden">
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between gap-3">
                         <CardTitle className="text-base leading-tight font-bold sm:text-lg">

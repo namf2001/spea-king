@@ -216,7 +216,7 @@ export default function ConversationTopicsContent({
                   }}
                   transition={{ type: 'spring', stiffness: 400, damping: 10 }}
                 >
-                  <Card className="overflow-hidden border-2 border-gray-200 dark:border-gray-600">
+                  <Card className="overflow-hidden">
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <CardTitle className="font-bold">

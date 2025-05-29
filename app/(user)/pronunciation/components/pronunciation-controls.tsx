@@ -58,8 +58,7 @@ export function ExerciseControls({
       transition={{ duration: 0.5 }}
       className="mb-4"
     >
-
-      <Card className='items-center border-2 border-gray-200 dark:border-gray-600'>
+      <Card className="items-center">
         {isAssessing && getAudioData && (
           <motion.div
             className="mb-6 w-full px-6"
@@ -109,7 +108,7 @@ export function ExerciseControls({
               >
                 <div className="flex items-center gap-2">
                   <SkipBack className="h-5 w-5" />
-                  <span className="hidden md:block ml-2">Trước đó</span>
+                  <span className="ml-2 hidden md:block">Trước đó</span>
                 </div>
               </Button>
             </motion.div>
@@ -131,7 +130,7 @@ export function ExerciseControls({
                   className="w-full"
                 >
                   <VolumeX className="mr-2 h-5 w-5" />
-                  <span className="font-medium" >
+                  <span className="font-medium">
                     {isProcessing ? 'Processing...' : 'Stop'}
                   </span>
                 </Button>
@@ -150,7 +149,7 @@ export function ExerciseControls({
                   className="from-primary to-primary/90 w-full bg-gradient-to-r"
                 >
                   <Mic className="h-5 w-5" />
-                  <span className="hidden md:block ml-2">Start Assessment</span>
+                  <span className="ml-2 hidden md:block">Start Assessment</span>
                 </Button>
               </motion.div>
             )}
@@ -168,7 +167,7 @@ export function ExerciseControls({
               className="w-full"
             >
               <SkipForward className="h-5 w-5" />
-              <span className="hidden md:block ml-2">Next</span>
+              <span className="ml-2 hidden md:block">Next</span>
             </Button>
           </motion.div>
         </div>

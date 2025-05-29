@@ -152,7 +152,7 @@ export default function PronunciationClient({
     setResults(null);
     resetResults();
     assessmentProcessedRef.current = false;
-    
+
     if (currentWordIndex > 0) {
       // Go to previous word in current lesson
       setCurrentWordIndex(currentWordIndex - 1);

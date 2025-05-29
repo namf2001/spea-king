@@ -25,7 +25,13 @@ import {
 import { suggestUserAnswer } from '@/app/actions/speech';
 import { ReflexQuestion } from '@prisma/client';
 import { reflexSchema } from '@/schemas/reflex';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 interface QuestionFormProps {
   userId: string;
   onSuccess: () => void;
@@ -69,7 +75,11 @@ export default function QuestionForm({
 
     setIsGenerating(true);
     try {
-      const response = await suggestUserAnswer(currentQuestion, wordLimit, brandPoint);
+      const response = await suggestUserAnswer(
+        currentQuestion,
+        wordLimit,
+        brandPoint,
+      );
 
       if (response.success && response.data) {
         form.setValue('answer', response.data.response);
@@ -210,14 +220,16 @@ export default function QuestionForm({
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <p className="text-primary text-xs font-medium">IELTS BRAND POINT</p>
+                <p className="text-primary text-xs font-medium">
+                  IELTS BRAND POINT
+                </p>
                 <div className="flex items-center gap-2">
                   <Select
                     value={brandPoint}
                     onValueChange={handleBrandPointChange}
                     disabled={isPending || isGenerating || !questionText.trim()}
                   >
-                    <SelectTrigger className="w-24 h-8">
+                    <SelectTrigger className="h-8 w-24">
                       <SelectValue placeholder="6.0" />
                     </SelectTrigger>
                     <SelectContent>

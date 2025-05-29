@@ -8,13 +8,13 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { logo } from '@/assets/image';
-import { 
-  conversationIcon, 
+import {
+  conversationIcon,
   progressIcon,
-  pronunciationIcon, 
-  reflexIcon, 
+  pronunciationIcon,
+  reflexIcon,
   seeMoreIcon,
-  userIcon
+  userIcon,
 } from '@/assets/image/icon';
 
 import {
@@ -62,7 +62,14 @@ export function AppSidebar() {
     {
       label: 'PHÁT ÂM',
       href: '/pronunciation',
-      icon: <Image src={pronunciationIcon} alt="Pronunciation" width={24} height={24} />,
+      icon: (
+        <Image
+          src={pronunciationIcon}
+          alt="Pronunciation"
+          width={24}
+          height={24}
+        />
+      ),
     },
     {
       label: 'PHẢN XẠ',
@@ -72,7 +79,14 @@ export function AppSidebar() {
     {
       label: 'GIAO TIẾP',
       href: '/conversation',
-      icon: <Image src={conversationIcon} alt="Conversation" width={24} height={24} />,
+      icon: (
+        <Image
+          src={conversationIcon}
+          alt="Conversation"
+          width={24}
+          height={24}
+        />
+      ),
     },
     {
       label: 'THỐNG KÊ',
@@ -108,7 +122,7 @@ export function AppSidebar() {
         <Sidebar
           collapsible="none"
           className={cn(
-            'border-r-2 border-gray-200 dark:border-gray-600 py-4',
+            'border-r-2 border-gray-200 py-4 dark:border-gray-600',
             isIpad ? 'w-26' : 'min-w-28 md:min-w-64',
           )}
         >
@@ -125,7 +139,9 @@ export function AppSidebar() {
                   />
                 </div>
               ) : (
-                <span className="text-5xl font-extrabold text-primary">milo</span>
+                <span className="text-primary text-5xl font-extrabold">
+                  milo
+                </span>
               )}
             </Link>
           </SidebarHeader>
@@ -137,7 +153,7 @@ export function AppSidebar() {
                     asChild
                     isActive={isActive(item.href)}
                     className={cn(
-                      'flex h- w-full items-center rounded-xl transition-all',
+                      'flex h-13 w-full items-center rounded-xl transition-all',
                       isIpad
                         ? 'mx-auto w-16 justify-center'
                         : 'justify-center md:justify-start',
@@ -181,7 +197,7 @@ export function AppSidebar() {
 
   // Mobile sidebar (bottom navigation)
   return (
-    <div className="bg-secondary fixed right-0 bottom-0 left-0 z-50 border-t-2 border-gray-200  md:hidden dark:border-gray-800">
+    <div className="bg-secondary fixed right-0 bottom-0 left-0 z-50 border-t-2 border-gray-200 md:hidden dark:border-gray-800">
       <div className="flex items-center justify-between px-1 py-2">
         {navigation.slice(0, 5).map((item) => (
           <Link key={item.href} href={item.href} className="w-full">

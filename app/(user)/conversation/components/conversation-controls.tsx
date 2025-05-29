@@ -83,7 +83,10 @@ export function ConversationControls({
           transition={{ duration: 0.3 }}
           className="flex w-full justify-center"
         >
-          <Button onClick={onStartConversation} className="from-primary to-primary/90 bg-gradient-to-r">
+          <Button
+            onClick={onStartConversation}
+            className="from-primary to-primary/90 bg-gradient-to-r"
+          >
             <PlayCircle className="mr-2 h-5 w-5" />
             <span className="font-medium text-white">Start conversation</span>
           </Button>
@@ -105,7 +108,7 @@ export function ConversationControls({
           <Button
             onClick={onStartListening}
             disabled={isSpeaking}
-            className="from-primary to-primary/90 bg-gradient-to-r h-14 w-14 rounded-full"
+            className="from-primary to-primary/90 h-14 w-14 rounded-full bg-gradient-to-r"
             size="lg"
           >
             <Mic className="h-10 w-10 text-white transition-transform group-hover:scale-110" />
@@ -167,7 +170,7 @@ export function ConversationControls({
                 setInternalRecognizedText(undefined);
               }
             }}
-            className="from-primary to-primary/90 bg-gradient-to-r h-14 w-14 rounded-full"
+            className="from-primary to-primary/90 h-14 w-14 rounded-full bg-gradient-to-r"
             disabled={isSpeaking}
           >
             <Send className="h-8 w-8 text-white transition-transform group-hover:scale-110" />
@@ -203,7 +206,7 @@ export function ConversationControls({
           exit={{ opacity: 0, height: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="relative h-16 overflow-hidden rounded-lg shadow-lg border-2 border-gray-200 dark:border-gray-600">
+          <div className="relative h-16 overflow-hidden rounded-lg border-2 border-gray-200 shadow-lg dark:border-gray-600">
             <AudioVisualizer
               getAudioData={getAudioData}
               isActive={isListening}
@@ -223,7 +226,7 @@ export function ConversationControls({
       {/* Phần gợi ý */}
       {hasStarted && (
         <div className="flex w-full flex-col items-center">
-          <div className="mb-2 flex items-center rounded-lg p-2 shadow-sm border-2 border-gray-200 dark:border-gray-600">
+          <div className="mb-2 flex items-center rounded-lg border-2 border-gray-200 p-2 shadow-sm dark:border-gray-600">
             <Label className="mr-2 font-medium">Suggest:</Label>
             <Switch
               checked={suggestionsEnabled}
@@ -238,7 +241,7 @@ export function ConversationControls({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.3 }}
-              className=" w-full rounded-lg border-2 border-gray-200 dark:border-gray-600 p-4"
+              className="w-full rounded-lg border-2 border-gray-200 p-4 dark:border-gray-600"
             >
               {isLoadingSuggestion ? (
                 <div className="flex items-center justify-center py-4">

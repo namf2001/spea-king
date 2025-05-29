@@ -70,7 +70,7 @@ export function ReflexControls({
       transition={{ duration: 0.5 }}
       className="mb-4 sm:mb-6"
     >
-      <Card className="items-center border-2 border-gray-200 dark:border-gray-600 p-4 sm:p-6">
+      <Card className="items-center p-4 sm:p-6">
         {isListening && getAudioData && (
           <motion.div
             className="mb-4 w-full sm:mb-6"
@@ -81,11 +81,15 @@ export function ReflexControls({
             <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 animate-pulse rounded-full bg-red-500"></div>
-                <p className="text-sm font-medium text-red-600 dark:text-red-400">Recording...</p>
+                <p className="text-sm font-medium text-red-600 dark:text-red-400">
+                  Recording...
+                </p>
               </div>
               <div className="text-muted-foreground flex items-center gap-2 text-sm">
                 <Clock className="h-4 w-4" />
-                <span className="font-mono text-sm text-gray-500 dark:text-gray-400">{formatTime(timeRemaining)}</span>
+                <span className="font-mono text-sm text-gray-500 dark:text-gray-400">
+                  {formatTime(timeRemaining)}
+                </span>
               </div>
             </div>
             <div className="relative">
@@ -116,7 +120,9 @@ export function ReflexControls({
               className="w-full"
             >
               <SkipBack className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span className="hidden text-sm sm:block sm:text-base">Câu trước</span>
+              <span className="hidden text-sm sm:block sm:text-base">
+                Câu trước
+              </span>
             </Button>
           </motion.div>
 
@@ -133,7 +139,7 @@ export function ReflexControls({
                 <div className="text-primary text-3xl font-bold sm:text-4xl">
                   {countdown}
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:inline sm:text-base">
+                <p className="hidden text-xs text-gray-500 sm:inline sm:text-base dark:text-gray-400">
                   Chuẩn bị trả lời...
                 </p>
               </motion.div>
@@ -154,7 +160,9 @@ export function ReflexControls({
                   className="pulse-animation relative flex h-12 w-12 items-center justify-center gap-2 rounded-xl px-2 shadow-md sm:h-14 sm:w-auto sm:px-6"
                 >
                   <StopCircle className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span className="hidden text-sm font-medium sm:inline sm:text-base">Dừng</span>
+                  <span className="hidden text-sm font-medium sm:inline sm:text-base">
+                    Dừng
+                  </span>
                 </Button>
               </motion.div>
             )}
@@ -192,7 +200,9 @@ export function ReflexControls({
               variant="secondary"
               className="w-full"
             >
-              <span className="hidden text-sm sm:inline sm:text-base">Câu tiếp</span>
+              <span className="hidden text-sm sm:inline sm:text-base">
+                Câu tiếp
+              </span>
               <SkipForward className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
           </motion.div>

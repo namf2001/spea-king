@@ -246,8 +246,8 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
     const totalQuestions =
       userQuestions.length > 0 ? userQuestions.length : defaultQuestions.length;
 
-    setCurrentQuestionIndex((prev) => 
-      prev === 0 ? totalQuestions - 1 : prev - 1
+    setCurrentQuestionIndex((prev) =>
+      prev === 0 ? totalQuestions - 1 : prev - 1,
     );
     setTimeRemaining(45);
     setTranscript('');
@@ -432,7 +432,7 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
             exit={{ opacity: 0, height: 0 }}
             className="mb-6"
           >
-            <Card className="border-2 dark:border-gray-600 shadow-md">
+            <Card className="border-2 shadow-md dark:border-gray-600">
               <CardHeader className="pb-4">
                 <CardTitle className="text-base sm:text-lg">
                   Custom Question

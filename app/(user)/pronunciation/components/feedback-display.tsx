@@ -233,7 +233,7 @@ export function FeedbackDisplay({
         animate="visible"
         className="mb-10"
       >
-        <Card className="pt-0 shadow-lg border-2 border-gray-200 dark:border-gray-600">
+        <Card className="pt-0 shadow-lg">
           <CardHeader className="py-4">
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -380,7 +380,7 @@ export function FeedbackDisplay({
                         <motion.div
                           key={`problem-phoneme-${phoneme.phoneme}-${i}`}
                           variants={itemVariants}
-                          className={`flex items-center gap-1 rounded-lg border-2 dark:border-gray-600 p-1 ${getScoreBgColor(phoneme.accuracyScore)}`}
+                          className={`flex items-center gap-1 rounded-lg border-2 p-1 dark:border-gray-600 ${getScoreBgColor(phoneme.accuracyScore)}`}
                           whileHover={{ scale: 1.05 }}
                         >
                           <div
