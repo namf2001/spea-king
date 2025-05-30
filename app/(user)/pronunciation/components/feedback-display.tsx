@@ -301,6 +301,7 @@ export function FeedbackDisplay({
                             <span className="font-medium">{word.word}</span>
                             <Badge
                               variant={getBadgeVariant(word.accuracyScore)}
+                              className="h-6 inline-flex items-center"
                             >
                               {word.accuracyScore}%
                             </Badge>

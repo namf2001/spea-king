@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Plus, AlertCircle, Mic, Trash2 } from 'lucide-react';
+import { Plus, AlertCircle, Mic, Trash2, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
@@ -228,13 +228,13 @@ export default function PronunciationContent({
                           <Badge
                             key={lessonWord.id}
                             variant="secondary"
-                            className="text-xs"
+                            className="text-xs max-w-[120px] truncate h-6 inline-flex items-center whitespace-nowrap"
                           >
                             {lessonWord.word.word}
                           </Badge>
                         ))}
                         {lesson.words.length > 3 && (
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="secondary" className="text-xs h-6 inline-flex items-center">
                             +{lesson.words.length - 3} more
                           </Badge>
                         )}
@@ -307,33 +307,12 @@ export default function PronunciationContent({
                         whileTap={{ scale: 0.95 }}
                       >
                         <Button
-                          size="sm"
                           className="flex items-center gap-1"
                           asChild
                         >
-                          <Link href={`/pronunciation/${lesson.id}`}>
+                          <Link href={`/pronunciation/${lesson.id}`} className="font-bold">
                             Practice Now
-                            <motion.svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="14"
-                              height="14"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="ml-1"
-                              animate={{ x: [0, 3, 0] }}
-                              transition={{
-                                repeat: Infinity,
-                                duration: 1.5,
-                                repeatType: 'reverse',
-                              }}
-                            >
-                              <path d="M5 12h14" />
-                              <path d="m12 5 7 7-7 7" />
-                            </motion.svg>
+                            <ArrowRight />
                           </Link>
                         </Button>
                       </motion.div>

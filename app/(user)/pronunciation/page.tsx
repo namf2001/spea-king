@@ -19,10 +19,8 @@ export default async function PronunciationPage() {
 
   return (
     <Suspense fallback={<LessonsSkeleton />}>
-      <div className="container mx-auto px-4 py-12">
-        <div className="animate-fadeIn mx-auto max-w-4xl">
-          <PronunciationContent lessons={lessons} error={error} />
-        </div>
+      <div className="container mx-auto px-4 py-12 mb-12 md:mb-0">
+        <PronunciationContent lessons={lessons} error={error} />
       </div>
     </Suspense>
   );
