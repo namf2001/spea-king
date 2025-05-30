@@ -70,7 +70,7 @@ const ChartLabel = ({ viewBox, score }: { viewBox: any; score: number }) => {
           y={(viewBox.cy || 0) + 24}
           className="fill-muted-foreground text-sm"
         >
-          out of 100
+          trên 100
         </tspan>
       </text>
     );
@@ -238,7 +238,7 @@ export function FeedbackDisplay({
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Award className="text-primary h-5 w-5" />
-                Pronunciation Assessment Results
+                Kết Quả Đánh Giá Phát Âm
               </div>
               <motion.div
                 className={`flex items-center gap-2 rounded-full px-3 py-1 ${getScoreBgColor(results?.pronunciationScore || 0)}`}
@@ -281,7 +281,7 @@ export function FeedbackDisplay({
                       <audio ref={audioRef} src={audioUrl} />
                     </motion.div>
                   )}
-                  Click To Play Your Pronunciation
+                  Nhấn Để Nghe Cách Phát Âm Của Bạn
                 </h4>
                 <div className="flex flex-wrap gap-1">
                   {results?.words?.map((word: any, index: number) => (
@@ -309,7 +309,7 @@ export function FeedbackDisplay({
                           {word.phonemes && word.phonemes.length > 0 && (
                             <div>
                               <p className="mb-1 text-xs font-medium">
-                                Phonemes:
+                                Âm vị:
                               </p>
                               <div className="flex flex-wrap gap-1">
                                 {word.phonemes.map(
@@ -338,7 +338,7 @@ export function FeedbackDisplay({
                           {word.syllables && word.syllables.length > 0 && (
                             <div>
                               <p className="mb-2 text-xs font-medium">
-                                Syllables:
+                                Âm tiết:
                               </p>
                               <div className="flex flex-wrap gap-1">
                                 {word.syllables.map(
@@ -362,7 +362,7 @@ export function FeedbackDisplay({
                           )}
                           {word.errorType && word.errorType !== 'None' && (
                             <p className="text-xs text-red-600 dark:text-red-400">
-                              Error: {word.errorType}
+                              Lỗi: {word.errorType}
                             </p>
                           )}
                         </div>
@@ -374,7 +374,7 @@ export function FeedbackDisplay({
                   <div className="pt-4">
                     <h3 className="mb-2 flex items-center gap-2 text-xs font-medium text-blue-800 dark:text-blue-300">
                       <AlertCircle className="h-4 w-4 text-red-500" />
-                      Sounds That Need Practice
+                      Các Âm Cần Luyện Tập Thêm
                     </h3>
                     <div className="flex flex-wrap gap-1">
                       {problemPhonemes.map((phoneme: any, i: number) => (
@@ -406,7 +406,7 @@ export function FeedbackDisplay({
                   <div className="flex items-center justify-start gap-2 pt-4">
                     <Award className="h-4 w-4 text-green-500" />
                     <h3 className="text-xs text-green-700 dark:text-green-300">
-                      Excellent Pronunciation!
+                      Phát Âm Xuất Sắc!
                     </h3>
                   </div>
                 )}
@@ -420,15 +420,14 @@ export function FeedbackDisplay({
                   {/* Pronunciation Score Circle */}
                   <div className="flex flex-shrink-0 flex-col items-center">
                     <h3 className="mb-4 flex items-center gap-2 text-xl font-semibold">
-                      Overall Score
+                      Điểm Tổng Hợp
                       <Tooltip>
                         <TooltipTrigger>
                           <AlertCircle className="text-muted-foreground h-4 w-4" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-xs">
                           <p>
-                            Combined score based on accuracy, fluency,
-                            completeness, and prosody
+                            Điểm kết hợp dựa trên độ chính xác, độ trôi chảy, độ đầy đủ và ngữ điệu
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -521,7 +520,7 @@ export function FeedbackDisplay({
                   {/* Score Breakdown */}
                   <div className="flex-grow">
                     <h3 className="mb-6 flex items-center gap-2 text-xl font-semibold">
-                      Detailed Breakdown
+                      Phân Tích Chi Tiết
                       <TrendingUp className="text-primary h-5 w-5" />
                     </h3>
                     <div className="space-y-6">
@@ -534,7 +533,7 @@ export function FeedbackDisplay({
                         <div className="mb-3 flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Target className="h-5 w-5 text-blue-600" />
-                            <h4 className="text-lg font-semibold">Accuracy</h4>
+                            <h4 className="text-lg font-semibold">Độ Chính Xác</h4>
                             <Tooltip>
                               <TooltipTrigger>
                                 <AlertCircle className="text-muted-foreground h-4 w-4" />
@@ -580,7 +579,7 @@ export function FeedbackDisplay({
                         <div className="mb-3 flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Music className="h-5 w-5 text-green-600" />
-                            <h4 className="text-lg font-semibold">Fluency</h4>
+                            <h4 className="text-lg font-semibold">Độ Trôi Chảy</h4>
                             <Tooltip>
                               <TooltipTrigger>
                                 <AlertCircle className="text-muted-foreground h-4 w-4" />
@@ -628,7 +627,7 @@ export function FeedbackDisplay({
                           <div className="flex items-center gap-2">
                             <PenTool className="h-5 w-5 text-purple-600" />
                             <h4 className="text-lg font-semibold">
-                              Completeness
+                              Độ Đầy Đủ
                             </h4>
                             <Tooltip>
                               <TooltipTrigger>
@@ -674,7 +673,7 @@ export function FeedbackDisplay({
                         <div className="mb-3 flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Volume className="h-5 w-5 text-orange-600" />
-                            <h4 className="text-lg font-semibold">Prosody</h4>
+                            <h4 className="text-lg font-semibold">Ngữ Điệu</h4>
                             <Tooltip>
                               <TooltipTrigger>
                                 <AlertCircle className="text-muted-foreground h-4 w-4" />

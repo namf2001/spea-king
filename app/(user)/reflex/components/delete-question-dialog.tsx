@@ -41,7 +41,7 @@ export default function DeleteQuestionDialog({
 
         if (!response.success) {
           throw new Error(
-            response.error?.message || 'Failed to delete question',
+            response.error?.message || 'Không thể xóa câu hỏi',
           );
         }
 
@@ -50,7 +50,7 @@ export default function DeleteQuestionDialog({
         if (error instanceof Error) {
           setError(error.message);
         } else {
-          setError('An unexpected error occurred');
+          setError('Đã xảy ra lỗi không mong muốn');
         }
       }
     });
@@ -62,11 +62,10 @@ export default function DeleteQuestionDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertTriangle className="text-destructive h-5 w-5" />
-            Delete Question
+            Xóa Câu Hỏi
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete this question? This action cannot be
-            undone.
+            Bạn có chắc chắn muốn xóa câu hỏi này không? Hành động này không thể hoàn tác.
           </DialogDescription>
         </DialogHeader>
 
@@ -82,7 +81,7 @@ export default function DeleteQuestionDialog({
 
         <DialogFooter className="flex justify-end gap-2">
           <Button variant="outline" onClick={onClose} disabled={isPending}>
-            Cancel
+            Hủy
           </Button>
           <Button
             variant="destructive"
@@ -93,12 +92,12 @@ export default function DeleteQuestionDialog({
             {isPending ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Deleting...
+                Đang xóa...
               </>
             ) : (
               <>
                 <Trash2 className="h-4 w-4" />
-                Delete
+                Xóa
               </>
             )}
           </Button>

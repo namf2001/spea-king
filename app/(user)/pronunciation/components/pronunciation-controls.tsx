@@ -70,7 +70,7 @@ export function ExerciseControls({
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 animate-pulse rounded-full bg-red-500"></div>
                 <p className="text-sm font-medium text-red-600 dark:text-red-400">
-                  Recording...
+                  Đang ghi âm...
                 </p>
               </div>
               <div className="font-mono text-sm text-gray-500 dark:text-gray-400">
@@ -131,7 +131,7 @@ export function ExerciseControls({
                 >
                   <VolumeX className="mr-2 h-5 w-5" />
                   <span className="font-medium">
-                    {isProcessing ? 'Processing...' : 'Stop'}
+                    {isProcessing ? 'Đang xử lý...' : 'Dừng'}
                   </span>
                 </Button>
               </motion.div>
@@ -149,7 +149,7 @@ export function ExerciseControls({
                   className="from-primary to-primary/90 w-full bg-gradient-to-r"
                 >
                   <Mic className="h-5 w-5" />
-                  <span className="ml-2 hidden md:block">Start Assessment</span>
+                  <span className="ml-2 hidden md:block">Bắt đầu đánh giá</span>
                 </Button>
               </motion.div>
             )}
@@ -167,7 +167,7 @@ export function ExerciseControls({
               className="w-full"
             >
               <SkipForward className="h-5 w-5" />
-              <span className="ml-2 hidden md:block">Next</span>
+              <span className="ml-2 hidden md:block">Tiếp theo</span>
             </Button>
           </motion.div>
         </div>

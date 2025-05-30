@@ -27,7 +27,7 @@ export default async function ReflexPage() {
           <div className="flex h-32 items-center justify-center">
             <div className="border-primary h-12 w-12 animate-spin rounded-full border-t-2 border-b-2"></div>
             <p className="text-muted-foreground ml-2 text-sm">
-              Loading questions...
+              Đang tải câu hỏi...
             </p>
           </div>
         }
@@ -35,9 +35,9 @@ export default async function ReflexPage() {
         {error ? (
           <div className="bg-destructive/10 border-destructive/20 text-destructive mb-6 rounded-md border p-4">
             <p className="text-sm font-medium">
-              Error loading questions: {error}
+              Lỗi khi tải câu hỏi: {error}
             </p>
-            <p className="mt-1 text-xs">Using default questions instead.</p>
+            <p className="mt-1 text-xs">Sử dụng câu hỏi mặc định thay thế.</p>
           </div>
         ) : null}
 

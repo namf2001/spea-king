@@ -113,7 +113,7 @@ export function ConversationDisplay({
             <p className="text-muted-foreground text-sm">
               {hasStarted
                 ? 'Nhấn nút microphone để bắt đầu nói.'
-                : 'Nhấn nút Bắt đầu Cuộc trò chuyện để bắt đầu.'}
+                : 'Nhấn nút Bắt đầu Hội Thoại để bắt đầu.'}
             </p>
           </motion.div>
         )}

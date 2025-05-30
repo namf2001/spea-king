@@ -36,18 +36,18 @@ export default function DeletePronunciationDialogProps({
       const response = await deletePronunciationLesson(lessonId);
 
       if (response.success) {
-        toast.success('Lesson deleted', {
-          description: 'The lesson has been successfully removed',
+        toast.success('Đã xóa bài học', {
+          description: 'Bài học đã được xóa thành công',
         });
       } else {
-        toast.error('Failed to delete lesson', {
-          description: response.error?.message || 'An unknown error occurred',
+        toast.error('Không thể xóa bài học', {
+          description: response.error?.message || 'Đã xảy ra lỗi không xác định',
         });
       }
     } catch (error) {
-      toast.error('Error deleting lesson', {
+      toast.error('Lỗi khi xóa bài học', {
         description:
-          error instanceof Error ? error.message : 'An unknown error occurred',
+          error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định',
       });
     } finally {
       setIsDeleting(false);
@@ -67,18 +67,17 @@ export default function DeletePronunciationDialogProps({
             >
               <AlertTriangle className="text-destructive h-5 w-5" />
             </motion.div>
-            Delete Lesson
+            Xóa Bài Học
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete{' '}
-            <span className="font-semibold">"{lessonTitle}"</span>? This action
-            cannot be undone and all associated words will be permanently
-            removed.
+            Bạn có chắc chắn muốn xóa{' '}
+            <span className="font-semibold">"{lessonTitle}"</span>? Hành động này
+            không thể hoàn tác và tất cả các từ liên quan sẽ bị xóa vĩnh viễn.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="mt-4 gap-2 sm:gap-0">
           <Button variant="outline" onClick={onClose} disabled={isDeleting}>
-            Cancel
+            Hủy
           </Button>
           <Button
             variant="destructive"
@@ -89,10 +88,10 @@ export default function DeletePronunciationDialogProps({
             {isDeleting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Deleting...
+                Đang xóa...
               </>
             ) : (
-              'Delete Lesson'
+              'Xóa Bài Học'
             )}
           </Button>
         </DialogFooter>

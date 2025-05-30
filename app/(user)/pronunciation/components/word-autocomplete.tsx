@@ -24,7 +24,7 @@ export function WordAutocomplete({
   value,
   onChange,
   onBlur,
-  placeholder = 'Enter a word',
+  placeholder = 'Nhập một từ',
   disabled = false,
   className,
 }: WordAutocompleteProps) {
@@ -162,7 +162,7 @@ export function WordAutocomplete({
         </div>
       </div>
 
-      {/* Suggestions dropdown - chỉ hiển thị khi input được focus và có suggestions */}
+      {/* Danh sách gợi ý - chỉ hiển thị khi input được focus và có suggestions */}
       {isOpen && suggestions.length > 0 && isFocused && (
         <div className="absolute top-full right-0 left-0 z-50 mt-1 max-h-60 overflow-auto rounded-md border bg-white shadow-lg dark:bg-gray-800">
           {suggestions.map((suggestion, index) => (

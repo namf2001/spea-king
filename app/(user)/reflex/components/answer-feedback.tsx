@@ -146,7 +146,7 @@ export function AnswerFeedback({
         <CardHeader className="p-6">
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="text-primary h-4 w-4" />
-            Answer Feedback
+            Phản Hồi Câu Trả Lời
           </CardTitle>
         </CardHeader>
         <CardContent className="pb-6">
@@ -157,13 +157,13 @@ export function AnswerFeedback({
             >
               <div className="mb-2 flex items-center justify-between">
                 <h3 className="text-primary text-sm font-medium">
-                  Your Answer
+                  Câu Trả Lời Của Bạn
                 </h3>
                 <Badge
                   variant={getAccuracyBadgeVariant(accuracy)}
                   className="text-xs"
                 >
-                  Accuracy: {accuracy}%
+                  Độ chính xác: {accuracy}%
                 </Badge>
               </div>
               <div className="space-x-1 leading-relaxed">

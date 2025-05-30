@@ -104,18 +104,18 @@ export default function PronunciationContent({
               <Plus className="text-muted-foreground h-8 w-8" />
             </div>
             <h3 className="mb-2 text-lg font-semibold">
-              No pronunciation lessons yet
+              Chưa có bài học phát âm
             </h3>
             <p className="text-muted-foreground mb-6 max-w-md">
-              Create your first custom pronunciation lesson to start practicing.
-              You can add words or phrases you want to improve.
+              Tạo bài học phát âm tùy chỉnh đầu tiên của bạn để bắt đầu luyện tập.
+              Bạn có thể thêm các từ hoặc cụm từ bạn muốn cải thiện.
             </p>
             <Button
               onClick={() => setIsModalOpen(true)}
               className="flex items-center"
               size="lg"
             >
-              <Plus className="mr-2 h-4 w-4" /> Create your first lesson
+              <Plus className="mr-2 h-4 w-4" /> Tạo bài học đầu tiên
             </Button>
           </CardContent>
         </Card>
@@ -147,7 +147,7 @@ export default function PronunciationContent({
                 <Mic className="relative z-10 h-5 w-5 text-white sm:h-6 sm:w-6" />
               </motion.div>
               <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
-                Pronunciation Practice
+                Luyện Tập Phát Âm
               </h1>
             </div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -159,7 +159,7 @@ export default function PronunciationContent({
                 className="flex items-center gap-2"
                 size="sm"
               >
-                <Plus className="h-4 w-4" /> New Lesson
+                <Plus className="h-4 w-4" /> Bài Học Mới
               </Button>
             </motion.div>
           </div>
@@ -219,8 +219,8 @@ export default function PronunciationContent({
                         ></motion.div>
                         <p className="text-sm font-medium">
                           {lesson.words.length}{' '}
-                          {lesson.words.length === 1 ? 'word' : 'words'} to
-                          practice
+                          từ để
+                          luyện tập
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-1">
@@ -235,7 +235,7 @@ export default function PronunciationContent({
                         ))}
                         {lesson.words.length > 3 && (
                           <Badge variant="secondary" className="text-xs h-6 inline-flex items-center">
-                            +{lesson.words.length - 3} more
+                            +{lesson.words.length - 3} từ nữa
                           </Badge>
                         )}
                       </div>
@@ -267,7 +267,7 @@ export default function PronunciationContent({
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                               </svg>
-                              Actions
+                              Thao tác
                             </Button>
                           </DropdownMenuTrigger>
                         </motion.div>
@@ -291,14 +291,14 @@ export default function PronunciationContent({
                               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                             </svg>
-                            Edit
+                            Chỉnh sửa
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-destructive flex cursor-pointer items-center gap-2"
                             onClick={() => handleDeleteClick(lesson)}
                           >
                             <Trash2 size={14} />
-                            Delete
+                            Xóa
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -311,7 +311,7 @@ export default function PronunciationContent({
                           asChild
                         >
                           <Link href={`/pronunciation/${lesson.id}`} className="font-bold">
-                            Practice Now
+                            Luyện Tập Ngay
                             <ArrowRight />
                           </Link>
                         </Button>
@@ -331,13 +331,13 @@ export default function PronunciationContent({
           <DialogHeader>
             <DialogTitle>
               {isEditMode
-                ? 'Edit Pronunciation Lesson'
-                : 'Add New Pronunciation Lesson'}
+                ? 'Chỉnh Sửa Bài Học Phát Âm'
+                : 'Thêm Bài Học Phát Âm Mới'}
             </DialogTitle>
             <DialogDescription>
               {isEditMode
-                ? 'Update your pronunciation lesson with new words to practice.'
-                : 'Create your own pronunciation lesson with custom sentences to practice.'}
+                ? 'Cập nhật bài học phát âm của bạn với các từ mới để luyện tập.'
+                : 'Tạo bài học phát âm của riêng bạn với các câu tùy chỉnh để luyện tập.'}
             </DialogDescription>
           </DialogHeader>
           <LessonForm

@@ -67,17 +67,17 @@ export default function PronunciationClient({
   // Display errors as toasts
   useEffect(() => {
     if (assessmentError) {
-      toast.error('Speech Recognition Error', {
+      toast.error('Lỗi Nhận Dạng Giọng Nói', {
         description:
           assessmentError.message ||
-          'An error occurred with speech recognition',
+          'Đã xảy ra lỗi với tính năng nhận dạng giọng nói',
       });
     }
   }, [assessmentError]);
 
   useEffect(() => {
     if (synthesisError) {
-      toast.error('Speech Synthesis Error', {
+      toast.error('Lỗi Tổng Hợp Giọng Nói', {
         description: synthesisError,
       });
     }
@@ -85,7 +85,7 @@ export default function PronunciationClient({
 
   useEffect(() => {
     if (recordingError) {
-      toast.error('Recording Error', {
+      toast.error('Lỗi Ghi Âm', {
         description: recordingError,
       });
       setAudioVisualizerEnabled(false);
@@ -121,11 +121,11 @@ export default function PronunciationClient({
       }
     } catch (err) {
       setIsAssessing(false);
-      toast.error('Error', {
+      toast.error('Lỗi', {
         description:
           err instanceof Error
             ? err.message
-            : 'Failed to start speech recognition',
+            : 'Không thể bắt đầu nhận dạng giọng nói',
       });
     }
   };
@@ -189,13 +189,13 @@ export default function PronunciationClient({
         playRecording();
       } catch (err) {
         console.error('Error playing recording:', err);
-        toast.error('Replay Error', {
-          description: 'Failed to play recording',
+        toast.error('Lỗi Phát Lại', {
+          description: 'Không thể phát lại bản ghi âm',
         });
       }
     } else {
-      toast.error('Replay Error', {
-        description: 'No recording available to replay',
+      toast.error('Lỗi Phát Lại', {
+        description: 'Không có bản ghi âm để phát lại',
       });
     }
   };
@@ -217,10 +217,9 @@ export default function PronunciationClient({
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <Card className="max-w-md p-6">
-          <h3 className="mb-2 text-lg font-medium">No exercises available</h3>
+          <h3 className="mb-2 text-lg font-medium">Không có bài tập khả dụng</h3>
           <p className="text-muted-foreground mb-4">
-            There are no pronunciation exercises in this lesson or the lesson
-            could not be found.
+            Không có bài tập phát âm trong bài học này hoặc không tìm thấy bài học.
           </p>
         </Card>
       </div>
@@ -246,7 +245,7 @@ export default function PronunciationClient({
               <Mic className="relative z-10 h-5 w-5 text-white sm:h-6 sm:w-6" />
             </div>
             <h1 className="flex items-center gap-2 text-xl font-bold sm:text-2xl lg:text-3xl">
-              Pronunciation Practice
+              Luyện Tập Phát Âm
             </h1>
           </div>
         </motion.div>

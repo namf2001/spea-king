@@ -80,16 +80,16 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
   useEffect(() => {
     if (recognitionError || synthesisError) {
       setUseFallback(true);
-      toast.error('Speech Service Error', {
+      toast.error('Lỗi Dịch Vụ Giọng Nói', {
         description:
-          'Using text input as a fallback. Check your internet connection.',
+          'Đang sử dụng nhập văn bản thay thế. Vui lòng kiểm tra kết nối internet của bạn.',
       });
     }
   }, [recognitionError, synthesisError]);
 
   useEffect(() => {
     if (recordingError) {
-      toast.error('Recording Error', {
+      toast.error('Lỗi Ghi Âm', {
         description: recordingError,
       });
       setAudioVisualizerEnabled(false);
@@ -157,23 +157,23 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
             await speak(result.data.response);
           } catch (err) {
             setUseFallback(true);
-            toast.error('Speech Synthesis Error', {
+            toast.error('Lỗi Tổng Hợp Giọng Nói', {
               description:
                 err instanceof Error
                   ? err.message
-                  : 'Unable to play audio. Text will be displayed instead.',
+                  : 'Không thể phát âm thanh. Văn bản sẽ được hiển thị thay thế.',
             });
           }
         }
       } else {
-        toast.error('Failed to start conversation', {
-          description: result.error?.message || 'Please try again',
+        toast.error('Không thể bắt đầu cuộc hội thoại', {
+          description: result.error?.message || 'Vui lòng thử lại',
         });
       }
     } catch (err) {
-      toast.error('Error starting conversation', {
+      toast.error('Lỗi khi bắt đầu cuộc hội thoại', {
         description:
-          err instanceof Error ? err.message : 'An unexpected error occurred',
+          err instanceof Error ? err.message : 'Đã xảy ra lỗi không mong muốn',
       });
     }
   };
@@ -205,19 +205,19 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
       } catch (err) {
         console.error('Failed to start audio recording:', err);
         setAudioVisualizerEnabled(false);
-        toast.error('Audio Recording Error', {
+        toast.error('Lỗi Ghi Âm', {
           description:
-            'Failed to start audio recording. Please check your microphone settings.',
+            'Không thể bắt đầu ghi âm. Vui lòng kiểm tra cài đặt micro của bạn.',
         });
       }
     } catch (err) {
       setIsListening(false);
       setUseFallback(true);
-      toast.error('Error', {
+      toast.error('Lỗi', {
         description:
           err instanceof Error
             ? err.message
-            : 'Failed to start speech recognition. Using text input instead.',
+            : 'Không thể bắt đầu nhận dạng giọng nói. Sử dụng nhập văn bản thay thế.',
       });
     }
   };
@@ -262,8 +262,8 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
   const handleResetConversation = () => {
     setConversation([]);
     setHasStarted(false);
-    toast.success('Conversation Reset', {
-      description: 'Starting a new conversation for this topic.',
+    toast.success('Đã Đặt Lại Cuộc Hội Thoại', {
+      description: 'Bắt đầu một cuộc hội thoại mới cho chủ đề này.',
     });
   };
 
@@ -295,13 +295,13 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
         playRecording();
       } catch (err) {
         console.error('Error playing recording:', err);
-        toast.error('Replay Error', {
-          description: 'Failed to play recording',
+        toast.error('Lỗi Phát Lại', {
+          description: 'Không thể phát lại bản ghi âm',
         });
       }
     } else {
-      toast.error('Replay Error', {
-        description: 'No recording available to replay',
+      toast.error('Lỗi Phát Lại', {
+        description: 'Không có bản ghi âm để phát lại',
       });
     }
   };
@@ -345,20 +345,20 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
           await speak(result.data.response);
         } catch (err) {
           setUseFallback(true);
-          toast.error('Speech Synthesis Error', {
+          toast.error('Lỗi Tổng Hợp Giọng Nói', {
             description:
               err instanceof Error
                 ? err.message
-                : 'Unable to play audio. Text will be displayed instead.',
+                : 'Không thể phát âm thanh. Văn bản sẽ được hiển thị thay thế.',
           });
         }
       }
     } else {
-      toast.error('Response Generation Error', {
+      toast.error('Lỗi Tạo Phản Hồi', {
         description:
           typeof result.error === 'string'
             ? result.error
-            : 'Failed to generate response',
+            : 'Không thể tạo phản hồi',
       });
     }
   };
@@ -396,17 +396,17 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
       if (result.success && result.data?.response) {
         setSuggestionText(result.data.response);
       } else {
-        toast.error('Failed to get suggestion', {
+        toast.error('Không thể nhận gợi ý', {
           description:
             typeof result.error === 'string'
               ? result.error
-              : 'Please try again',
+              : 'Vui lòng thử lại',
         });
       }
     } catch (err) {
-      toast.error('Error getting suggestion', {
+      toast.error('Lỗi khi nhận gợi ý', {
         description:
-          err instanceof Error ? err.message : 'An unexpected error occurred',
+          err instanceof Error ? err.message : 'Đã xảy ra lỗi không mong muốn',
       });
     } finally {
       setIsLoadingSuggestion(false);
@@ -445,7 +445,7 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
               <Mic className="relative z-10 h-5 w-5 text-white sm:h-6 sm:w-6" />
             </div>
             <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
-              Conversation Practice
+              Luyện Tập Hội Thoại
             </h1>
           </div>
           <Tooltip>
@@ -456,12 +456,12 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
                 className="flex items-center gap-2"
               >
                 <Link href="/conversation/topics">
-                  <ListPlus className="h-4 w-4" /> My Topics
+                  <ListPlus className="h-4 w-4" /> Chủ Đề Của Tôi
                 </Link>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              Manage your custom conversation topics
+              Quản lý chủ đề hội thoại tùy chỉnh của bạn
             </TooltipContent>
           </Tooltip>
         </motion.div>
@@ -484,7 +484,7 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
           <Card className="mb-6">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle>Conversation</CardTitle>
+                <CardTitle>Hội Thoại</CardTitle>
                 {hasStarted && (
                   <Button
                     variant="outline"
@@ -493,7 +493,7 @@ export default function ConversationClient({ topics }: { topics: Topic[] }) {
                     className="flex items-center gap-1"
                   >
                     <RefreshCw className="h-3 w-3" />
-                    Reset
+                    Đặt lại
                   </Button>
                 )}
               </div>

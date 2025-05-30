@@ -262,7 +262,7 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
       setIsCustomMode(true);
       setShowCustomForm(false);
     } else {
-      toast.error('Please enter a question');
+      toast.error('Vui lòng nhập một câu hỏi');
     }
   };
 
@@ -375,7 +375,7 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
             <BrainCircuit className="relative z-10 h-5 w-5 text-white sm:h-6 sm:w-6" />
           </div>
           <h1 className="text-lg font-bold sm:text-xl md:text-2xl lg:text-3xl">
-            Conversation Practice
+            Luyện Tập Hội Thoại
           </h1>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -392,15 +392,15 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
                   <PenSquare className="h-4 w-4" />
                 )}
                 <span className="sm:hidden">
-                  {showCustomForm ? 'Cancel' : 'Custom'}
+                  {showCustomForm ? 'Hủy' : 'Tùy chỉnh'}
                 </span>
                 <span className="hidden sm:inline">
-                  {showCustomForm ? 'Cancel' : 'Custom Question'}
+                  {showCustomForm ? 'Hủy' : 'Câu Hỏi Tùy Chỉnh'}
                 </span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {showCustomForm ? 'Cancel' : 'Create a custom question'}
+              {showCustomForm ? 'Hủy' : 'Tạo câu hỏi tùy chỉnh'}
             </TooltipContent>
           </Tooltip>
 
@@ -413,12 +413,12 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
               >
                 <Link href="/reflex/question">
                   <ListPlus className="h-4 w-4" />
-                  <span className="sm:hidden">Questions</span>
-                  <span className="hidden sm:inline">My Questions</span>
+                  <span className="sm:hidden">Câu hỏi</span>
+                  <span className="hidden sm:inline">Câu Hỏi Của Tôi</span>
                 </Link>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Manage your custom questions</TooltipContent>
+            <TooltipContent>Quản lý câu hỏi tùy chỉnh của bạn</TooltipContent>
           </Tooltip>
         </div>
       </motion.div>
@@ -435,7 +435,7 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
             <Card className="border-2 shadow-md dark:border-gray-600">
               <CardHeader className="pb-4">
                 <CardTitle className="text-base sm:text-lg">
-                  Custom Question
+                  Câu Hỏi Tùy Chỉnh
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -448,13 +448,13 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
                       htmlFor="customQuestion"
                       className="text-sm font-medium"
                     >
-                      Your Question
+                      Câu Hỏi Của Bạn
                     </Label>
                     <Input
                       id="customQuestion"
                       value={customQuestion}
                       onChange={(e) => setCustomQuestion(e.target.value)}
-                      placeholder="Enter your question here..."
+                      placeholder="Nhập câu hỏi của bạn vào đây..."
                       className="w-full"
                     />
                   </div>
@@ -463,13 +463,13 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
                       htmlFor="customAnswer"
                       className="flex items-center justify-between text-sm font-medium"
                     >
-                      <span>Sample Answer (Optional)</span>
+                      <span>Câu Trả Lời Mẫu (Không bắt buộc)</span>
                     </Label>
                     <Textarea
                       id="customAnswer"
                       value={customAnswer}
                       onChange={(e) => setCustomAnswer(e.target.value)}
-                      placeholder="Enter a sample answer or leave empty to practice without one..."
+                      placeholder="Nhập câu trả lời mẫu hoặc để trống để luyện tập không có câu trả lời..."
                       className="min-h-[80px] w-full sm:min-h-[100px]"
                     />
                   </div>
@@ -480,10 +480,10 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
                       onClick={() => setShowCustomForm(false)}
                       className="w-full sm:w-auto"
                     >
-                      Cancel
+                      Hủy
                     </Button>
                     <Button type="submit" className="w-full sm:w-auto">
-                      Use This Question
+                      Sử Dụng Câu Hỏi Này
                     </Button>
                   </div>
                 </form>
@@ -502,7 +502,7 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
           <div className="flex items-center gap-2">
             <InfoIcon className="h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-400" />
             <p className="text-sm text-blue-700 dark:text-blue-300">
-              Using custom question mode
+              Đang sử dụng chế độ câu hỏi tùy chỉnh
             </p>
           </div>
           <Button
@@ -511,7 +511,7 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
             onClick={handleResetToDefaultQuestions}
             className="w-full text-blue-700 hover:bg-blue-100 sm:w-auto dark:text-blue-300 dark:hover:bg-blue-800"
           >
-            Return to Standard Questions
+            Quay Lại Câu Hỏi Tiêu Chuẩn
           </Button>
         </motion.div>
       )}

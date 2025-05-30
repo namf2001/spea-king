@@ -88,7 +88,7 @@ export function ConversationControls({
             className="from-primary to-primary/90 bg-gradient-to-r"
           >
             <PlayCircle className="mr-2 h-5 w-5" />
-            <span className="font-medium text-white">Start conversation</span>
+            <span className="font-medium text-white">Bắt đầu hội thoại</span>
           </Button>
         </motion.div>
       );
@@ -112,7 +112,7 @@ export function ConversationControls({
             size="lg"
           >
             <Mic className="h-10 w-10 text-white transition-transform group-hover:scale-110" />
-            <span className="sr-only">Start Listening</span>
+            <span className="sr-only">Bắt đầu nghe</span>
           </Button>
         </motion.div>
       );
@@ -174,7 +174,7 @@ export function ConversationControls({
             disabled={isSpeaking}
           >
             <Send className="h-8 w-8 text-white transition-transform group-hover:scale-110" />
-            <span className="sr-only">Send</span>
+            <span className="sr-only">Gửi</span>
           </Button>
         )}
 
@@ -188,7 +188,7 @@ export function ConversationControls({
             disabled={isSpeaking}
           >
             <Volume2 className="h-6 w-6 transition-transform group-hover:scale-110" />
-            <span className="sr-only">Replay</span>
+            <span className="sr-only">Phát lại</span>
           </Button>
         )}
       </motion.div>
@@ -227,7 +227,7 @@ export function ConversationControls({
       {hasStarted && (
         <div className="flex w-full flex-col items-center">
           <div className="mb-2 flex items-center rounded-lg border-2 border-gray-200 p-2 shadow-sm dark:border-gray-600">
-            <Label className="mr-2 font-medium">Suggest:</Label>
+            <Label className="mr-2 font-medium">Gợi ý:</Label>
             <Switch
               checked={suggestionsEnabled}
               onCheckedChange={onToggleSuggestions}
@@ -247,14 +247,14 @@ export function ConversationControls({
                 <div className="flex items-center justify-center py-4">
                   <div className="mr-2 h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Generating suggestions...
+                    Đang tạo gợi ý...
                   </p>
                 </div>
               ) : (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <p className="text-primary text-xs font-medium uppercase">
-                      Suggested answers{' '}
+                      Câu trả lời gợi ý{' '}
                     </p>
                     {suggestionsEnabled && (
                       <div className="flex items-center gap-2">

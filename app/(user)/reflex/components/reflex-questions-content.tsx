@@ -121,19 +121,19 @@ export default function ReflexQuestionsContent({
               <Plus className="text-muted-foreground h-8 w-8" />
             </div>
             <h3 className="mb-2 text-lg font-semibold">
-              No reflex questions yet
+              Chưa có câu hỏi phản xạ nào
             </h3>
             <p className="text-muted-foreground mb-6 max-w-md">
-              Create your first question to start practicing thinking and
-              responding quickly. You can generate an AI-suggested answer or
-              write your own.
+              Tạo câu hỏi đầu tiên của bạn để bắt đầu luyện tập suy nghĩ và
+              phản ứng nhanh. Bạn có thể tạo câu trả lời do AI gợi ý hoặc
+              viết câu trả lời của riêng bạn.
             </p>
             <Button
               onClick={() => setIsModalOpen(true)}
               className="flex items-center"
               size="lg"
             >
-              <Plus className="mr-2 h-4 w-4" /> Create your first question
+              <Plus className="mr-2 h-4 w-4" /> Tạo câu hỏi đầu tiên
             </Button>
           </CardContent>
         </Card>
@@ -165,7 +165,7 @@ export default function ReflexQuestionsContent({
                 <BrainCircuit className="relative z-10 h-5 w-5 text-white sm:h-6 sm:w-6" />
               </motion.div>
               <h1 className="text-lg font-bold sm:text-xl md:text-2xl lg:text-3xl">
-                Reflex Questions
+                Câu Hỏi Phản Xạ
               </h1>
             </div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -178,8 +178,8 @@ export default function ReflexQuestionsContent({
                 size="sm"
               >
                 <Plus className="h-4 w-4" />
-                <span className="sm:hidden">New</span>
-                <span className="hidden sm:inline">New Question</span>
+                <span className="sm:hidden">Mới</span>
+                <span className="hidden sm:inline">Câu Hỏi Mới</span>
               </Button>
             </motion.div>
           </div>
@@ -222,12 +222,12 @@ export default function ReflexQuestionsContent({
                   <Card className="overflow-hidden">
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between gap-3">
-                        <CardTitle className="text-base leading-tight font-bold sm:text-lg">
+                        <CardTitle className="text-base leading-tight font-bold sm:text-lg line-clamp-2">
                           {question.question}
                         </CardTitle>
                         <Badge
                           variant="outline"
-                          className="flex-shrink-0 text-xs"
+                          className="flex-shrink-0 text-xs h-6 inline-flex items-center"
                         >
                           {new Date(question.createdAt).toLocaleDateString()}
                         </Badge>
@@ -265,7 +265,7 @@ export default function ReflexQuestionsContent({
                                 <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
                                 <circle cx="12" cy="12" r="3"></circle>
                               </svg>
-                              Actions
+                              Tác vụ
                             </Button>
                           </DropdownMenuTrigger>
                         </motion.div>
@@ -289,14 +289,14 @@ export default function ReflexQuestionsContent({
                               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                             </svg>
-                            Edit
+                            Chỉnh sửa
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-destructive flex cursor-pointer items-center gap-2"
                             onClick={() => handleDeleteClick(question)}
                           >
                             <Trash2 size={14} />
-                            Delete
+                            Xóa
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -305,13 +305,12 @@ export default function ReflexQuestionsContent({
                         whileTap={{ scale: 0.95 }}
                       >
                         <Button
-                          size="sm"
                           className="flex w-full items-center gap-1 sm:w-auto"
                           asChild
                         >
                           <Link href={`/reflex?question=${question.id}`}>
-                            <span className="sm:hidden">Practice</span>
-                            <span className="hidden sm:inline">Practice</span>
+                            <span className="sm:hidden">Luyện tập</span>
+                            <span className="hidden sm:inline">Luyện tập</span>
                             <motion.svg
                               xmlns="http://www.w3.org/2000/svg"
                               width="14"
@@ -350,12 +349,12 @@ export default function ReflexQuestionsContent({
         <DialogContent className="sm:max-w-[650px]">
           <DialogHeader>
             <DialogTitle>
-              {isEditMode ? 'Edit Reflex Question' : 'Add New Reflex Question'}
+              {isEditMode ? 'Chỉnh Sửa Câu Hỏi Phản Xạ' : 'Thêm Câu Hỏi Phản Xạ Mới'}
             </DialogTitle>
             <DialogDescription>
               {isEditMode
-                ? 'Update your question and answer details.'
-                : 'Create a question to practice thinking and responding quickly.'}
+                ? 'Cập nhật chi tiết câu hỏi và câu trả lời của bạn.'
+                : 'Tạo câu hỏi để luyện tập suy nghĩ và phản ứng nhanh.'}
             </DialogDescription>
           </DialogHeader>
           <QuestionForm

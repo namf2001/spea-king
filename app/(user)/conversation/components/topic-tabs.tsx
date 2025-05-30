@@ -21,10 +21,10 @@ export function TopicTabs({
   onTopicChange,
 }: TopicTabsProps) {
   return (
-    <div className="mb-8 space-y-4">
+    <div className="mb-4 space-y-4">
       <Select defaultValue={activeTopic.id} onValueChange={onTopicChange}>
         <SelectTrigger className="w-full">
-          <SelectValue placeholder="Select a topic" />
+          <SelectValue placeholder="Chọn một chủ đề" />
         </SelectTrigger>
         <SelectContent>
           {topics.map((topic) => (

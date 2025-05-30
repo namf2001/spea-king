@@ -40,7 +40,7 @@ export function QuestionDisplay({
 
   useEffect(() => {
     if (error) {
-      toast.error('Speech Synthesis Error', {
+      toast.error('Lỗi Tổng Hợp Giọng Nói', {
         description: error,
       });
     }
@@ -50,7 +50,7 @@ export function QuestionDisplay({
     try {
       await speak(question.question);
     } catch (err) {
-      toast.error('Error', {
+      toast.error('Lỗi', {
         description:
           err instanceof Error ? err.message : 'Không thể phát câu hỏi',
       });
@@ -61,7 +61,7 @@ export function QuestionDisplay({
     try {
       await speak(question.answer);
     } catch (err) {
-      toast.error('Error', {
+      toast.error('Lỗi', {
         description:
           err instanceof Error ? err.message : 'Không thể phát câu trả lời',
       });

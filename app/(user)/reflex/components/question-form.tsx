@@ -68,7 +68,7 @@ export default function QuestionForm({
     if (!currentQuestion || currentQuestion.length < 5) {
       form.setError('question', {
         type: 'manual',
-        message: 'Please enter a valid question (at least 5 characters)',
+        message: 'Vui lòng nhập câu hỏi hợp lệ (ít nhất 5 ký tự)',
       });
       return;
     }
@@ -85,13 +85,13 @@ export default function QuestionForm({
         form.setValue('answer', response.data.response);
       } else {
         setError(
-          'Failed to generate an answer. Please try again or write your own.',
+          'Không thể tạo câu trả lời. Vui lòng thử lại hoặc viết câu trả lời của riêng bạn.',
         );
       }
     } catch (error) {
       console.error('Error generating answer:', error);
       setError(
-        'An error occurred while generating an answer. Please try again.',
+        'Đã xảy ra lỗi khi tạo câu trả lời. Vui lòng thử lại.',
       );
     } finally {
       setIsGenerating(false);
@@ -119,7 +119,7 @@ export default function QuestionForm({
 
           if (!response.success) {
             throw new Error(
-              response.error?.message || 'Failed to create question',
+              response.error?.message || 'Không thể tạo câu hỏi',
             );
           }
         } else if (mode === 'edit' && question) {
@@ -130,7 +130,7 @@ export default function QuestionForm({
 
           if (!response.success) {
             throw new Error(
-              response.error?.message || 'Failed to update question',
+              response.error?.message || 'Không thể cập nhật câu hỏi',
             );
           }
         }
@@ -140,7 +140,7 @@ export default function QuestionForm({
         if (error instanceof Error) {
           setError(error.message);
         } else {
-          setError('An unexpected error occurred');
+          setError('Đã xảy ra lỗi không mong muốn');
         }
       }
     });
@@ -150,7 +150,7 @@ export default function QuestionForm({
     <div className="space-y-4 pt-4">
       {error && (
         <Alert variant="destructive">
-          <AlertTitle>Error</AlertTitle>
+          <AlertTitle>Lỗi</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -162,10 +162,10 @@ export default function QuestionForm({
             name="question"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Question</FormLabel>
+                <FormLabel>Câu hỏi</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Enter a question you want to practice answering"
+                    placeholder="Nhập câu hỏi bạn muốn luyện tập trả lời"
                     {...field}
                     onChange={(e) => {
                       field.onChange(e);
@@ -191,19 +191,19 @@ export default function QuestionForm({
                   disabled={isPending || isGenerating || !questionText.trim()}
                   title={
                     !questionText.trim()
-                      ? 'Please enter a question first'
-                      : 'Generate an answer using AI'
+                      ? 'Vui lòng nhập câu hỏi trước'
+                      : 'Tạo câu trả lời bằng AI'
                   }
                 >
                   {isGenerating ? (
                     <>
                       <Loader2 className="h-3 w-3 animate-spin" />
-                      <span>Generating {wordLimit}-word answer...</span>
+                      <span>Đang tạo câu trả lời {wordLimit} từ...</span>
                     </>
                   ) : (
                     <>
                       <Sparkles className="h-3 w-3" />
-                      <span>Generate {wordLimit}-word answer with AI</span>
+                      <span>Tạo câu trả lời {wordLimit} từ với AI</span>
                     </>
                   )}
                 </Button>
@@ -221,7 +221,7 @@ export default function QuestionForm({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <p className="text-primary text-xs font-medium">
-                  IELTS BRAND POINT
+                  ĐIỂM IELTS
                 </p>
                 <div className="flex items-center gap-2">
                   <Select
@@ -254,10 +254,10 @@ export default function QuestionForm({
             name="answer"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Answer</FormLabel>
+                <FormLabel>Câu trả lời</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Click 'Generate with AI' or write your own answer"
+                    placeholder="Nhấp 'Tạo với AI' hoặc viết câu trả lời của riêng bạn"
                     className="min-h-[150px]"
                     {...field}
                     disabled={isPending || isGenerating}
@@ -277,7 +277,7 @@ export default function QuestionForm({
               className="gap-1"
             >
               <X className="h-4 w-4" />
-              Cancel
+              Hủy
             </Button>
             <Button
               type="submit"
@@ -287,12 +287,12 @@ export default function QuestionForm({
               {isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Saving...
+                  Đang lưu...
                 </>
               ) : (
                 <>
                   <Save className="h-4 w-4" />
-                  Save Question
+                  Lưu câu hỏi
                 </>
               )}
             </Button>

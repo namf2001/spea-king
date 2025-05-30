@@ -39,7 +39,7 @@ export function ExerciseDisplay({
       console.error('Speech synthesis error:', error);
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      toast.error('Error', {
+      toast.error('Lỗi', {
         description: `Không thể phát âm từ này: ${errorMessage}`,
       });
     }
@@ -60,7 +60,7 @@ export function ExerciseDisplay({
               {exercise.title} - {currentIndex + 1}/{totalExercises}
             </CardTitle>
             <div className="bg-primary/10 rounded-full px-2 py-1 text-sm">
-              Word: {wordProgress}
+              Từ: {wordProgress}
             </div>
           </div>
         </CardHeader>

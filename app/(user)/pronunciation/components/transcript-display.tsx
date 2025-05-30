@@ -19,7 +19,7 @@ export function TranscriptDisplay({ transcript }: TranscriptDisplayProps) {
     >
       <h3 className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
         <Mic className="h-4 w-4" />
-        Your recording:
+        Bản ghi âm của bạn:
       </h3>
       <motion.div
         className="relative rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"

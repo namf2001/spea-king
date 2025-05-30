@@ -82,7 +82,7 @@ export function ReflexControls({
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 animate-pulse rounded-full bg-red-500"></div>
                 <p className="text-sm font-medium text-red-600 dark:text-red-400">
-                  Recording...
+                  Đang ghi âm...
                 </p>
               </div>
               <div className="text-muted-foreground flex items-center gap-2 text-sm">
@@ -209,7 +209,7 @@ export function ReflexControls({
         </div>
         <div className="flex items-center gap-2 text-xs sm:text-sm">
           <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-          <span>Time remaining: {formatTime(timeRemaining)}</span>
+          <span>Thời gian còn lại: {formatTime(timeRemaining)}</span>
         </div>
       </Card>
     </motion.div>

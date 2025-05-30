@@ -119,11 +119,11 @@ export default function LessonForm({
       if (response.success) {
         toast.success(
           response.error?.message ??
-            (isEditMode ? 'Lesson updated' : 'Lesson created'),
+            (isEditMode ? 'Đã cập nhật bài học' : 'Đã tạo bài học'),
           {
             description: isEditMode
-              ? 'Lesson updated successfully'
-              : 'Redirecting to lessons page...',
+              ? 'Bài học đã được cập nhật thành công'
+              : 'Đang chuyển hướng đến trang bài học...',
           },
         );
 
@@ -139,20 +139,20 @@ export default function LessonForm({
         router.refresh();
       } else {
         toast.error(
-          isEditMode ? 'Failed to update lesson' : 'Failed to create lesson',
+          isEditMode ? 'Không thể cập nhật bài học' : 'Không thể tạo bài học',
           {
-            description: response.error?.message || 'An unknown error occurred',
+            description: response.error?.message || 'Đã xảy ra lỗi không xác định',
           },
         );
       }
     } catch (error) {
       toast.error(
-        isEditMode ? 'Error updating lesson' : 'Error creating lesson',
+        isEditMode ? 'Lỗi khi cập nhật bài học' : 'Lỗi khi tạo bài học',
         {
           description:
             error instanceof Error
               ? error.message
-              : 'An unknown error occurred',
+              : 'Đã xảy ra lỗi không xác định',
         },
       );
     } finally {
@@ -168,10 +168,10 @@ export default function LessonForm({
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Lesson Title</FormLabel>
+              <FormLabel>Tiêu đề bài học</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="e.g., 'Challenging Vowel Sounds'"
+                  placeholder="Ví dụ: 'Các âm nguyên khó phát âm'"
                   {...field}
                   disabled={isSubmitting}
                 />
@@ -183,7 +183,7 @@ export default function LessonForm({
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <FormLabel>Words</FormLabel>
+            <FormLabel>Từ vựng</FormLabel>
             <Button
               type="button"
               size="sm"
@@ -191,7 +191,7 @@ export default function LessonForm({
               onClick={addWord}
               disabled={isSubmitting}
             >
-              <Plus className="mr-1 h-4 w-4" /> Add Word
+              <Plus className="mr-1 h-4 w-4" /> Thêm từ
             </Button>
           </div>
 
@@ -213,7 +213,7 @@ export default function LessonForm({
                         value={field.value}
                         onChange={field.onChange}
                         onBlur={field.onBlur}
-                        placeholder="Enter a word"
+                        placeholder="Nhập một từ"
                         disabled={isSubmitting}
                       />
                     </FormControl>
@@ -244,25 +244,25 @@ export default function LessonForm({
             onClick={onCancel}
             disabled={isSubmitting}
           >
-            Cancel
+            Hủy
           </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {isEditMode ? 'Updating...' : 'Saving...'}
+                {isEditMode ? 'Đang cập nhật...' : 'Đang lưu...'}
               </>
             ) : (
               <>
                 {isEditMode ? (
                   <>
                     <Edit className="mr-2 h-4 w-4" />
-                    Update Lesson
+                    Cập nhật bài học
                   </>
                 ) : (
                   <>
                     <CheckCircle className="mr-2 h-4 w-4" />
-                    Add Lesson
+                    Thêm bài học
                   </>
                 )}
               </>
