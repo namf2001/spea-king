@@ -3,14 +3,13 @@ import { getVocabularyExercise } from '@/app/actions/vocabulary';
 import { VocabularyExercisePlayer } from '../components/vocabulary-exercise-player';
 
 interface VocabularyExercisePageProps {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
 }
 
 export default async function VocabularyExercisePage({ params }: VocabularyExercisePageProps) {
-  const exercise = await getVocabularyExercise(params.id);
-  
+  const resolvedParams = await params;
+  const exercise = await getVocabularyExercise(resolvedParams.id);
+
   if (!exercise) {
     notFound();
   }
