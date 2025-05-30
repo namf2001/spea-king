@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import { logo } from '@/assets/image';
 import {
   conversationIcon,
+  practiceIcon,
   progressIcon,
   pronunciationIcon,
   reflexIcon,
@@ -70,6 +71,11 @@ export function AppSidebar() {
           height={32}
         />
       ),
+    },
+    {
+      label: 'TỪ VỰNG',
+      href: '/vocabulary',
+      icon: <Image src={practiceIcon} alt="Vocabulary" width={32} height={32} />,
     },
     {
       label: 'PHẢN XẠ',

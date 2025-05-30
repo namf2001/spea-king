@@ -56,6 +56,8 @@ model User {
   reflexQuestions      ReflexQuestion[]
   speakingRecords      UserSpeakingRecord[]
   conversationTopics   ConversationTopic[]
+  vocabularyExercises  VocabularyExercise[]
+  exerciseResults      ExerciseResult[]
 
   @@map("users")
 }
@@ -141,6 +143,45 @@ model ConversationTopic {
   updatedAt       DateTime             @updatedAt @map("updated_at")
 
   @@map("conversation_topics")
+}
+
+model VocabularyExercise {
+  id          String            @id @default(cuid())
+  title       String
+  description String?
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pairs       VocabularyPair[]
+  results     ExerciseResult[]
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  @@map("vocabulary_exercises")
+}
+
+model VocabularyPair {
+  id         String             @id @default(cuid())
+  englishWord String
+  vietnameseWord String
+  exerciseId String
+  exercise   VocabularyExercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  createdAt  DateTime           @default(now()) @map("created_at")
+
+  @@map("vocabulary_pairs")
+}
+
+model ExerciseResult {
+  id         String             @id @default(cuid())
+  userId     String
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId String
+  exercise   VocabularyExercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  score      Int                // Score percentage (0-100)
+  timeSpent  Int                // Time in seconds
+  attempts   Int                @default(1)
+  completedAt DateTime          @default(now()) @map("completed_at")
+
+  @@map("exercise_results")
 }
 
 enum Role {
