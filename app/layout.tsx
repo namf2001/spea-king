@@ -2,14 +2,12 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
-import {logo} from '@/assets/image';
 
 // Lấy URL cơ sở cho website
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://spea-king.vercel.app';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ??'https://spea-king.vercel.app';
 // URL tuyệt đối cho ảnh logo
-const logoUrl = `${BASE_URL}/logo-social.png`;
+const logoUrl = `${BASE_URL}/logo-social.svg`;
 
-// app/layout.tsx or any page.tsx file
 export const metadata: Metadata = {
   title: 'SpeaKing - Language Learning App',
   description: 'Practice your language speaking skills with AI feedback',
