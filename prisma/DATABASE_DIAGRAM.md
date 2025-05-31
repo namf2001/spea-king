@@ -11,7 +11,6 @@ erDiagram
         string name
         string email UK
         datetime emailVerified
-        string password
         string image
         enum role
     }
@@ -21,7 +20,7 @@ erDiagram
         string userId FK
         string type
         string provider
-        string providerAccountId
+        string providerAccountId UK
         string refresh_token
         string access_token
         int expires_at
@@ -38,124 +37,99 @@ erDiagram
         datetime expires
     }
 
-    VerificationToken {
-        string identifier
-        string token
-        datetime expires
+    PronunciationLesson {
+        string id PK
+        string title
+        string userId FK
+        datetime createdAt
+        datetime updatedAt
     }
 
-    UserPreference {
+    PronunciationWord {
         string id PK
-        string userId FK "UK"
-        string learningLanguage
-        string nativeLanguage
-        boolean notificationsEnabled
-        boolean speechRecognitionEnabled
+        string word UK
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    PronunciationLessonWord {
+        string id PK
+        string lessonId FK
+        string wordId FK
+    }
+
+    ReflexQuestion {
+        string id PK
+        string question
+        string answer
+        string userId FK
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    UserSpeakingRecord {
+        string id PK
+        string userId FK
+        string conversationTopicId FK
+        string reflexQuestionId FK
+        int duration
+        datetime createdAt
+    }
+
+    ConversationTopic {
+        string id PK
+        string title
+        string description
+        string userId FK
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    VocabularyExercise {
+        string id PK
+        string title
+        string description
+        string userId FK
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    VocabularyPair {
+        string id PK
+        string englishWord
+        string vietnameseWord
+        string exerciseId FK
+        datetime createdAt
     }
 
     ExerciseResult {
         string id PK
-        enum exerciseType
-        int questionId
-        float accuracy
-        float responseTime
-        datetime date
         string userId FK
         string exerciseId FK
-    }
-
-    CustomLesson {
-        string id PK
-        string title
-        string description
-        json content
-        boolean isPublic
-        datetime createdAt
-        datetime updatedAt
-        string userId FK
-    }
-
-    Exercise {
-        string id PK
-        string title
-        string description
-        enum type
-        enum difficulty
-        json content
-        datetime createdAt
-        datetime updatedAt
-        string createdBy FK
-        boolean isPublic
-    }
-
-    Question {
-        string id PK
-        string exerciseId FK
-        string content
-        string answer
-        json options
-    }
-
-    Progress {
-        string id PK
-        string userId FK
-        string exerciseId FK
+        int score
+        int timeSpent
+        int attempts
         datetime completedAt
-        float score
-        float bestScore
-        int completionCount
-    }
-
-    Achievement {
-        string id PK
-        string name
-        string description
-        json criteria
-        string image
-    }
-
-    UserAchievement {
-        string id PK
-        string userId FK
-        string achievementId FK
-        datetime unlockedAt
-    }
-
-    StudySession {
-        string id PK
-        string userId FK
-        datetime startTime
-        datetime endTime
-        int duration
-    }
-
-    ActivityLog {
-        string id PK
-        string sessionId FK
-        string activityType
-        string entityId
-        string entityType
-        datetime timestamp
-        json metadata
     }
 
     User ||--o{ Account : "has"
     User ||--o{ Session : "has"
+    User ||--o{ PronunciationLesson : "creates"
+    User ||--o{ ReflexQuestion : "creates"
+    User ||--o{ UserSpeakingRecord : "records"
+    User ||--o{ ConversationTopic : "creates"
+    User ||--o{ VocabularyExercise : "creates"
     User ||--o{ ExerciseResult : "has"
-    User ||--o{ CustomLesson : "creates"
-    User ||--o{ Exercise : "creates"
-    User ||--o{ Progress : "tracks"
-    User ||--o{ UserAchievement : "earns"
-    User ||--o{ StudySession : "has"
-    User ||--|| UserPreference : "has"
 
-    Exercise ||--o{ Question : "contains"
-    Exercise ||--o{ ExerciseResult : "has"
-    Exercise ||--o{ Progress : "tracks"
+    PronunciationLesson ||--o{ PronunciationLessonWord : "contains"
+    PronunciationWord ||--o{ PronunciationLessonWord : "used in"
 
-    Achievement ||--o{ UserAchievement : "awarded as"
+    VocabularyExercise ||--o{ VocabularyPair : "contains"
+    VocabularyExercise ||--o{ ExerciseResult : "tracks"
 
-    StudySession ||--o{ ActivityLog : "records"
+    ReflexQuestion ||--o{ UserSpeakingRecord : "answered in"
+
+    ConversationTopic ||--o{ UserSpeakingRecord : "discussed in"
 ```
 
 ## Giải thích Các Quan hệ
@@ -164,36 +138,29 @@ erDiagram
 
 - Một **User** có thể có nhiều **Account** (xác thực bên thứ 3)
 - Một **User** có thể có nhiều **Session** (phiên đăng nhập)
-- Mỗi **User** có chính xác một **UserPreference** (thiết lập người dùng)
 
 ### Người dùng và Nội dung
 
-- Một **User** có thể tạo nhiều **CustomLesson** (bài học tùy chỉnh)
-- Một **User** có thể tạo nhiều **Exercise** (bài tập)
-- Một **User** có thể có nhiều **ExerciseResult** (kết quả bài tập)
+- Một **User** có thể tạo nhiều **PronunciationLesson** (bài học phát âm)
+- Một **User** có thể tạo nhiều **ReflexQuestion** (câu hỏi phản xạ)
+- Một **User** có thể tạo nhiều **ConversationTopic** (chủ đề hội thoại)
+- Một **User** có thể tạo nhiều **VocabularyExercise** (bài tập từ vựng)
 
 ### Người dùng và Tiến độ
 
-- Một **User** có thể có nhiều **Progress** (tiến độ học tập)
-- Một **User** có thể đạt được nhiều **UserAchievement** (thành tích)
-- Một **User** có thể có nhiều **StudySession** (phiên học tập)
+- Một **User** có thể có nhiều **ExerciseResult** (kết quả bài tập)
+- Một **User** có thể ghi lại nhiều **UserSpeakingRecord** (lịch sử nói)
 
 ### Bài tập và Câu hỏi
 
-- Một **Exercise** chứa nhiều **Question** (câu hỏi)
-- Một **Exercise** có thể có nhiều **ExerciseResult** (kết quả)
-- Một **Exercise** có thể có nhiều **Progress** (tiến độ học tập)
-
-### Thành tích
-
-- Một **Achievement** có thể được cấp cho nhiều người dùng qua **UserAchievement**
+- Một **VocabularyExercise** chứa nhiều **VocabularyPair** (cặp từ vựng)
+- Một **VocabularyExercise** có thể có nhiều **ExerciseResult** (kết quả)
 
 ### Phiên học
 
-- Một **StudySession** ghi lại nhiều **ActivityLog** (hoạt động học tập)
+- Một **ReflexQuestion** có thể được trả lời trong nhiều **UserSpeakingRecord**
+- Một **ConversationTopic** có thể được thảo luận trong nhiều **UserSpeakingRecord**
 
 ## Các Enum
 
 - **Role**: USER, ADMIN
-- **ExerciseType**: REFLEX, PRONUNCIATION, VOCABULARY, GRAMMAR, LISTENING, SPEAKING
-- **Difficulty**: EASY, MEDIUM, HARD
