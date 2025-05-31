@@ -375,7 +375,7 @@ export default function ReflexClient({ userQuestions }: ReflexClientProps) {
             <BrainCircuit className="relative z-10 h-5 w-5 text-white sm:h-6 sm:w-6" />
           </div>
           <h1 className="text-lg font-bold sm:text-xl md:text-2xl lg:text-3xl">
-            Luyện Tập Hội Thoại
+            Luyện Nói Phản Xạ
           </h1>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
