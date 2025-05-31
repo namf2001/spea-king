@@ -1,9 +1,10 @@
 import { Suspense } from 'react';
 import { getVocabularyExercises } from '@/app/actions/vocabulary';
-import { VocabularyDashboard } from './components/vocabulary-dashboard';
+import { VocabularyClinet } from './components/vocabulary-clinet';
 import { PageLoading } from '@/components/animations/page-loading';
 
 export default async function VocabularyPage() {
+  const exercises = await getVocabularyExercises();
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -16,14 +17,9 @@ export default async function VocabularyPage() {
       </div>
       
       <Suspense fallback={<PageLoading />}>
-        <VocabularyContent />
+        <VocabularyClinet exercises={exercises} />
       </Suspense>
     </div>
   );
 }
 
-async function VocabularyContent() {
-  const exercises = await getVocabularyExercises();
-  
-  return <VocabularyDashboard exercises={exercises} />;
-}

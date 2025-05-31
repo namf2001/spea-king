@@ -8,28 +8,13 @@ import { Progress } from '@/components/ui/progress';
 import { Plus, Play, Trophy, Clock, Target } from 'lucide-react';
 import Link from 'next/link';
 import { createDefaultVocabularyExercises } from '@/app/actions/vocabulary';
-
-interface VocabularyExercise {
-  id: string;
-  title: string;
-  description: string | null;
-  pairs: Array<{
-    id: string;
-    englishWord: string;
-    vietnameseWord: string;
-  }>;
-  results: Array<{
-    id: string;
-    score: number;
-    timeSpent: number;
-    attempts: number;
-    completedAt: Date;
-  }>;
-  createdAt: Date;
-}
+import type { VocabularyExercise, VocabularyPair, ExerciseResult} from '@prisma/client';
 
 interface VocabularyDashboardProps {
-  exercises: VocabularyExercise[];
+  exercises: Array<VocabularyExercise & {
+    pairs: VocabularyPair[];
+    results: ExerciseResult[];
+  }>;
 }
 
 export function VocabularyDashboard({ exercises }: VocabularyDashboardProps) {

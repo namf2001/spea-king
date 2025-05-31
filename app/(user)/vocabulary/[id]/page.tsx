@@ -2,12 +2,10 @@ import { notFound } from 'next/navigation';
 import { getVocabularyExercise } from '@/app/actions/vocabulary';
 import { VocabularyExercisePlayer } from '../components/vocabulary-exercise-player';
 
-interface VocabularyExercisePageProps {
+export default async function VocabularyExercisePage(props: {
   params: Promise<{ id: string }>;
-}
-
-export default async function VocabularyExercisePage({ params }: VocabularyExercisePageProps) {
-  const resolvedParams = await params;
+}) {
+  const resolvedParams = await props.params;
   const exercise = await getVocabularyExercise(resolvedParams.id);
 
   if (!exercise) {
