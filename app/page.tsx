@@ -43,6 +43,7 @@ export default function Home() {
               width={48}
               height={48}
               className="h-12 w-12"
+              priority
             />
           </div>
           <span className="text-primary text-5xl font-extrabold capitalize">

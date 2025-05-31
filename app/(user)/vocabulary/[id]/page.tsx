@@ -6,11 +6,11 @@ export default async function VocabularyExercisePage(props: {
   params: Promise<{ id: string }>;
 }) {
   const resolvedParams = await props.params;
-  const exercise = await getVocabularyExercise(resolvedParams.id);
+  const response = await getVocabularyExercise(resolvedParams.id);
 
-  if (!exercise) {
+  if (!response.success || !response.data) {
     notFound();
   }
 
-  return <VocabularyExercisePlayer exercise={exercise} />;
+  return <VocabularyExercisePlayer exercise={response.data} />;
 }
