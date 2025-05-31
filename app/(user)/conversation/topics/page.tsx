@@ -25,13 +25,11 @@ export default async function TopicsPage() {
   return (
     <Suspense fallback={<TopicsLoading />}>
       <div className="container mx-auto px-4 py-12">
-        <div className="animate-fadeIn mx-auto max-w-4xl">
-          <ConversationTopicsContent
-            topics={topics}
-            userId={userId}
-            error={errorMessage}
-          />
-        </div>
+        <ConversationTopicsContent
+          topics={topics}
+          userId={userId}
+          error={errorMessage}
+        />
       </div>
     </Suspense>
   );

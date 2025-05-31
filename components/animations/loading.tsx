@@ -4,6 +4,7 @@ import React from 'react';
 import { LottieAnimation } from '@/components/animations/lottie-animation';
 import { cn } from '@/lib/utils';
 import { loading } from '@/assets/animations';
+import { PageLoading } from '@/components/animations/page-loading';
 
 interface LoadingProps {
   /**
@@ -78,3 +79,19 @@ export const Loading = ({
     </div>
   );
 };
+
+// Create a shared loading component
+const SharedLoading = () => {
+  return (
+    <div>
+      <PageLoading 
+        text="Đang tải dữ liệu..."
+        useOverlay={true}
+        size="2xl"
+        className=""
+      />
+    </div>
+  );
+};
+
+export default SharedLoading;

@@ -99,16 +99,6 @@ export function AppSidebar() {
       href: '/progress',
       icon: <Image src={progressIcon} alt="Progress" width={32} height={32} />,
     },
-    {
-      label: 'HỒ SƠ',
-      href: '/settings',
-      icon: <Image src={userIcon} alt="User" width={32} height={32} />,
-    },
-    {
-      label: 'XEM THÊM',
-      href: '/more',
-      icon: <Image src={seeMoreIcon} alt="See More" width={32} height={32} />,
-    },
   ];
 
   // Calculate if a menu item is active

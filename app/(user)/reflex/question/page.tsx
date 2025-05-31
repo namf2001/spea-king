@@ -25,13 +25,11 @@ export default async function QuestionPage() {
   return (
     <Suspense fallback={<QuestionsLoading />}>
       <div className="container mx-auto px-2 py-8 sm:px-4 sm:py-12">
-        <div className="animate-fadeIn mx-auto max-w-4xl">
-          <ReflexQuestionsContent
-            questions={questions}
-            userId={userId}
-            error={errorMessage}
-          />
-        </div>
+        <ReflexQuestionsContent
+          questions={questions}
+          userId={userId}
+          error={errorMessage}
+        />
       </div>
     </Suspense>
   );

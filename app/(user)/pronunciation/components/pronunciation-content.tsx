@@ -164,7 +164,7 @@ export default function PronunciationContent({
             </motion.div>
           </div>
           <motion.div
-            className="grid grid-cols-1 gap-6 lg:grid-cols-2"
+            className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
             initial="hidden"
             animate="show"
             variants={{
