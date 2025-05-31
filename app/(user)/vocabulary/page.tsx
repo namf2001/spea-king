@@ -1,10 +1,26 @@
 import { Suspense } from 'react';
+import { auth } from '@/lib/auth';
+import { notFound } from 'next/navigation';
 import { getVocabularyExercises } from '@/app/actions/vocabulary';
-import { VocabularyClinet } from './components/vocabulary-clinet';
 import { PageLoading } from '@/components/animations/page-loading';
+import { VocabularyDashboard } from './components/vocabulary-dashboard';
+
+// Force dynamic rendering since we use authentication
+export const dynamic = 'force-dynamic';
 
 export default async function VocabularyPage() {
-  const exercises = await getVocabularyExercises();
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    notFound();
+  }
+
+  // Fetch vocabulary exercises
+  const response = await getVocabularyExercises();
+  const exercises = response.success && response.data ? response.data : [];
+  const errorMessage = response.success ? undefined : response.error?.message;
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -17,7 +33,7 @@ export default async function VocabularyPage() {
       </div>
       
       <Suspense fallback={<PageLoading />}>
-        <VocabularyClinet exercises={exercises} />
+        <VocabularyDashboard exercises={exercises} error={errorMessage} />
       </Suspense>
     </div>
   );

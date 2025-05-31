@@ -14,8 +14,6 @@ import {
   progressIcon,
   pronunciationIcon,
   reflexIcon,
-  seeMoreIcon,
-  userIcon,
 } from '@/assets/image/icon';
 
 import {
@@ -69,18 +67,35 @@ export function AppSidebar() {
           alt="Pronunciation"
           width={32}
           height={32}
+          style={{ width: 'auto', height: 'auto' }}
         />
       ),
     },
     {
       label: 'TỪ VỰNG',
       href: '/vocabulary',
-      icon: <Image src={practiceIcon} alt="Vocabulary" width={32} height={32} />,
+      icon: (
+        <Image
+          src={practiceIcon}
+          alt="Vocabulary"
+          width={32}
+          height={32}
+          style={{ width: 'auto', height: 'auto' }}
+        />
+      ),
     },
     {
       label: 'PHẢN XẠ',
       href: '/reflex',
-      icon: <Image src={reflexIcon} alt="Reflex" width={32} height={32} />,
+      icon: (
+        <Image
+          src={reflexIcon}
+          alt="Reflex"
+          width={32}
+          height={32}
+          style={{ width: 'auto', height: 'auto' }}
+        />
+      ),
     },
     {
       label: 'GIAO TIẾP',
@@ -91,13 +106,22 @@ export function AppSidebar() {
           alt="Conversation"
           width={32}
           height={32}
+          style={{ width: 'auto', height: 'auto' }}
         />
       ),
     },
     {
       label: 'THỐNG KÊ',
       href: '/progress',
-      icon: <Image src={progressIcon} alt="Progress" width={32} height={32} />,
+      icon: (
+        <Image
+          src={progressIcon}
+          alt="Progress"
+          width={32}
+          height={32}
+          style={{ width: 'auto', height: 'auto' }}
+        />
+      ),
     },
   ];
 
