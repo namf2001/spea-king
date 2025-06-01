@@ -22,20 +22,9 @@ export default async function VocabularyPage() {
   const errorMessage = response.success ? undefined : response.error?.message;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Luyện từ vựng
-        </h1>
-        <p className="text-gray-600">
-          Học và thực hành từ vựng tiếng Anh thông qua các bài tập ghép cặp
-        </p>
-      </div>
-      
       <Suspense fallback={<PageLoading />}>
         <VocabularyDashboard exercises={exercises} error={errorMessage} />
       </Suspense>
-    </div>
   );
 }
 

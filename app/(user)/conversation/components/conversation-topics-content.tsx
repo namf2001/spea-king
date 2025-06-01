@@ -171,7 +171,7 @@ export default function ConversationTopicsContent({
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 onClick={() => {
-                  setEditingTopic(null); // Ensure we're in create mode
+                  setEditingTopic(null);
                   setIsModalOpen(true);
                 }}
                 className="flex items-center gap-2"
