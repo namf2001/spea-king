@@ -67,7 +67,6 @@ export function AppSidebar() {
           alt="Pronunciation"
           width={32}
           height={32}
-          style={{ width: 'auto', height: 'auto' }}
         />
       ),
     },
@@ -80,7 +79,6 @@ export function AppSidebar() {
           alt="Vocabulary"
           width={32}
           height={32}
-          style={{ width: 'auto', height: 'auto' }}
         />
       ),
     },
@@ -93,7 +91,6 @@ export function AppSidebar() {
           alt="Reflex"
           width={32}
           height={32}
-          style={{ width: 'auto', height: 'auto' }}
         />
       ),
     },
@@ -106,7 +103,6 @@ export function AppSidebar() {
           alt="Conversation"
           width={32}
           height={32}
-          style={{ width: 'auto', height: 'auto' }}
         />
       ),
     },
@@ -119,7 +115,6 @@ export function AppSidebar() {
           alt="Progress"
           width={32}
           height={32}
-          style={{ width: 'auto', height: 'auto' }}
         />
       ),
     },
