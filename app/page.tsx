@@ -1,10 +1,11 @@
+import Image from 'next/image';
 import Link from 'next/link';
+
 import { logo } from '@/assets/image';
 import { world } from '@/assets/animations';
-import { Button } from '@/components/ui/button';
 import { LottieAnimation } from '@/components/animations/lottie-animation';
-import Image from 'next/image';
 import { MotivationalQuotesSlider } from '@/components/layout/motivational-quotes-slider';
+import { Button } from '@/components/ui/button';
 
 export default function Home() {
   return (

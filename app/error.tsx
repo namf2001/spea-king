@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, AlertTriangle, Home } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -10,8 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import Link from 'next/link';
 
 interface ErrorPageProps {
   readonly error: Error & { digest?: string };

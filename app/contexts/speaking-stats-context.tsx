@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useContext, createContext } from 'react';
+import React, { createContext, useContext, useMemo, useState } from 'react';
 
 type SpeakingStats = {
   totalSpeakingCount: number;
@@ -12,28 +12,33 @@ type SpeakingStats = {
 };
 
 const SpeakingStatsContext = createContext<
-  | [
-      SpeakingStats | null,
-      React.Dispatch<React.SetStateAction<SpeakingStats | null>>,
-    ]
-  | undefined
+  [
+    SpeakingStats | null,
+    React.Dispatch<React.SetStateAction<SpeakingStats | null>>,
+  ] | undefined
 >(undefined);
 
 export function SpeakingStatsProvider({
   children,
   initialStats,
 }: {
-  children: React.ReactNode;
-  initialStats: SpeakingStats | null;
+  readonly children: React.ReactNode;
+  readonly initialStats: SpeakingStats | null;
 }) {
   const [optimisticStats, setOptimisticStats] = useState<SpeakingStats | null>(
     null,
   );
 
-  const stats = optimisticStats !== null ? optimisticStats : initialStats;
+  const stats = optimisticStats ?? initialStats;
+
+  // Wrap context value in useMemo to prevent unnecessary re-renders
+  const contextValue = useMemo((): [
+    SpeakingStats | null,
+    React.Dispatch<React.SetStateAction<SpeakingStats | null>>
+  ] => [stats, setOptimisticStats], [stats]);
 
   return (
-    <SpeakingStatsContext.Provider value={[stats, setOptimisticStats]}>
+    <SpeakingStatsContext.Provider value={contextValue}>
       {children}
     </SpeakingStatsContext.Provider>
   );

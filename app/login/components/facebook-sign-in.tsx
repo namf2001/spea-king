@@ -1,8 +1,11 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { signInWithFacebook } from '@/app/actions/auth';
 import { useFormStatus } from 'react-dom';
+
+import { Button } from '@/components/ui/button';
+
+import { signInWithFacebook } from '@/app/actions/auth';
+
 const FacebookSignInButton = () => {
   const { pending } = useFormStatus();
 

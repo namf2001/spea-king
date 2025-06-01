@@ -1,12 +1,13 @@
 'use server';
 
-import { prisma } from '@/lib/prisma';
-import { auth } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
+
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import {
   ApiResponse,
-  createSuccessResponse,
   createErrorResponse,
+  createSuccessResponse,
 } from '@/types/response';
 
 // Get all reflex questions for a user (including default ones)

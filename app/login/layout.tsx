@@ -1,6 +1,8 @@
-import { auth } from '@/lib/auth';
-import { Header } from './components/header';
 import { redirect } from 'next/navigation';
+
+import { auth } from '@/lib/auth';
+
+import { Header } from './components/header';
 
 export default async function LoginLayout({
   children,

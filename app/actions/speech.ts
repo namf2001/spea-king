@@ -1,12 +1,13 @@
 'use server';
 
 import { cookies } from 'next/headers';
+
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import {
   ApiResponse,
-  createSuccessResponse,
   createErrorResponse,
+  createSuccessResponse,
 } from '@/types/response';
 
 // Server Action to get a speech token

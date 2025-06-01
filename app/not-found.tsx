@@ -1,13 +1,14 @@
 'use client';
 
-import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+
 import { logo } from '@/assets/image';
 import { notfound } from '@/assets/animations';
-import { Button } from '@/components/ui/button';
 import { LottieAnimation } from '@/components/animations/lottie-animation';
-import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 // Tách Stars background thành component riêng
 const StarsBackground = () => {

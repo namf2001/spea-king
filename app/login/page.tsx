@@ -1,12 +1,14 @@
 'use client';
 
 import Image from 'next/image';
-import { GoogleSignIn } from './components/google-sign-in';
-import { FacebookSignIn } from './components/facebook-sign-in';
+import { motion } from 'framer-motion';
+
 import { logo } from '@/assets/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { motion } from 'framer-motion';
 import { Separator } from '@/components/ui/separator';
+
+import { FacebookSignIn } from './components/facebook-sign-in';
+import { GoogleSignIn } from './components/google-sign-in';
 
 export default function LoginPage() {
   return (

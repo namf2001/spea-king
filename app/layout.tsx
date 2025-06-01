@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
-import './globals.css';
+
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
+
+import './globals.css';
 
 export const metadata: Metadata = {
   title: 'SpeaKing - Language Learning App',
