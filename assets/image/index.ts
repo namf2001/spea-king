@@ -9,8 +9,32 @@ import image8 from './8.svg';
 import image9 from './9.svg';
 import logo from './logo.svg';
 
+// Import cute character images
+import cutePool from './cutePool.jpg';
+import cuteBalloons from './cuteBalloons.jpg';
+import cuteStudying from './cuteStudying.jpg';
+import cuteHoodie from './cuteHoodie.jpg';
+import cuteFood from './cuteFood.jpg';
+import cutePattern from './cutePattern.jpg';
+
 // Export all images
-export { image1, image2, image3, image4, image5, image7, image8, image9, logo };
+export { 
+  image1, 
+  image2, 
+  image3, 
+  image4, 
+  image5, 
+  image7, 
+  image8, 
+  image9, 
+  logo,
+  cutePool,
+  cuteBalloons,
+  cuteStudying,
+  cuteHoodie,
+  cuteFood,
+  cutePattern
+};
 
 // Export images as an object for easier access
 export const images = {
@@ -23,4 +47,10 @@ export const images = {
   image8,
   image9,
   logo,
+  cutePool,
+  cuteBalloons,
+  cuteStudying,
+  cuteHoodie,
+  cuteFood,
+  cutePattern,
 };

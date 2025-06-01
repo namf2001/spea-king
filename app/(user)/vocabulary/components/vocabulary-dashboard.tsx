@@ -4,14 +4,17 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Plus, Play, Trophy, Clock, Target, Search, MoreVertical, Trash2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { createDefaultVocabularyExercises } from '@/app/actions/vocabulary';
 import type { VocabularyExercise, VocabularyPair, ExerciseResult } from '@prisma/client';
 import { VocabularyModal } from './vocabulary-modal';
 import VocabularyDeleteDialog from './vocabulary-delete-dialog';
 import { VocabularySearch } from './vocabulary-search';
+import { cuteStudying, cuteHoodie, cuteFood } from '@/assets/image';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -261,18 +264,6 @@ export function VocabularyDashboard({ exercises: initialExercises, error }: Voca
                   transition={{ duration: 0.2 }}
                 >
                   <Trophy className="relative z-10 h-5 w-5 text-white sm:h-6 sm:w-6" />
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-400 opacity-20"
-                    animate={{
-                      scale: [1, 1.2, 1],
-                      opacity: [0.2, 0.4, 0.2]
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  />
                 </motion.div>
                 <motion.h1
                   className="text-xl font-bold sm:text-2xl lg:text-3xl"
@@ -318,92 +309,116 @@ export function VocabularyDashboard({ exercises: initialExercises, error }: Voca
               variants={containerVariants}
             >
               <motion.div variants={itemVariants} whileHover={{ y: -5 }}>
-                <Card className="transition-shadow hover:shadow-lg">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium">Tổng bài tập</p>
-                        <motion.p
-                          className="text-2xl font-bold"
-                          initial={{ scale: 0.5, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                <Card className="transition-shadow hover:shadow-lg overflow-hidden py-0">
+                  <CardContent className="p-0 relative">
+                    <AspectRatio ratio={16 / 9} className="bg-muted rounded-lg">
+                      <Image
+                        src={cuteStudying}
+                        alt="Cute studying character"
+                        fill
+                        className="h-full w-full rounded-lg object-cover"
+                      />
+                      <div className="absolute inset-0 z-10 p-6 flex items-center justify-between">
+                        <div className="bg-blue-500/80 p-4 rounded-lg shadow-lg">
+                          <p className="text-sm font-bold ">Tổng bài tập</p>
+                          <motion.p
+                            className="text-2xl font-bold "
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                          >
+                            {initialExercises.length}
+                          </motion.p>
+                        </div>
+                        <motion.div
+                          whileHover={{ rotate: 360, scale: 1.1 }}
+                          transition={{ duration: 0.6 }}
                         >
-                          {initialExercises.length}
-                        </motion.p>
+                          <Target className="w-8 h-8 text-blue-600" />
+                        </motion.div>
                       </div>
-                      <motion.div
-                        whileHover={{ rotate: 360, scale: 1.1 }}
-                        transition={{ duration: 0.6 }}
-                      >
-                        <Target className="w-8 h-8 text-blue-600" />
-                      </motion.div>
-                    </div>
+                    </AspectRatio>
                   </CardContent>
                 </Card>
               </motion.div>
 
               <motion.div variants={itemVariants} whileHover={{ y: -5 }}>
-                <Card className="transition-shadow hover:shadow-lg">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium">Đã hoàn thành</p>
-                        <motion.p
-                          className="text-2xl font-bold"
-                          initial={{ scale: 0.5, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                <Card className="transition-shadow hover:shadow-lg overflow-hidden py-0">
+                  <CardContent className="p-0 relative">
+                    <AspectRatio ratio={16 / 9} className="bg-muted rounded-lg">
+                      <Image
+                        src={cuteHoodie}
+                        alt="Cute character in hoodie"
+                        fill
+                        className="h-full w-full rounded-lg object-cover"
+                      />
+                      <div className="absolute inset-0 z-10 p-6 flex items-center justify-between">
+                      <div className="bg-green-500/80 p-4 rounded-lg shadow-lg">
+                          <p className="text-sm font-bold ">Đã hoàn thành</p>
+                          <motion.p
+                            className="text-2xl font-bold "
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                          >
+                            {initialExercises.filter(ex => ex.results.length > 0).length}
+                          </motion.p>
+                        </div>
+                        <motion.div
+                          animate={{
+                            scale: [1, 1.1, 1],
+                            rotate: [0, 5, -5, 0]
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
                         >
-                          {initialExercises.filter(ex => ex.results.length > 0).length}
-                        </motion.p>
+                          <Trophy className="w-8 h-8 text-green-600" />
+                        </motion.div>
                       </div>
-                      <motion.div
-                        animate={{
-                          scale: [1, 1.1, 1],
-                          rotate: [0, 5, -5, 0]
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
-                      >
-                        <Trophy className="w-8 h-8 text-green-600" />
-                      </motion.div>
-                    </div>
+                    </AspectRatio>
                   </CardContent>
                 </Card>
               </motion.div>
 
               <motion.div variants={itemVariants} whileHover={{ y: -5 }}>
-                <Card className="transition-shadow hover:shadow-lg">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium">Điểm trung bình</p>
-                        <motion.p
-                          className="text-2xl font-bold"
-                          initial={{ scale: 0.5, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                <Card className="transition-shadow hover:shadow-lg overflow-hidden py-0">
+                  <CardContent className="p-0 relative">
+                    <AspectRatio ratio={16 / 9} className="bg-muted rounded-lg">
+                      <Image
+                        src={cuteFood}
+                        alt="Cute characters with food"
+                        fill
+                        className="h-full w-full rounded-lg object-cover"
+                      />
+                      <div className="absolute inset-0 z-10 p-6 flex items-center justify-between">
+                        <div className="bg-orange-500/80 p-4 rounded-lg shadow-lg">
+                          <p className="text-sm font-bold">Tổng điểm</p>
+                          <motion.p
+                            className="text-2xl font-bold"
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                          >
+                            {initialExercises.length > 0 ? Math.round(
+                              initialExercises
+                                .filter(ex => ex.results.length > 0)
+                                .reduce((acc, ex) => acc + (ex.results[0]?.score || 0), 0) /
+                              Math.max(initialExercises.filter(ex => ex.results.length > 0).length, 1)
+                            ) : 0}%
+                          </motion.p>
+                        </div>
+                        <motion.div
+                          className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center"
+                          whileHover={{ scale: 1.2, backgroundColor: "#fed7aa" }}
+                          transition={{ duration: 0.2 }}
                         >
-                          {initialExercises.length > 0 ? Math.round(
-                            initialExercises
-                              .filter(ex => ex.results.length > 0)
-                              .reduce((acc, ex) => acc + (ex.results[0]?.score || 0), 0) /
-                            Math.max(initialExercises.filter(ex => ex.results.length > 0).length, 1)
-                          ) : 0}%
-                        </motion.p>
+                          <span className="text-orange-600 font-bold">%</span>
+                        </motion.div>
                       </div>
-                      <motion.div
-                        className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center"
-                        whileHover={{ scale: 1.2, backgroundColor: "#fed7aa" }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <span className="text-orange-600 font-bold">%</span>
-                      </motion.div>
-                    </div>
+                    </AspectRatio>
                   </CardContent>
                 </Card>
               </motion.div>
