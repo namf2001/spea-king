@@ -217,9 +217,12 @@ export default function PronunciationClient({
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <Card className="max-w-md p-6">
-          <h3 className="mb-2 text-lg font-medium">Không có bài tập khả dụng</h3>
+          <h3 className="mb-2 text-lg font-medium">
+            Không có bài tập khả dụng
+          </h3>
           <p className="text-muted-foreground mb-4">
-            Không có bài tập phát âm trong bài học này hoặc không tìm thấy bài học.
+            Không có bài tập phát âm trong bài học này hoặc không tìm thấy bài
+            học.
           </p>
         </Card>
       </div>

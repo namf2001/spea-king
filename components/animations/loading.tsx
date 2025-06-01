@@ -84,7 +84,7 @@ export const Loading = ({
 const SharedLoading = () => {
   return (
     <div>
-      <PageLoading 
+      <PageLoading
         text="Đang tải dữ liệu..."
         useOverlay={true}
         size="2xl"

@@ -141,7 +141,8 @@ export default function LessonForm({
         toast.error(
           isEditMode ? 'Không thể cập nhật bài học' : 'Không thể tạo bài học',
           {
-            description: response.error?.message || 'Đã xảy ra lỗi không xác định',
+            description:
+              response.error?.message || 'Đã xảy ra lỗi không xác định',
           },
         );
       }

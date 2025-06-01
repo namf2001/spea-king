@@ -6,7 +6,8 @@ const prisma = new PrismaClient();
 const vocabularyExercisesData = [
   {
     title: 'Từ vựng cơ bản hàng ngày',
-    description: 'Học các từ vựng tiếng Anh cơ bản thường dùng trong cuộc sống hàng ngày',
+    description:
+      'Học các từ vựng tiếng Anh cơ bản thường dùng trong cuộc sống hàng ngày',
     pairs: [
       { englishWord: 'hello', vietnameseWord: 'xin chào' },
       { englishWord: 'goodbye', vietnameseWord: 'tạm biệt' },
@@ -195,7 +196,7 @@ const vocabularyExercisesData = [
       { englishWord: 'smart', vietnameseWord: 'thông minh' },
       { englishWord: 'funny', vietnameseWord: 'hài hước' },
     ],
-  }
+  },
 ];
 
 // Tạo sample exercise results để test
@@ -215,7 +216,7 @@ async function seedVocabularyExercises() {
     const userCount = await prisma.user.count();
     if (userCount === 0) {
       console.log('⚠️  No users found in database. Creating a test user...');
-      
+
       // Tạo test user để gán exercises
       const testUser = await prisma.user.create({
         data: {
@@ -224,7 +225,7 @@ async function seedVocabularyExercises() {
           role: 'USER',
         },
       });
-      
+
       console.log(`✅ Created test user: ${testUser.email}`);
     }
 
@@ -234,11 +235,13 @@ async function seedVocabularyExercises() {
       throw new Error('No user found to assign exercises to');
     }
 
-    console.log(`👤 Using user: ${firstUser.email || firstUser.name || firstUser.id}`);
+    console.log(
+      `👤 Using user: ${firstUser.email || firstUser.name || firstUser.id}`,
+    );
 
     // Xóa exercises cũ của user này để tránh duplicate
     await prisma.vocabularyExercise.deleteMany({
-      where: { userId: firstUser.id }
+      where: { userId: firstUser.id },
     });
 
     console.log('🗑️  Cleaned up existing vocabulary exercises');
@@ -249,7 +252,7 @@ async function seedVocabularyExercises() {
     // Tạo từng exercise
     for (let i = 0; i < vocabularyExercisesData.length; i++) {
       const exerciseData = vocabularyExercisesData[i];
-      
+
       console.log(`📚 Creating exercise: ${exerciseData.title}`);
 
       const exercise = await prisma.vocabularyExercise.create({
@@ -258,7 +261,7 @@ async function seedVocabularyExercises() {
           description: exerciseData.description,
           userId: firstUser.id,
           pairs: {
-            create: exerciseData.pairs.map(pair => ({
+            create: exerciseData.pairs.map((pair) => ({
               englishWord: pair.englishWord,
               vietnameseWord: pair.vietnameseWord,
             })),
@@ -270,34 +273,44 @@ async function seedVocabularyExercises() {
       });
 
       totalCreated++;
-      console.log(`✅ Created exercise "${exercise.title}" with ${exercise.pairs.length} word pairs`);
+      console.log(
+        `✅ Created exercise "${exercise.title}" with ${exercise.pairs.length} word pairs`,
+      );
 
       // Tạo sample results cho một số exercises (ngẫu nhiên)
-      if (Math.random() > 0.5) { // 50% chance có results
+      if (Math.random() > 0.5) {
+        // 50% chance có results
         const numResults = Math.floor(Math.random() * 3) + 1; // 1-3 results
-        
+
         for (let j = 0; j < numResults; j++) {
-          const resultData = sampleResults[Math.floor(Math.random() * sampleResults.length)];
-          
+          const resultData =
+            sampleResults[Math.floor(Math.random() * sampleResults.length)];
+
           await prisma.exerciseResult.create({
             data: {
               userId: firstUser.id,
               exerciseId: exercise.id,
               score: resultData.score + Math.floor(Math.random() * 10) - 5, // Variation ±5
-              timeSpent: resultData.timeSpent + Math.floor(Math.random() * 60) - 30, // Variation ±30s
+              timeSpent:
+                resultData.timeSpent + Math.floor(Math.random() * 60) - 30, // Variation ±30s
               attempts: resultData.attempts,
-              completedAt: new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000)), // Random trong 7 ngày qua
+              completedAt: new Date(
+                Date.now() -
+                  Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000),
+              ), // Random trong 7 ngày qua
             },
           });
-          
+
           totalResultsCreated++;
         }
-        
-        console.log(`📊 Added ${numResults} sample results for "${exercise.title}"`);
+
+        console.log(
+          `📊 Added ${numResults} sample results for "${exercise.title}"`,
+        );
       }
 
       // Delay nhỏ để tránh overwhelm database
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     // Thống kê cuối cùng
@@ -312,7 +325,6 @@ async function seedVocabularyExercises() {
     console.log(`   - Total exercises in DB: ${totalExercises}`);
     console.log(`   - Total word pairs in DB: ${totalPairs}`);
     console.log(`   - Total results in DB: ${totalResults}`);
-
   } catch (error) {
     console.error('💥 Error during vocabulary seeding:', error);
     throw error;

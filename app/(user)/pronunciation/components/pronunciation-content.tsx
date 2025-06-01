@@ -2,7 +2,15 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Plus, AlertCircle, Mic, Trash2, ArrowRight, MoreVertical, Edit } from 'lucide-react';
+import {
+  Plus,
+  AlertCircle,
+  Mic,
+  Trash2,
+  ArrowRight,
+  MoreVertical,
+  Edit,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
@@ -107,8 +115,8 @@ export default function PronunciationContent({
               Chưa có bài học phát âm
             </h3>
             <p className="text-muted-foreground mb-6 max-w-md">
-              Tạo bài học phát âm tùy chỉnh đầu tiên của bạn để bắt đầu luyện tập.
-              Bạn có thể thêm các từ hoặc cụm từ bạn muốn cải thiện.
+              Tạo bài học phát âm tùy chỉnh đầu tiên của bạn để bắt đầu luyện
+              tập. Bạn có thể thêm các từ hoặc cụm từ bạn muốn cải thiện.
             </p>
             <Button
               onClick={() => setIsModalOpen(true)}
@@ -199,12 +207,12 @@ export default function PronunciationContent({
                   transition={{ type: 'spring', stiffness: 400, damping: 10 }}
                   className="h-full rounded-xl"
                 >
-                  <Card className="h-full hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                  <Card className="group h-full overflow-hidden transition-all duration-300 hover:shadow-xl">
                     <motion.div
                       className="absolute inset-0"
                       layoutId={`background-${lesson.id}`}
                     />
-                    <CardHeader className="pb-2 relative z-10">
+                    <CardHeader className="relative z-10 pb-2">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <motion.div
@@ -212,7 +220,7 @@ export default function PronunciationContent({
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.2 }}
                           >
-                            <CardTitle className="text-lg font-semibold mb-1">
+                            <CardTitle className="mb-1 text-lg font-semibold">
                               {lesson.title}
                             </CardTitle>
                             <Badge variant="outline" className="text-xs">
@@ -228,7 +236,11 @@ export default function PronunciationContent({
                         >
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+                              >
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -253,7 +265,7 @@ export default function PronunciationContent({
                       </div>
                     </CardHeader>
 
-                    <CardContent className="py-3 relative z-10">
+                    <CardContent className="relative z-10 py-3">
                       <motion.div
                         className="space-y-3"
                         initial={{ opacity: 0, y: 10 }}
@@ -273,9 +285,7 @@ export default function PronunciationContent({
                               animate={{ scale: [1, 1.2, 1] }}
                               transition={{ repeat: Infinity, duration: 2 }}
                             />
-                            <span>
-                              {lesson.words.length} từ để luyện tập
-                            </span>
+                            <span>{lesson.words.length} từ để luyện tập</span>
                           </motion.div>
                         </div>
 
@@ -290,13 +300,16 @@ export default function PronunciationContent({
                             <Badge
                               key={lessonWord.id}
                               variant="secondary"
-                              className="text-xs max-w-[120px] truncate h-6 inline-flex items-center whitespace-nowrap"
+                              className="inline-flex h-6 max-w-[120px] items-center truncate text-xs whitespace-nowrap"
                             >
                               {lessonWord.word.word}
                             </Badge>
                           ))}
                           {lesson.words.length > 3 && (
-                            <Badge variant="secondary" className="text-xs h-6 inline-flex items-center">
+                            <Badge
+                              variant="secondary"
+                              className="inline-flex h-6 items-center text-xs"
+                            >
                               +{lesson.words.length - 3} từ nữa
                             </Badge>
                           )}
@@ -304,22 +317,25 @@ export default function PronunciationContent({
                       </motion.div>
                     </CardContent>
 
-                    <CardFooter className="pt-1 relative z-10">
+                    <CardFooter className="relative z-10 pt-1">
                       {/* Action Button */}
-                      <Link href={`/pronunciation/${lesson.id}`} className="w-full">
+                      <Link
+                        href={`/pronunciation/${lesson.id}`}
+                        className="w-full"
+                      >
                         <motion.div
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           className="w-full"
                         >
-                          <Button className="w-full group/btn">
+                          <Button className="group/btn w-full">
                             <motion.div
                               className="flex items-center"
                               whileHover={{ x: 2 }}
                               transition={{ duration: 0.2 }}
                             >
                               Luyện Tập Ngay
-                              <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:animate-pulse" />
+                              <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:animate-pulse" />
                             </motion.div>
                           </Button>
                         </motion.div>

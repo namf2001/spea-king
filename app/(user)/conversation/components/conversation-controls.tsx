@@ -226,7 +226,7 @@ export function ConversationControls({
       {/* Phần gợi ý */}
       {hasStarted && (
         <div className="flex w-full flex-col items-center">
-          <div className="mb-2 flex items-center rounded-lg border-2 border-gray-200 py-2 px-6 shadow-sm dark:border-gray-600">
+          <div className="mb-2 flex items-center rounded-lg border-2 border-gray-200 px-6 py-2 shadow-sm dark:border-gray-600">
             <Label className="mr-2 font-medium">Gợi ý:</Label>
             <Switch
               checked={suggestionsEnabled}

@@ -18,22 +18,22 @@ import cuteFood from './cuteFood.jpg';
 import cutePattern from './cutePattern.jpg';
 
 // Export all images
-export { 
-  image1, 
-  image2, 
-  image3, 
-  image4, 
-  image5, 
-  image7, 
-  image8, 
-  image9, 
+export {
+  image1,
+  image2,
+  image3,
+  image4,
+  image5,
+  image7,
+  image8,
+  image9,
   logo,
   cutePool,
   cuteBalloons,
   cuteStudying,
   cuteHoodie,
   cuteFood,
-  cutePattern
+  cutePattern,
 };
 
 // Export images as an object for easier access

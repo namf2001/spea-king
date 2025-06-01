@@ -40,9 +40,7 @@ export default function DeleteQuestionDialog({
         const response = await deleteReflexQuestion(questionId);
 
         if (!response.success) {
-          throw new Error(
-            response.error?.message || 'Không thể xóa câu hỏi',
-          );
+          throw new Error(response.error?.message || 'Không thể xóa câu hỏi');
         }
 
         onClose();
@@ -65,7 +63,8 @@ export default function DeleteQuestionDialog({
             Xóa Câu Hỏi
           </DialogTitle>
           <DialogDescription>
-            Bạn có chắc chắn muốn xóa câu hỏi này không? Hành động này không thể hoàn tác.
+            Bạn có chắc chắn muốn xóa câu hỏi này không? Hành động này không thể
+            hoàn tác.
           </DialogDescription>
         </DialogHeader>
 

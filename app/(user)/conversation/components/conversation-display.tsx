@@ -48,7 +48,7 @@ export function ConversationDisplay({
                 'flex w-fit max-w-[90%] flex-col gap-2 rounded-lg px-4 py-3 text-sm',
                 message.role === 'user'
                   ? 'bg-primary ml-auto text-white'
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200',
+                  : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
               )}
               data-testid={`message-${message.role}`}
             >

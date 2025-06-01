@@ -121,4 +121,3 @@ npm test
 - Progress tracking
 - Responsive design for all devices
 - Accessibility features
-

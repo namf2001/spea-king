@@ -34,9 +34,7 @@ export default async function ReflexPage() {
       >
         {error ? (
           <div className="bg-destructive/10 border-destructive/20 text-destructive mb-6 rounded-md border p-4">
-            <p className="text-sm font-medium">
-              Lỗi khi tải câu hỏi: {error}
-            </p>
+            <p className="text-sm font-medium">Lỗi khi tải câu hỏi: {error}</p>
             <p className="mt-1 text-xs">Sử dụng câu hỏi mặc định thay thế.</p>
           </div>
         ) : null}

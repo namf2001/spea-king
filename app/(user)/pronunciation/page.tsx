@@ -19,7 +19,7 @@ export default async function PronunciationPage() {
 
   return (
     <Suspense fallback={<LessonsSkeleton />}>
-      <div className="container mx-auto px-4 py-12 mb-12 md:mb-0">
+      <div className="container mx-auto mb-12 px-4 py-12 md:mb-0">
         <PronunciationContent lessons={lessons} error={error} />
       </div>
     </Suspense>

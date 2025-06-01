@@ -90,9 +90,7 @@ export default function QuestionForm({
       }
     } catch (error) {
       console.error('Error generating answer:', error);
-      setError(
-        'Đã xảy ra lỗi khi tạo câu trả lời. Vui lòng thử lại.',
-      );
+      setError('Đã xảy ra lỗi khi tạo câu trả lời. Vui lòng thử lại.');
     } finally {
       setIsGenerating(false);
     }
@@ -118,9 +116,7 @@ export default function QuestionForm({
           });
 
           if (!response.success) {
-            throw new Error(
-              response.error?.message || 'Không thể tạo câu hỏi',
-            );
+            throw new Error(response.error?.message || 'Không thể tạo câu hỏi');
           }
         } else if (mode === 'edit' && question) {
           const response = await updateReflexQuestion(question.id, {
@@ -220,9 +216,7 @@ export default function QuestionForm({
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <p className="text-primary text-xs font-medium">
-                  ĐIỂM IELTS
-                </p>
+                <p className="text-primary text-xs font-medium">ĐIỂM IELTS</p>
                 <div className="flex items-center gap-2">
                   <Select
                     value={brandPoint}

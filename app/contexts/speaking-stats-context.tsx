@@ -12,10 +12,11 @@ type SpeakingStats = {
 };
 
 const SpeakingStatsContext = createContext<
-  [
-    SpeakingStats | null,
-    React.Dispatch<React.SetStateAction<SpeakingStats | null>>,
-  ] | undefined
+  | [
+      SpeakingStats | null,
+      React.Dispatch<React.SetStateAction<SpeakingStats | null>>,
+    ]
+  | undefined
 >(undefined);
 
 export function SpeakingStatsProvider({
@@ -32,10 +33,13 @@ export function SpeakingStatsProvider({
   const stats = optimisticStats ?? initialStats;
 
   // Wrap context value in useMemo to prevent unnecessary re-renders
-  const contextValue = useMemo((): [
-    SpeakingStats | null,
-    React.Dispatch<React.SetStateAction<SpeakingStats | null>>
-  ] => [stats, setOptimisticStats], [stats]);
+  const contextValue = useMemo(
+    (): [
+      SpeakingStats | null,
+      React.Dispatch<React.SetStateAction<SpeakingStats | null>>,
+    ] => [stats, setOptimisticStats],
+    [stats],
+  );
 
   return (
     <SpeakingStatsContext.Provider value={contextValue}>

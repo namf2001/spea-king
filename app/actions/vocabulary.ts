@@ -14,7 +14,7 @@ import {
 export async function createVocabularyExercise(
   title: string,
   description: string | null,
-  pairs: { englishWord: string; vietnameseWord: string }[]
+  pairs: { englishWord: string; vietnameseWord: string }[],
 ): Promise<ApiResponse> {
   try {
     const session = await auth();
@@ -29,7 +29,7 @@ export async function createVocabularyExercise(
         description,
         userId: session.user.id,
         pairs: {
-          create: pairs.map(pair => ({
+          create: pairs.map((pair) => ({
             englishWord: pair.englishWord,
             vietnameseWord: pair.vietnameseWord,
           })),
@@ -46,7 +46,7 @@ export async function createVocabularyExercise(
     console.error('Error creating vocabulary exercise:', error);
     return createErrorResponse(
       'CREATE_EXERCISE_ERROR',
-      'Failed to create exercise. Please try again later.'
+      'Failed to create exercise. Please try again later.',
     );
   }
 }
@@ -84,13 +84,15 @@ export async function getVocabularyExercises(): Promise<ApiResponse> {
     return createErrorResponse(
       'FETCH_EXERCISES_ERROR',
       'Failed to fetch exercises',
-      { data: [] }
+      { data: [] },
     );
   }
 }
 
 // Lấy chi tiết bài tập vocabulary
-export async function getVocabularyExercise(exerciseId: string): Promise<ApiResponse> {
+export async function getVocabularyExercise(
+  exerciseId: string,
+): Promise<ApiResponse> {
   try {
     const session = await auth();
 
@@ -125,7 +127,7 @@ export async function getVocabularyExercise(exerciseId: string): Promise<ApiResp
     console.error('Error fetching vocabulary exercise:', error);
     return createErrorResponse(
       'FETCH_EXERCISE_ERROR',
-      'Failed to fetch exercise'
+      'Failed to fetch exercise',
     );
   }
 }
@@ -135,7 +137,7 @@ export async function saveExerciseResult(
   exerciseId: string,
   score: number,
   timeSpent: number,
-  attempts: number
+  attempts: number,
 ): Promise<ApiResponse> {
   try {
     const session = await auth();
@@ -160,7 +162,7 @@ export async function saveExerciseResult(
     console.error('Error saving exercise result:', error);
     return createErrorResponse(
       'SAVE_RESULT_ERROR',
-      'Failed to save result. Please try again later.'
+      'Failed to save result. Please try again later.',
     );
   }
 }
@@ -214,14 +216,14 @@ export async function createDefaultVocabularyExercises(): Promise<ApiResponse> {
     ];
 
     const results = await Promise.all(
-      defaultExercises.map(exercise =>
+      defaultExercises.map((exercise) =>
         prisma.vocabularyExercise.create({
           data: {
             title: exercise.title,
             description: exercise.description,
             userId: session.user.id,
             pairs: {
-              create: exercise.pairs.map(pair => ({
+              create: exercise.pairs.map((pair) => ({
                 englishWord: pair.englishWord,
                 vietnameseWord: pair.vietnameseWord,
               })),
@@ -230,8 +232,8 @@ export async function createDefaultVocabularyExercises(): Promise<ApiResponse> {
           include: {
             pairs: true,
           },
-        })
-      )
+        }),
+      ),
     );
 
     revalidatePath('/vocabulary');
@@ -240,7 +242,7 @@ export async function createDefaultVocabularyExercises(): Promise<ApiResponse> {
     console.error('Error creating default exercises:', error);
     return createErrorResponse(
       'CREATE_DEFAULT_EXERCISES_ERROR',
-      'Failed to create default exercises. Please try again later.'
+      'Failed to create default exercises. Please try again later.',
     );
   }
 }
@@ -250,7 +252,7 @@ export async function updateVocabularyExercise(
   exerciseId: string,
   title: string,
   description: string | null,
-  pairs: { id?: string; englishWord: string; vietnameseWord: string }[]
+  pairs: { id?: string; englishWord: string; vietnameseWord: string }[],
 ): Promise<ApiResponse> {
   try {
     const session = await auth();
@@ -271,7 +273,10 @@ export async function updateVocabularyExercise(
     });
 
     if (!existingExercise) {
-      return createErrorResponse('NOT_FOUND', 'Exercise not found or not authorized');
+      return createErrorResponse(
+        'NOT_FOUND',
+        'Exercise not found or not authorized',
+      );
     }
 
     // Update the exercise
@@ -286,13 +291,13 @@ export async function updateVocabularyExercise(
     });
 
     // Get the existing pair IDs
-    const existingPairIds = existingExercise.pairs.map(pair => pair.id);
+    const existingPairIds = existingExercise.pairs.map((pair) => pair.id);
 
     // Determine which pairs to create, update, or delete
-    const pairsToCreate = pairs.filter(pair => !pair.id);
-    const pairsToUpdate = pairs.filter(pair => pair.id);
+    const pairsToCreate = pairs.filter((pair) => !pair.id);
+    const pairsToUpdate = pairs.filter((pair) => pair.id);
     const pairsToDeleteIds = existingPairIds.filter(
-      id => !pairsToUpdate.some(pair => pair.id === id)
+      (id) => !pairsToUpdate.some((pair) => pair.id === id),
     );
 
     // Delete removed pairs
@@ -322,7 +327,7 @@ export async function updateVocabularyExercise(
     // Create new pairs
     if (pairsToCreate.length > 0) {
       await prisma.vocabularyPair.createMany({
-        data: pairsToCreate.map(pair => ({
+        data: pairsToCreate.map((pair) => ({
           exerciseId,
           englishWord: pair.englishWord,
           vietnameseWord: pair.vietnameseWord,
@@ -332,21 +337,26 @@ export async function updateVocabularyExercise(
 
     revalidatePath('/vocabulary');
 
-    return createSuccessResponse({
-      ...updatedExercise,
-      pairs: [...pairsToUpdate, ...pairsToCreate]
-    }, { timestamp: Date.now() });
+    return createSuccessResponse(
+      {
+        ...updatedExercise,
+        pairs: [...pairsToUpdate, ...pairsToCreate],
+      },
+      { timestamp: Date.now() },
+    );
   } catch (error) {
     console.error('Error updating vocabulary exercise:', error);
     return createErrorResponse(
       'UPDATE_EXERCISE_ERROR',
-      'Failed to update exercise. Please try again later.'
+      'Failed to update exercise. Please try again later.',
     );
   }
 }
 
 // Xóa bài tập vocabulary
-export async function deleteVocabularyExercise(exerciseId: string): Promise<ApiResponse> {
+export async function deleteVocabularyExercise(
+  exerciseId: string,
+): Promise<ApiResponse> {
   try {
     const session = await auth();
 
@@ -363,7 +373,10 @@ export async function deleteVocabularyExercise(exerciseId: string): Promise<ApiR
     });
 
     if (!existingExercise) {
-      return createErrorResponse('NOT_FOUND', 'Exercise not found or not authorized');
+      return createErrorResponse(
+        'NOT_FOUND',
+        'Exercise not found or not authorized',
+      );
     }
 
     // Delete the exercise and all related data (pairs will be deleted by cascade)
@@ -380,13 +393,15 @@ export async function deleteVocabularyExercise(exerciseId: string): Promise<ApiR
     console.error('Error deleting vocabulary exercise:', error);
     return createErrorResponse(
       'DELETE_EXERCISE_ERROR',
-      'Failed to delete exercise. Please try again later.'
+      'Failed to delete exercise. Please try again later.',
     );
   }
 }
 
 // Tìm kiếm bài tập vocabulary
-export async function searchVocabularyExercises(searchTerm: string): Promise<ApiResponse> {
+export async function searchVocabularyExercises(
+  searchTerm: string,
+): Promise<ApiResponse> {
   try {
     const session = await auth();
 
@@ -404,8 +419,15 @@ export async function searchVocabularyExercises(searchTerm: string): Promise<Api
             pairs: {
               some: {
                 OR: [
-                  { englishWord: { contains: searchTerm, mode: 'insensitive' } },
-                  { vietnameseWord: { contains: searchTerm, mode: 'insensitive' } },
+                  {
+                    englishWord: { contains: searchTerm, mode: 'insensitive' },
+                  },
+                  {
+                    vietnameseWord: {
+                      contains: searchTerm,
+                      mode: 'insensitive',
+                    },
+                  },
                 ],
               },
             },
@@ -432,7 +454,7 @@ export async function searchVocabularyExercises(searchTerm: string): Promise<Api
     return createErrorResponse(
       'SEARCH_EXERCISES_ERROR',
       'Failed to search exercises',
-      { data: [] }
+      { data: [] },
     );
   }
 }

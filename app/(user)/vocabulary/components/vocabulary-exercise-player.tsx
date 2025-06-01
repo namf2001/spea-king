@@ -31,7 +31,9 @@ interface VocabularyExercisePlayerProps {
   exercise: VocabularyExercise;
 }
 
-export function VocabularyExercisePlayer({ exercise }: VocabularyExercisePlayerProps) {
+export function VocabularyExercisePlayer({
+  exercise,
+}: VocabularyExercisePlayerProps) {
   const [isCompleted, setIsCompleted] = useState(false);
   const [currentScore, setCurrentScore] = useState(0);
   const [timeSpent, setTimeSpent] = useState(0);
@@ -54,7 +56,11 @@ export function VocabularyExercisePlayer({ exercise }: VocabularyExercisePlayerP
     },
   }));
 
-  const handleComplete = async (score: number, time: number, attemptCount: number) => {
+  const handleComplete = async (
+    score: number,
+    time: number,
+    attemptCount: number,
+  ) => {
     setCurrentScore(score);
     setTimeSpent(time);
     setAttempts(attemptCount);
@@ -102,23 +108,27 @@ export function VocabularyExercisePlayer({ exercise }: VocabularyExercisePlayerP
 
   if (isCompleted) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="container mx-auto max-w-2xl px-4 py-8">
         <Card className="border-0 shadow-lg">
-          <CardHeader className="text-center pb-6">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <Trophy className="w-8 h-8 text-green-600" />
+          <CardHeader className="pb-6 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+              <Trophy className="h-8 w-8 text-green-600" />
             </div>
             <CardTitle className="text-2xl font-bold text-gray-900">
               Hoàn thành bài tập!
             </CardTitle>
-            <p className="text-gray-600 mt-2">{getScoreMessage(currentScore)}</p>
+            <p className="mt-2 text-gray-600">
+              {getScoreMessage(currentScore)}
+            </p>
           </CardHeader>
 
           <CardContent className="space-y-6">
             {/* Results */}
             <div className="grid grid-cols-3 gap-4 text-center">
               <div className="space-y-1">
-                <div className={`text-3xl font-bold ${getScoreColor(currentScore)}`}>
+                <div
+                  className={`text-3xl font-bold ${getScoreColor(currentScore)}`}
+                >
                   {currentScore}%
                 </div>
                 <p className="text-sm text-gray-600">Điểm số</p>
@@ -139,8 +149,10 @@ export function VocabularyExercisePlayer({ exercise }: VocabularyExercisePlayerP
 
             {/* Previous Best */}
             {lastResult && (
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm font-medium text-gray-700 mb-2">Kết quả trước đó:</p>
+              <div className="rounded-lg bg-gray-50 p-4">
+                <p className="mb-2 text-sm font-medium text-gray-700">
+                  Kết quả trước đó:
+                </p>
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>Điểm: {lastResult.score}%</span>
                   <span>Thời gian: {formatTime(lastResult.timeSpent)}</span>
@@ -156,20 +168,26 @@ export function VocabularyExercisePlayer({ exercise }: VocabularyExercisePlayerP
 
             {/* Actions */}
             <div className="flex gap-3">
-              <Button onClick={handleRestart} variant="outline" className="flex-1">
-                <RotateCcw className="w-4 h-4 mr-2" />
+              <Button
+                onClick={handleRestart}
+                variant="outline"
+                className="flex-1"
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
                 Thử lại
               </Button>
               <Link href="/vocabulary" className="flex-1">
                 <Button className="w-full">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  <ArrowLeft className="mr-2 h-4 w-4" />
                   Về danh sách
                 </Button>
               </Link>
             </div>
 
             {isSaving && (
-              <p className="text-center text-sm text-gray-600">Đang lưu kết quả...</p>
+              <p className="text-center text-sm text-gray-600">
+                Đang lưu kết quả...
+              </p>
             )}
           </CardContent>
         </Card>
@@ -178,14 +196,11 @@ export function VocabularyExercisePlayer({ exercise }: VocabularyExercisePlayerP
   }
 
   return (
-    <div className="container mx-auto max-w-4xl min-h-screen">
+    <div className="container mx-auto min-h-screen max-w-4xl">
       {/* Exercise */}
-      <Card className="border-0 h-full">
-        <CardContent className="p-8 h-full">
-          <MatchingPairs
-            pairs={convertedPairs}
-            onComplete={handleComplete}
-          />
+      <Card className="h-full border-0">
+        <CardContent className="h-full p-8">
+          <MatchingPairs pairs={convertedPairs} onComplete={handleComplete} />
         </CardContent>
       </Card>
     </div>

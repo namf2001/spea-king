@@ -2,7 +2,15 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, AlertCircle, MessageCircle, Trash2, MoreVertical, Edit, ArrowRight } from 'lucide-react';
+import {
+  Plus,
+  AlertCircle,
+  MessageCircle,
+  Trash2,
+  MoreVertical,
+  Edit,
+  ArrowRight,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
@@ -125,8 +133,8 @@ export default function ConversationTopicsContent({
               Chưa có chủ đề giao tiếp
             </h3>
             <p className="text-muted-foreground mb-6 max-w-md">
-              Tạo chủ đề giao tiếp đầu tiên của bạn để bắt đầu luyện tập.
-              Bạn có thể thêm các chủ đề thú vị để thảo luận.
+              Tạo chủ đề giao tiếp đầu tiên của bạn để bắt đầu luyện tập. Bạn có
+              thể thêm các chủ đề thú vị để thảo luận.
             </p>
             <Button
               onClick={() => setIsModalOpen(true)}
@@ -218,12 +226,12 @@ export default function ConversationTopicsContent({
                   transition={{ type: 'spring', stiffness: 400, damping: 10 }}
                   className="h-full rounded-xl"
                 >
-                  <Card className="h-full hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                  <Card className="group h-full overflow-hidden transition-all duration-300 hover:shadow-xl">
                     <motion.div
-                      className="absolute inset-0 group-hover:opacity-100 transition-opacity duration-300"
+                      className="absolute inset-0 transition-opacity duration-300 group-hover:opacity-100"
                       layoutId={`background-${topic.id}`}
                     />
-                    <CardHeader className="pb-2 relative z-10">
+                    <CardHeader className="relative z-10 pb-2">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <motion.div
@@ -231,7 +239,7 @@ export default function ConversationTopicsContent({
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.2 }}
                           >
-                            <CardTitle className="text-lg font-semibold mb-1">
+                            <CardTitle className="mb-1 text-lg font-semibold">
                               {topic.title}
                             </CardTitle>
                             <Badge variant="outline" className="text-xs">
@@ -247,7 +255,11 @@ export default function ConversationTopicsContent({
                         >
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+                              >
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -272,7 +284,7 @@ export default function ConversationTopicsContent({
                       </div>
                     </CardHeader>
 
-                    <CardContent className="py-3 relative z-10">
+                    <CardContent className="relative z-10 py-3">
                       <motion.div
                         className="space-y-3"
                         initial={{ opacity: 0, y: 10 }}
@@ -292,15 +304,18 @@ export default function ConversationTopicsContent({
                       </motion.div>
                     </CardContent>
 
-                    <CardFooter className="pt-1 relative z-10">
+                    <CardFooter className="relative z-10 pt-1">
                       {/* Action Button */}
-                      <Link href={`/conversation/${topic.id}`} className="w-full">
+                      <Link
+                        href={`/conversation/${topic.id}`}
+                        className="w-full"
+                      >
                         <motion.div
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           className="w-full"
                         >
-                          <Button className="w-full group/btn">
+                          <Button className="group/btn w-full">
                             <motion.div
                               className="flex items-center"
                               whileHover={{ x: 2 }}

@@ -74,25 +74,13 @@ export function AppSidebar() {
       label: 'TỪ VỰNG',
       href: '/vocabulary',
       icon: (
-        <Image
-          src={practiceIcon}
-          alt="Vocabulary"
-          width={32}
-          height={32}
-        />
+        <Image src={practiceIcon} alt="Vocabulary" width={32} height={32} />
       ),
     },
     {
       label: 'PHẢN XẠ',
       href: '/reflex',
-      icon: (
-        <Image
-          src={reflexIcon}
-          alt="Reflex"
-          width={32}
-          height={32}
-        />
-      ),
+      icon: <Image src={reflexIcon} alt="Reflex" width={32} height={32} />,
     },
     {
       label: 'GIAO TIẾP',
@@ -109,14 +97,7 @@ export function AppSidebar() {
     {
       label: 'THỐNG KÊ',
       href: '/progress',
-      icon: (
-        <Image
-          src={progressIcon}
-          alt="Progress"
-          width={32}
-          height={32}
-        />
-      ),
+      icon: <Image src={progressIcon} alt="Progress" width={32} height={32} />,
     },
   ];
 

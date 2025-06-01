@@ -301,16 +301,14 @@ export function FeedbackDisplay({
                             <span className="font-medium">{word.word}</span>
                             <Badge
                               variant={getBadgeVariant(word.accuracyScore)}
-                              className="h-6 inline-flex items-center"
+                              className="inline-flex h-6 items-center"
                             >
                               {word.accuracyScore}%
                             </Badge>
                           </div>
                           {word.phonemes && word.phonemes.length > 0 && (
                             <div>
-                              <p className="mb-1 text-xs font-medium">
-                                Âm vị:
-                              </p>
+                              <p className="mb-1 text-xs font-medium">Âm vị:</p>
                               <div className="flex flex-wrap gap-1">
                                 {word.phonemes.map(
                                   (phoneme: any, pi: number) => (
@@ -427,7 +425,8 @@ export function FeedbackDisplay({
                         </TooltipTrigger>
                         <TooltipContent className="max-w-xs">
                           <p>
-                            Điểm kết hợp dựa trên độ chính xác, độ trôi chảy, độ đầy đủ và ngữ điệu
+                            Điểm kết hợp dựa trên độ chính xác, độ trôi chảy, độ
+                            đầy đủ và ngữ điệu
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -533,7 +532,9 @@ export function FeedbackDisplay({
                         <div className="mb-3 flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Target className="h-5 w-5 text-blue-600" />
-                            <h4 className="text-lg font-semibold">Độ Chính Xác</h4>
+                            <h4 className="text-lg font-semibold">
+                              Độ Chính Xác
+                            </h4>
                             <Tooltip>
                               <TooltipTrigger>
                                 <AlertCircle className="text-muted-foreground h-4 w-4" />
@@ -579,7 +580,9 @@ export function FeedbackDisplay({
                         <div className="mb-3 flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Music className="h-5 w-5 text-green-600" />
-                            <h4 className="text-lg font-semibold">Độ Trôi Chảy</h4>
+                            <h4 className="text-lg font-semibold">
+                              Độ Trôi Chảy
+                            </h4>
                             <Tooltip>
                               <TooltipTrigger>
                                 <AlertCircle className="text-muted-foreground h-4 w-4" />
@@ -626,9 +629,7 @@ export function FeedbackDisplay({
                         <div className="mb-3 flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <PenTool className="h-5 w-5 text-purple-600" />
-                            <h4 className="text-lg font-semibold">
-                              Độ Đầy Đủ
-                            </h4>
+                            <h4 className="text-lg font-semibold">Độ Đầy Đủ</h4>
                             <Tooltip>
                               <TooltipTrigger>
                                 <AlertCircle className="text-muted-foreground h-4 w-4" />

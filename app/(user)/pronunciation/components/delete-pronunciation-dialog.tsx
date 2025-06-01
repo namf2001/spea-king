@@ -41,13 +41,16 @@ export default function DeletePronunciationDialogProps({
         });
       } else {
         toast.error('Không thể xóa bài học', {
-          description: response.error?.message || 'Đã xảy ra lỗi không xác định',
+          description:
+            response.error?.message || 'Đã xảy ra lỗi không xác định',
         });
       }
     } catch (error) {
       toast.error('Lỗi khi xóa bài học', {
         description:
-          error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định',
+          error instanceof Error
+            ? error.message
+            : 'Đã xảy ra lỗi không xác định',
       });
     } finally {
       setIsDeleting(false);
@@ -71,8 +74,9 @@ export default function DeletePronunciationDialogProps({
           </DialogTitle>
           <DialogDescription>
             Bạn có chắc chắn muốn xóa{' '}
-            <span className="font-semibold">"{lessonTitle}"</span>? Hành động này
-            không thể hoàn tác và tất cả các từ liên quan sẽ bị xóa vĩnh viễn.
+            <span className="font-semibold">"{lessonTitle}"</span>? Hành động
+            này không thể hoàn tác và tất cả các từ liên quan sẽ bị xóa vĩnh
+            viễn.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="mt-4 gap-2 sm:gap-0">

@@ -22,9 +22,8 @@ export default async function VocabularyPage() {
   const errorMessage = response.success ? undefined : response.error?.message;
 
   return (
-      <Suspense fallback={<PageLoading />}>
-        <VocabularyDashboard exercises={exercises} error={errorMessage} />
-      </Suspense>
+    <Suspense fallback={<PageLoading />}>
+      <VocabularyDashboard exercises={exercises} error={errorMessage} />
+    </Suspense>
   );
 }
-

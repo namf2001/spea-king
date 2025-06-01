@@ -19,8 +19,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { DialogFooter } from '@/components/ui/dialog';
-import { vocabularyExerciseSchema, VocabularyExerciseFormValues } from '@/schemas/vocabulary';
-import { createVocabularyExercise, updateVocabularyExercise } from '@/app/actions/vocabulary';
+import {
+  vocabularyExerciseSchema,
+  VocabularyExerciseFormValues,
+} from '@/schemas/vocabulary';
+import {
+  createVocabularyExercise,
+  updateVocabularyExercise,
+} from '@/app/actions/vocabulary';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface VocabularyPair {
@@ -43,11 +49,11 @@ interface VocabularyFormProps {
   onCancel?: () => void;
 }
 
-export function VocabularyForm({ 
-  mode = 'create', 
+export function VocabularyForm({
+  mode = 'create',
   exercise,
-  onSuccess, 
-  onCancel 
+  onSuccess,
+  onCancel,
 }: VocabularyFormProps) {
   const isEditMode = mode === 'edit' && exercise;
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,21 +62,21 @@ export function VocabularyForm({
   // Initialize the form
   const form = useForm<VocabularyExerciseFormValues>({
     resolver: zodResolver(vocabularyExerciseSchema),
-    defaultValues: isEditMode ? {
-      title: exercise.title,
-      description: exercise.description || '',
-      pairs: exercise.pairs.map(pair => ({
-        id: pair.id,
-        englishWord: pair.englishWord,
-        vietnameseWord: pair.vietnameseWord
-      }))
-    } : {
-      title: '',
-      description: '',
-      pairs: [
-        { id: nanoid(), englishWord: '', vietnameseWord: '' }
-      ]
-    }
+    defaultValues: isEditMode
+      ? {
+          title: exercise.title,
+          description: exercise.description || '',
+          pairs: exercise.pairs.map((pair) => ({
+            id: pair.id,
+            englishWord: pair.englishWord,
+            vietnameseWord: pair.vietnameseWord,
+          })),
+        }
+      : {
+          title: '',
+          description: '',
+          pairs: [{ id: nanoid(), englishWord: '', vietnameseWord: '' }],
+        },
   });
 
   // Setup field array for vocabulary pairs
@@ -88,16 +94,21 @@ export function VocabularyForm({
   const onSubmit = async (data: VocabularyExerciseFormValues) => {
     try {
       setIsSubmitting(true);
-      
+
       // Process the data for submission
-      const pairs = data.pairs.map(pair => ({
+      const pairs = data.pairs.map((pair) => ({
         id: pair.id,
         englishWord: pair.englishWord.trim(),
-        vietnameseWord: pair.vietnameseWord.trim()
+        vietnameseWord: pair.vietnameseWord.trim(),
       }));
-      
-      const response = await handleExerciseSubmission(data, pairs, !!isEditMode, exercise);
-      
+
+      const response = await handleExerciseSubmission(
+        data,
+        pairs,
+        !!isEditMode,
+        exercise,
+      );
+
       if (response.success) {
         handleSuccessfulSubmission(!!isEditMode, onSuccess);
       } else {
@@ -115,63 +126,69 @@ export function VocabularyForm({
     data: VocabularyExerciseFormValues,
     pairs: VocabularyPair[],
     isEdit: boolean,
-    currentExercise?: VocabularyExercise
+    currentExercise?: VocabularyExercise,
   ) => {
     if (isEdit && currentExercise) {
       return await updateVocabularyExercise(
         currentExercise.id,
         data.title.trim(),
         data.description?.trim() || null,
-        pairs
+        pairs,
       );
     } else {
       return await createVocabularyExercise(
         data.title.trim(),
         data.description?.trim() || null,
-        pairs
+        pairs,
       );
     }
   };
 
   // Helper function to handle successful submission
-  const handleSuccessfulSubmission = (isEdit: boolean, onSuccessCallback?: () => void) => {
-    const message = isEdit ? 'Đã cập nhật bài tập từ vựng' : 'Đã tạo bài tập từ vựng mới';
-    const description = isEdit 
+  const handleSuccessfulSubmission = (
+    isEdit: boolean,
+    onSuccessCallback?: () => void,
+  ) => {
+    const message = isEdit
+      ? 'Đã cập nhật bài tập từ vựng'
+      : 'Đã tạo bài tập từ vựng mới';
+    const description = isEdit
       ? 'Bài tập từ vựng của bạn đã được cập nhật thành công'
       : 'Bài tập từ vựng của bạn đã được tạo thành công';
-    
+
     toast.success(message, { description });
-    
+
     if (!isEdit) {
       form.reset();
     }
-    
+
     if (onSuccessCallback) {
       onSuccessCallback();
     }
-    
+
     router.refresh();
   };
 
   // Helper function to handle submission errors
   const handleSubmissionError = (response: any, isEdit: boolean) => {
-    const errorTitle = isEdit 
+    const errorTitle = isEdit
       ? 'Không thể cập nhật bài tập từ vựng'
       : 'Không thể tạo bài tập từ vựng';
-    
+
     toast.error(errorTitle, {
-      description: response.error?.message || 'Đã xảy ra lỗi không xác định'
+      description: response.error?.message || 'Đã xảy ra lỗi không xác định',
     });
   };
 
   // Helper function to handle unexpected errors
   const handleUnexpectedError = (error: unknown, isEdit: boolean) => {
-    const errorTitle = isEdit 
+    const errorTitle = isEdit
       ? 'Lỗi khi cập nhật bài tập từ vựng'
       : 'Lỗi khi tạo bài tập từ vựng';
-    
+
     toast.error(errorTitle, {
-      description: error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định'
+      description:
+        error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định',
     });
   };
 
@@ -185,7 +202,7 @@ export function VocabularyForm({
             <FormItem>
               <FormLabel>Tiêu đề bài tập</FormLabel>
               <FormControl>
-                <Input 
+                <Input
                   placeholder="Ví dụ: Từ vựng về thời tiết"
                   {...field}
                   disabled={isSubmitting}
@@ -195,7 +212,7 @@ export function VocabularyForm({
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="description"
@@ -215,7 +232,7 @@ export function VocabularyForm({
             </FormItem>
           )}
         />
-        
+
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <FormLabel className="text-base">Các cặp từ vựng</FormLabel>
@@ -229,15 +246,20 @@ export function VocabularyForm({
               <Plus className="mr-1 h-4 w-4" /> Thêm cặp từ
             </Button>
           </div>
-          
+
           {form.formState.errors.pairs?.message && (
-            <p className="text-sm text-destructive">{form.formState.errors.pairs.message}</p>
+            <p className="text-destructive text-sm">
+              {form.formState.errors.pairs.message}
+            </p>
           )}
-          
-          <ScrollArea className="h-[300px] pr-4 rounded-md border">
+
+          <ScrollArea className="h-[300px] rounded-md border pr-4">
             <div className="space-y-4 p-4">
               {fields.map((field, index) => (
-                <div key={field.id} className="grid grid-cols-[1fr_1fr_auto] gap-3 items-start">
+                <div
+                  key={field.id}
+                  className="grid grid-cols-[1fr_1fr_auto] items-start gap-3"
+                >
                   <FormField
                     control={form.control}
                     name={`pairs.${index}.englishWord`}
@@ -254,7 +276,7 @@ export function VocabularyForm({
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name={`pairs.${index}.vietnameseWord`}
@@ -271,7 +293,7 @@ export function VocabularyForm({
                       </FormItem>
                     )}
                   />
-                  
+
                   <Button
                     type="button"
                     variant="ghost"
@@ -287,7 +309,7 @@ export function VocabularyForm({
             </div>
           </ScrollArea>
         </div>
-        
+
         <DialogFooter>
           {onCancel && (
             <Button
@@ -299,7 +321,7 @@ export function VocabularyForm({
               <X className="mr-2 h-4 w-4" /> Hủy
             </Button>
           )}
-          
+
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
