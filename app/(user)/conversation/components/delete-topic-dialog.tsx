@@ -18,7 +18,6 @@ interface DeleteTopicDialogProps {
   isOpen: boolean;
   topicId: string;
   topicTitle: string;
-  userId: string;
   onClose: () => void;
 }
 
@@ -26,7 +25,6 @@ export default function DeleteTopicDialog({
   isOpen,
   topicId,
   topicTitle,
-  userId,
   onClose,
 }: DeleteTopicDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -34,7 +32,7 @@ export default function DeleteTopicDialog({
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
-      const response = await deleteConversationTopic(topicId, userId);
+      const response = await deleteConversationTopic(topicId);
 
       if (response.success) {
         toast.success('Topic deleted', {

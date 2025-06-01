@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, AlertCircle, MessageSquare, Trash2 } from 'lucide-react';
+import { Plus, AlertCircle, MessageCircle, Trash2, MoreVertical, Edit, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
@@ -122,11 +122,11 @@ export default function ConversationTopicsContent({
               <Plus className="text-muted-foreground h-8 w-8" />
             </div>
             <h3 className="mb-2 text-lg font-semibold">
-              No conversation topics yet
+              Chưa có chủ đề giao tiếp
             </h3>
             <p className="text-muted-foreground mb-6 max-w-md">
-              Create your first conversation topic to start practicing. AI will
-              dynamically generate responses based on your chosen topic.
+              Tạo chủ đề giao tiếp đầu tiên của bạn để bắt đầu luyện tập.
+              Bạn có thể thêm các chủ đề thú vị để thảo luận.
             </p>
             <Button
               onClick={() => setIsModalOpen(true)}
@@ -162,10 +162,10 @@ export default function ConversationTopicsContent({
                     ease: 'easeInOut',
                   }}
                 />
-                <MessageSquare className="relative z-10 h-5 w-5 text-white sm:h-6 sm:w-6" />
+                <MessageCircle className="relative z-10 h-5 w-5 text-white sm:h-6 sm:w-6" />
               </motion.div>
               <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
-                Conversation Topics
+                Chủ Đề Giao Tiếp
               </h1>
             </div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -177,10 +177,11 @@ export default function ConversationTopicsContent({
                 className="flex items-center gap-2"
                 size="sm"
               >
-                <Plus className="h-4 w-4" /> New Topic
+                <Plus className="h-4 w-4" /> Thêm Chủ Đề Mới
               </Button>
             </motion.div>
           </div>
+
           <motion.div
             className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
             initial="hidden"
@@ -195,7 +196,7 @@ export default function ConversationTopicsContent({
               },
             }}
           >
-            {topics.map((topic) => (
+            {topics.map((topic, index) => (
               <motion.div
                 key={topic.id}
                 variants={{
@@ -215,120 +216,102 @@ export default function ConversationTopicsContent({
                       '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
                   }}
                   transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                  className="h-full rounded-xl"
                 >
-                  <Card className="overflow-hidden">
-                    <CardHeader>
+                  <Card className="h-full hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                    <motion.div
+                      className="absolute inset-0 group-hover:opacity-100 transition-opacity duration-300"
+                      layoutId={`background-${topic.id}`}
+                    />
+                    <CardHeader className="pb-2 relative z-10">
                       <div className="flex items-start justify-between">
-                        <CardTitle className="font-bold">
-                          {topic.title}
-                        </CardTitle>
-                        <Badge variant="outline" className="text-xs">
-                          {new Date(topic.createdAt).toLocaleDateString()}
-                        </Badge>
+                        <div className="flex-1">
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                          >
+                            <CardTitle className="text-lg font-semibold mb-1">
+                              {topic.title}
+                            </CardTitle>
+                            <Badge variant="outline" className="text-xs">
+                              {new Date(topic.createdAt).toLocaleDateString()}
+                            </Badge>
+                          </motion.div>
+                        </div>
+
+                        {/* Menu for edit and delete */}
+                        <motion.div
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                className="flex cursor-pointer items-center gap-2"
+                                onClick={() => handleEditTopic(topic)}
+                              >
+                                <Edit size={14} />
+                                Chỉnh sửa
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-destructive flex cursor-pointer items-center gap-2"
+                                onClick={() => handleDeleteClick(topic)}
+                              >
+                                <Trash2 size={14} />
+                                Xóa
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </motion.div>
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground mb-2 line-clamp-3 text-sm">
-                        {topic.description}
-                      </p>
-                    </CardContent>
-                    <CardFooter className="bg-muted flex items-center justify-between border-t px-4">
-                      <DropdownMenu>
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="flex items-center gap-1 text-xs"
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="14"
-                                height="14"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className="lucide lucide-settings"
-                              >
-                                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                              </svg>
-                              Actions
-                            </Button>
-                          </DropdownMenuTrigger>
-                        </motion.div>
-                        <DropdownMenuContent align="start">
-                          <DropdownMenuItem
-                            className="flex cursor-pointer items-center gap-2"
-                            onClick={() => handleEditTopic(topic)}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="14"
-                              height="14"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="lucide lucide-edit"
-                            >
-                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                            </svg>
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive flex cursor-pointer items-center gap-2"
-                            onClick={() => handleDeleteClick(topic)}
-                          >
-                            <Trash2 size={14} />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+
+                    <CardContent className="py-3 relative z-10">
                       <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        className="space-y-3"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
                       >
-                        <Button
-                          size="sm"
-                          className="flex items-center gap-1"
-                          asChild
+                        {/* Description */}
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.4 }}
                         >
-                          <Link href={`/conversation?topic=${topic.id}`}>
-                            Start Conversation
-                            <motion.svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="14"
-                              height="14"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="ml-1"
-                              animate={{ x: [0, 3, 0] }}
-                              transition={{
-                                repeat: Infinity,
-                                duration: 1.5,
-                                repeatType: 'reverse',
-                              }}
-                            >
-                              <path d="M5 12h14" />
-                              <path d="m12 5 7 7-7 7" />
-                            </motion.svg>
-                          </Link>
-                        </Button>
+                          <p className="text-muted-foreground mb-2 line-clamp-3 text-sm">
+                            {topic.description}
+                          </p>
+                        </motion.div>
                       </motion.div>
+                    </CardContent>
+
+                    <CardFooter className="pt-1 relative z-10">
+                      {/* Action Button */}
+                      <Link href={`/conversation/${topic.id}`} className="w-full">
+                        <motion.div
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="w-full"
+                        >
+                          <Button className="w-full group/btn">
+                            <motion.div
+                              className="flex items-center"
+                              whileHover={{ x: 2 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              Bắt đầu giao tiếp
+                              <ArrowRight className="ml-1" />
+                            </motion.div>
+                          </Button>
+                        </motion.div>
+                      </Link>
                     </CardFooter>
                   </Card>
                 </motion.div>
@@ -350,11 +333,10 @@ export default function ConversationTopicsContent({
             <DialogDescription>
               {isEditMode
                 ? 'Update your conversation topic details.'
-                : 'Create a conversation topic to practice with AI.'}
+                : 'Create a new conversation topic to practice speaking about.'}
             </DialogDescription>
           </DialogHeader>
           <TopicForm
-            userId={userId}
             onCancel={handleCloseModal}
             onSuccess={handleCloseModal}
             topic={editingTopic || undefined}
@@ -369,7 +351,6 @@ export default function ConversationTopicsContent({
           isOpen={isDeleteModalOpen}
           topicId={deletingTopic.id}
           topicTitle={deletingTopic.title}
-          userId={userId}
           onClose={handleCloseDeleteModal}
         />
       )}

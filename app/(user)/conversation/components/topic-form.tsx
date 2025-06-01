@@ -30,7 +30,6 @@ type FormValues = z.infer<typeof conversationTopicSchema>;
 
 // Define the props for the form component
 interface TopicFormProps {
-  userId: string;
   onCancel: () => void;
   onSuccess: () => void;
   topic?: ConversationTopic;
@@ -38,7 +37,6 @@ interface TopicFormProps {
 }
 
 export default function TopicForm({
-  userId,
   onCancel,
   onSuccess,
   topic,

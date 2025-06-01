@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Plus, AlertCircle, Mic, Trash2, ArrowRight } from 'lucide-react';
+import { Plus, AlertCircle, Mic, Trash2, ArrowRight, MoreVertical, Edit } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
@@ -153,7 +153,7 @@ export default function PronunciationContent({
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 onClick={() => {
-                  setEditingLesson(null); // Ensure we're in create mode
+                  setEditingLesson(null);
                   setIsModalOpen(true);
                 }}
                 className="flex items-center gap-2"
@@ -197,125 +197,133 @@ export default function PronunciationContent({
                       '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
                   }}
                   transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-                  className="rounded-2xl"
+                  className="h-full rounded-xl"
                 >
-                  <Card className="overflow-hidden">
-                    <CardHeader>
+                  <Card className="h-full hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                    <motion.div
+                      className="absolute inset-0"
+                      layoutId={`background-${lesson.id}`}
+                    />
+                    <CardHeader className="pb-2 relative z-10">
                       <div className="flex items-start justify-between">
-                        <CardTitle className="font-bold">
-                          {lesson.title}
-                        </CardTitle>
-                        <Badge variant="outline" className="text-xs">
-                          {new Date(lesson.createdAt).toLocaleDateString()}
-                        </Badge>
+                        <div className="flex-1">
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                          >
+                            <CardTitle className="text-lg font-semibold mb-1">
+                              {lesson.title}
+                            </CardTitle>
+                            <Badge variant="outline" className="text-xs">
+                              {new Date(lesson.createdAt).toLocaleDateString()}
+                            </Badge>
+                          </motion.div>
+                        </div>
+
+                        {/* Menu for edit and delete */}
+                        <motion.div
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                className="flex cursor-pointer items-center gap-2"
+                                onClick={() => handleEditLesson(lesson)}
+                              >
+                                <Edit size={14} />
+                                Chỉnh sửa
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-destructive flex cursor-pointer items-center gap-2"
+                                onClick={() => handleDeleteClick(lesson)}
+                              >
+                                <Trash2 size={14} />
+                                Xóa
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </motion.div>
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <div className="mb-2 flex items-center">
-                        <motion.div
-                          className="mr-2 h-2 w-2 rounded-full bg-green-500"
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{ repeat: Infinity, duration: 2 }}
-                        ></motion.div>
-                        <p className="text-sm font-medium">
-                          {lesson.words.length}{' '}
-                          từ để
-                          luyện tập
-                        </p>
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {lesson.words.slice(0, 3).map((lessonWord) => (
-                          <Badge
-                            key={lessonWord.id}
-                            variant="secondary"
-                            className="text-xs max-w-[120px] truncate h-6 inline-flex items-center whitespace-nowrap"
-                          >
-                            {lessonWord.word.word}
-                          </Badge>
-                        ))}
-                        {lesson.words.length > 3 && (
-                          <Badge variant="secondary" className="text-xs h-6 inline-flex items-center">
-                            +{lesson.words.length - 3} từ nữa
-                          </Badge>
-                        )}
-                      </div>
-                    </CardContent>
-                    <CardFooter className="bg-muted flex items-center justify-between border-t px-4">
-                      <DropdownMenu>
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="flex items-center gap-1 text-xs"
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="14"
-                                height="14"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className="lucide lucide-edit"
-                              >
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                              </svg>
-                              Thao tác
-                            </Button>
-                          </DropdownMenuTrigger>
-                        </motion.div>
-                        <DropdownMenuContent align="start">
-                          <DropdownMenuItem
-                            className="flex cursor-pointer items-center gap-2"
-                            onClick={() => handleEditLesson(lesson)}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="14"
-                              height="14"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="lucide lucide-edit"
-                            >
-                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                            </svg>
-                            Chỉnh sửa
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive flex cursor-pointer items-center gap-2"
-                            onClick={() => handleDeleteClick(lesson)}
-                          >
-                            <Trash2 size={14} />
-                            Xóa
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+
+                    <CardContent className="py-3 relative z-10">
                       <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        className="space-y-3"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
                       >
-                        <Button
-                          className="flex items-center gap-1"
-                          asChild
+                        {/* Progress Info */}
+                        <div className="flex items-center justify-between text-sm">
+                          <motion.div
+                            className="flex items-center"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.4 }}
+                          >
+                            <motion.div
+                              className="mr-2 h-2 w-2 rounded-full bg-green-500"
+                              animate={{ scale: [1, 1.2, 1] }}
+                              transition={{ repeat: Infinity, duration: 2 }}
+                            />
+                            <span>
+                              {lesson.words.length} từ để luyện tập
+                            </span>
+                          </motion.div>
+                        </div>
+
+                        {/* Word badges */}
+                        <motion.div
+                          className="flex flex-wrap gap-1"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.5 }}
                         >
-                          <Link href={`/pronunciation/${lesson.id}`} className="font-bold">
-                            Luyện Tập Ngay
-                            <ArrowRight />
-                          </Link>
-                        </Button>
+                          {lesson.words.slice(0, 3).map((lessonWord) => (
+                            <Badge
+                              key={lessonWord.id}
+                              variant="secondary"
+                              className="text-xs max-w-[120px] truncate h-6 inline-flex items-center whitespace-nowrap"
+                            >
+                              {lessonWord.word.word}
+                            </Badge>
+                          ))}
+                          {lesson.words.length > 3 && (
+                            <Badge variant="secondary" className="text-xs h-6 inline-flex items-center">
+                              +{lesson.words.length - 3} từ nữa
+                            </Badge>
+                          )}
+                        </motion.div>
                       </motion.div>
+                    </CardContent>
+
+                    <CardFooter className="pt-1 relative z-10">
+                      {/* Action Button */}
+                      <Link href={`/pronunciation/${lesson.id}`} className="w-full">
+                        <motion.div
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="w-full"
+                        >
+                          <Button className="w-full group/btn">
+                            <motion.div
+                              className="flex items-center"
+                              whileHover={{ x: 2 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              Luyện Tập Ngay
+                              <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:animate-pulse" />
+                            </motion.div>
+                          </Button>
+                        </motion.div>
+                      </Link>
                     </CardFooter>
                   </Card>
                 </motion.div>

@@ -322,9 +322,9 @@ export function VocabularyDashboard({ exercises: initialExercises, error }: Voca
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">Tổng bài tập</p>
+                        <p className="text-sm font-medium">Tổng bài tập</p>
                         <motion.p
-                          className="text-2xl font-bold text-gray-900"
+                          className="text-2xl font-bold"
                           initial={{ scale: 0.5, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
                           transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
@@ -348,9 +348,9 @@ export function VocabularyDashboard({ exercises: initialExercises, error }: Voca
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">Đã hoàn thành</p>
+                        <p className="text-sm font-medium">Đã hoàn thành</p>
                         <motion.p
-                          className="text-2xl font-bold text-gray-900"
+                          className="text-2xl font-bold"
                           initial={{ scale: 0.5, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
                           transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
@@ -381,9 +381,9 @@ export function VocabularyDashboard({ exercises: initialExercises, error }: Voca
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">Điểm trung bình</p>
+                        <p className="text-sm font-medium">Điểm trung bình</p>
                         <motion.p
-                          className="text-2xl font-bold text-gray-900"
+                          className="text-2xl font-bold"
                           initial={{ scale: 0.5, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
                           transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
@@ -435,10 +435,10 @@ export function VocabularyDashboard({ exercises: initialExercises, error }: Voca
                         ease: "easeInOut"
                       }}
                     >
-                      <Search className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+                      <Search className="mx-auto h-12 w-12 mb-4" />
                     </motion.div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy kết quả nào</h3>
-                    <p className="text-gray-600">Hãy thử tìm kiếm với từ khóa khác</p>
+                    <h3 className="text-lg font-medium mb-2">Không tìm thấy kết quả nào</h3>
+                    <p>Hãy thử tìm kiếm với từ khóa khác</p>
                   </motion.div>
                 ) : (
                   displayExercises.map((exercise, index) => {
@@ -460,9 +460,9 @@ export function VocabularyDashboard({ exercises: initialExercises, error }: Voca
                           delay: index * 0.1
                         }}
                       >
-                        <Card className="h-full hover:shadow-xl transition-all duration-300 border-0 shadow-md overflow-hidden group">
+                        <Card className="h-full hover:shadow-xl transition-all duration-300 overflow-hidden group">
                           <motion.div
-                            className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                            className="absolute inset-0  group-hover:opacity-100 transition-opacity duration-300"
                             layoutId={`background-${exercise.id}`}
                           />
                           <CardHeader className="pb-2 relative z-10">
@@ -477,7 +477,7 @@ export function VocabularyDashboard({ exercises: initialExercises, error }: Voca
                                     {exercise.title}
                                   </CardTitle>
                                   {exercise.description && (
-                                    <CardDescription className="text-sm text-gray-600">
+                                    <CardDescription className="text-sm">
                                       {exercise.description}
                                     </CardDescription>
                                   )}
@@ -529,7 +529,7 @@ export function VocabularyDashboard({ exercises: initialExercises, error }: Voca
                               transition={{ delay: 0.3 }}
                             >
                               {/* Progress Info */}
-                              <div className="flex items-center justify-between text-sm text-gray-600">
+                              <div className="flex items-center justify-between text-sm">
                                 <motion.span
                                   initial={{ opacity: 0 }}
                                   animate={{ opacity: 1 }}
@@ -559,7 +559,7 @@ export function VocabularyDashboard({ exercises: initialExercises, error }: Voca
                                   transition={{ delay: 0.6, type: "spring" }}
                                 >
                                   <Progress value={lastResult.score} className="h-2" />
-                                  <div className="flex justify-between text-xs text-gray-500">
+                                  <div className="flex justify-between text-xs">
                                     <span>Điểm: {lastResult.score}%</span>
                                     <span>{lastResult.attempts} lần thử</span>
                                   </div>
@@ -624,9 +624,9 @@ export function VocabularyDashboard({ exercises: initialExercises, error }: Voca
                                   ease: "easeInOut"
                                 }}
                               >
-                                <Plus className="w-8 h-8 text-gray-400 group-hover:text-primary transition-colors" />
+                                <Plus className="w-8 h-8 group-hover:text-primary transition-colors" />
                               </motion.div>
-                              <span className="text-sm text-gray-600 group-hover:text-primary transition-colors">
+                              <span className="text-sm group-hover:text-primary transition-colors">
                                 Tạo bài tập từ vựng mới
                               </span>
                             </motion.div>

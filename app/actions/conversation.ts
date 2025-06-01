@@ -198,14 +198,17 @@ export async function updateConversationTopic(
 /**
  * Server action to delete a conversation topic
  * @param topicId - The ID of the topic to delete
- * @param userId - The ID of the user requesting deletion
  * @returns ApiResponse indicating success or failure
  */
 export async function deleteConversationTopic(
   topicId: string,
-  userId: string,
 ): Promise<ApiResponse> {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return createErrorResponse('AUTH_ERROR', 'Unauthorized');
+    }
+
     // First fetch the topic to verify ownership
     const topic = await prisma.conversationTopic.findUnique({
       where: {
@@ -219,7 +222,7 @@ export async function deleteConversationTopic(
     }
 
     // Check if the user is authorized to delete this topic
-    if (topic.userId !== userId) {
+    if (topic.userId !== session.user.id) {
       return createErrorResponse(
         'AUTH_ERROR',
         'You are not authorized to delete this topic',
