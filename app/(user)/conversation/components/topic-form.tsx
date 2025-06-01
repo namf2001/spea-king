@@ -21,7 +21,7 @@ import {
   createConversationTopic,
   updateConversationTopic,
 } from '@/app/actions/conversation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { ConversationTopic } from '@prisma/client';
@@ -42,7 +42,7 @@ export default function TopicForm({
   topic,
   mode = 'create',
 }: TopicFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const isEditMode = mode === 'edit';
 
@@ -66,72 +66,69 @@ export default function TopicForm({
   }, [topic, form]);
 
   // Form submission handler
-  const onSubmit = async (data: FormValues) => {
-    try {
-      setIsSubmitting(true);
-      let response;
+  const onSubmit = (data: FormValues) => {
+    startTransition(async () => {
+      try {
+        let response;
 
-      if (isEditMode && topic) {
-        response = await updateConversationTopic(topic.id, data);
-      } else {
-        response = await createConversationTopic(data);
+        if (isEditMode && topic) {
+          response = await updateConversationTopic(topic.id, data);
+        } else {
+          response = await createConversationTopic(data);
+        }
+
+        if (!response.success) {
+          // Handle specific error cases
+          if (
+            response.error?.message &&
+            response.error.message.includes('already exists')
+          ) {
+            throw new Error(
+              'Topic already exists. Please use a different title for this topic',
+            );
+          }
+          throw new Error(response.error?.message || 'Failed to save topic');
+        }
+
+        // Handle success
+        toast.success(
+          isEditMode ? 'Topic updated successfully' : 'Topic created successfully',
+          {
+            description: isEditMode
+              ? 'Your changes have been saved'
+              : 'Redirecting to topics page...',
+          },
+        );
+
+        // Reset the form
+        form.reset();
+
+        // Call onSuccess callback if provided
+        if (onSuccess) {
+          onSuccess();
+        }
+
+        // In create mode, redirect to the topics page after a short delay
+        if (!isEditMode) {
+          router.push('/conversation/topics');
+        }
+      } catch (error) {
+        const errorMessage = 'Failed to save topic';
+        const errorDescription =
+          error instanceof Error ? error.message : 'An unknown error occurred';
+
+        // Display different error message for "already exists" error
+        if (errorDescription.includes('already exists')) {
+          toast.error('Topic already exists', {
+            description: 'Please use a different title for this topic',
+          });
+          return;
+        }
+
+        toast.error(errorMessage, {
+          description: errorDescription,
+        });
       }
-
-      if (response.success) {
-        handleSuccess(isEditMode);
-      } else {
-        handleError(response.error?.message);
-      }
-    } catch (error) {
-      toast.error('Error submitting form', {
-        description:
-          error instanceof Error ? error.message : 'An unknown error occurred',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Handle successful form submission
-  const handleSuccess = (isEdit: boolean) => {
-    toast.success(
-      isEdit ? 'Topic updated successfully' : 'Topic created successfully',
-      {
-        description: isEdit
-          ? 'Your changes have been saved'
-          : 'Redirecting to topics page...',
-      },
-    );
-
-    // Reset the form
-    form.reset();
-
-    // Call onSuccess callback if provided
-    if (onSuccess) {
-      onSuccess();
-    }
-
-    // In create mode, redirect to the topics page after a short delay
-    if (!isEdit) {
-      router.push('/conversation/topics');
-    }
-  };
-
-  // Handle form submission errors
-  const handleError = (error?: string) => {
-    const errorMessage = 'Failed to save topic';
-    const errorDescription = error || 'An unknown error occurred';
-
-    // Display different error message for "already exists" error
-    if (error && error.includes('already exists')) {
-      toast.error('Topic already exists', {
-        description: 'Please use a different title for this topic',
-      });
-      return;
-    }
-
-    toast.error(errorMessage, {
-      description: errorDescription,
     });
   };
 
@@ -148,7 +145,7 @@ export default function TopicForm({
                 <Input
                   placeholder="Enter topic title"
                   {...field}
-                  disabled={isSubmitting}
+                  disabled={isPending}
                 />
               </FormControl>
               <FormMessage />
@@ -166,7 +163,7 @@ export default function TopicForm({
                 <Textarea
                   placeholder="Enter a description for this topic"
                   {...field}
-                  disabled={isSubmitting}
+                  disabled={isPending}
                   className="min-h-[100px]"
                 />
               </FormControl>
@@ -180,12 +177,12 @@ export default function TopicForm({
             type="button"
             variant="ghost"
             onClick={onCancel}
-            disabled={isSubmitting}
+            disabled={isPending}
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
+          <Button type="submit" disabled={isPending}>
+            {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {isEditMode ? 'Updating...' : 'Creating...'}

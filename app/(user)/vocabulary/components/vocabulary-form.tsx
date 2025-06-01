@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { startTransition, useTransition } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { nanoid } from 'nanoid';
@@ -56,7 +56,7 @@ export function VocabularyForm({
   onCancel,
 }: VocabularyFormProps) {
   const isEditMode = mode === 'edit' && exercise;
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   // Initialize the form
@@ -91,104 +91,65 @@ export function VocabularyForm({
   };
 
   // Handle form submission
-  const onSubmit = async (data: VocabularyExerciseFormValues) => {
-    try {
-      setIsSubmitting(true);
+  const onSubmit = (data: VocabularyExerciseFormValues) => {
+    startTransition(async () => {
+      try {
+        // Process the data for submission
+        const pairs = data.pairs.map((pair) => ({
+          id: pair.id,
+          englishWord: pair.englishWord.trim(),
+          vietnameseWord: pair.vietnameseWord.trim(),
+        }));
 
-      // Process the data for submission
-      const pairs = data.pairs.map((pair) => ({
-        id: pair.id,
-        englishWord: pair.englishWord.trim(),
-        vietnameseWord: pair.vietnameseWord.trim(),
-      }));
+        let response;
+        if (isEditMode && exercise) {
+          response = await updateVocabularyExercise(
+            exercise.id,
+            data.title.trim(),
+            data.description?.trim() || null,
+            pairs,
+          );
+        } else {
+          response = await createVocabularyExercise(
+            data.title.trim(),
+            data.description?.trim() || null,
+            pairs,
+          );
+        }
 
-      const response = await handleExerciseSubmission(
-        data,
-        pairs,
-        !!isEditMode,
-        exercise,
-      );
+        if (!response.success) {
+          throw new Error(response.error?.message || 'Đã xảy ra lỗi không xác định');
+        }
 
-      if (response.success) {
-        handleSuccessfulSubmission(!!isEditMode, onSuccess);
-      } else {
-        handleSubmissionError(response, !!isEditMode);
+        // Handle success
+        const message = isEditMode
+          ? 'Đã cập nhật bài tập từ vựng'
+          : 'Đã tạo bài tập từ vựng mới';
+        const description = isEditMode
+          ? 'Bài tập từ vựng của bạn đã được cập nhật thành công'
+          : 'Bài tập từ vựng của bạn đã được tạo thành công';
+
+        toast.success(message, { description });
+
+        if (!isEditMode) {
+          form.reset();
+        }
+
+        if (onSuccess) {
+          onSuccess();
+        }
+
+        router.refresh();
+      } catch (error) {
+        const errorTitle = isEditMode
+          ? 'Lỗi khi cập nhật bài tập từ vựng'
+          : 'Lỗi khi tạo bài tập từ vựng';
+
+        toast.error(errorTitle, {
+          description:
+            error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định',
+        });
       }
-    } catch (error) {
-      handleUnexpectedError(error, !!isEditMode);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Helper function to handle exercise submission
-  const handleExerciseSubmission = async (
-    data: VocabularyExerciseFormValues,
-    pairs: VocabularyPair[],
-    isEdit: boolean,
-    currentExercise?: VocabularyExercise,
-  ) => {
-    if (isEdit && currentExercise) {
-      return await updateVocabularyExercise(
-        currentExercise.id,
-        data.title.trim(),
-        data.description?.trim() || null,
-        pairs,
-      );
-    } else {
-      return await createVocabularyExercise(
-        data.title.trim(),
-        data.description?.trim() || null,
-        pairs,
-      );
-    }
-  };
-
-  // Helper function to handle successful submission
-  const handleSuccessfulSubmission = (
-    isEdit: boolean,
-    onSuccessCallback?: () => void,
-  ) => {
-    const message = isEdit
-      ? 'Đã cập nhật bài tập từ vựng'
-      : 'Đã tạo bài tập từ vựng mới';
-    const description = isEdit
-      ? 'Bài tập từ vựng của bạn đã được cập nhật thành công'
-      : 'Bài tập từ vựng của bạn đã được tạo thành công';
-
-    toast.success(message, { description });
-
-    if (!isEdit) {
-      form.reset();
-    }
-
-    if (onSuccessCallback) {
-      onSuccessCallback();
-    }
-
-    router.refresh();
-  };
-
-  // Helper function to handle submission errors
-  const handleSubmissionError = (response: any, isEdit: boolean) => {
-    const errorTitle = isEdit
-      ? 'Không thể cập nhật bài tập từ vựng'
-      : 'Không thể tạo bài tập từ vựng';
-
-    toast.error(errorTitle, {
-      description: response.error?.message || 'Đã xảy ra lỗi không xác định',
-    });
-  };
-
-  // Helper function to handle unexpected errors
-  const handleUnexpectedError = (error: unknown, isEdit: boolean) => {
-    const errorTitle = isEdit
-      ? 'Lỗi khi cập nhật bài tập từ vựng'
-      : 'Lỗi khi tạo bài tập từ vựng';
-
-    toast.error(errorTitle, {
-      description:
-        error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định',
     });
   };
 
@@ -205,7 +166,7 @@ export function VocabularyForm({
                 <Input
                   placeholder="Ví dụ: Từ vựng về thời tiết"
                   {...field}
-                  disabled={isSubmitting}
+                  disabled={isPending}
                 />
               </FormControl>
               <FormMessage />
@@ -225,7 +186,7 @@ export function VocabularyForm({
                   className="min-h-[80px] resize-none"
                   {...field}
                   value={field.value || ''}
-                  disabled={isSubmitting}
+                  disabled={isPending}
                 />
               </FormControl>
               <FormMessage />
@@ -241,7 +202,7 @@ export function VocabularyForm({
               size="sm"
               variant="outline"
               onClick={addWordPair}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               <Plus className="mr-1 h-4 w-4" /> Thêm cặp từ
             </Button>
@@ -269,7 +230,7 @@ export function VocabularyForm({
                           <Input
                             placeholder="Từ tiếng Anh"
                             {...field}
-                            disabled={isSubmitting}
+                            disabled={isPending}
                           />
                         </FormControl>
                         <FormMessage />
@@ -286,7 +247,7 @@ export function VocabularyForm({
                           <Input
                             placeholder="Từ tiếng Việt"
                             {...field}
-                            disabled={isSubmitting}
+                            disabled={isPending}
                           />
                         </FormControl>
                         <FormMessage />
@@ -299,7 +260,7 @@ export function VocabularyForm({
                     variant="ghost"
                     size="icon"
                     onClick={() => remove(index)}
-                    disabled={fields.length <= 1 || isSubmitting}
+                    disabled={fields.length <= 1 || isPending}
                     className="mt-0.5"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -316,14 +277,14 @@ export function VocabularyForm({
               type="button"
               variant="outline"
               onClick={onCancel}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               <X className="mr-2 h-4 w-4" /> Hủy
             </Button>
           )}
 
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
+          <Button type="submit" disabled={isPending}>
+            {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {isEditMode ? 'Đang cập nhật...' : 'Đang lưu...'}
