@@ -360,7 +360,6 @@ export default function ReflexQuestionsContent({
             onSuccess={handleCloseModal}
             question={editingQuestion || undefined}
             mode={isEditMode ? 'edit' : 'create'}
-            userId={userId}
           />
         </DialogContent>
       </Dialog>

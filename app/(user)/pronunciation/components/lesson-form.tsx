@@ -21,9 +21,8 @@ import {
   createPronunciationLesson,
   updatePronunciationLesson,
 } from '@/app/actions/pronunciation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 import {
   PronunciationLesson,
   PronunciationWord,
@@ -53,8 +52,7 @@ export default function LessonForm({
   lesson,
   mode = 'create',
 }: LessonFormProps) {
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const isEditMode = mode === 'edit' && lesson;
 
   // Initialize form with default values or existing lesson data if in edit mode
@@ -105,18 +103,24 @@ export default function LessonForm({
   };
 
   // Handle form submission - either create or update based on mode
-  const onSubmit = async (data: FormValues) => {
-    try {
-      setIsSubmitting(true);
-      let response;
+  const onSubmit = (data: FormValues) => {
+    startTransition(async () => {
+      try {
+        let response;
 
-      if (isEditMode) {
-        response = await updatePronunciationLesson(lesson.id, data);
-      } else {
-        response = await createPronunciationLesson(data);
-      }
+        if (isEditMode) {
+          response = await updatePronunciationLesson(lesson.id, data);
+        } else {
+          response = await createPronunciationLesson(data);
+        }
 
-      if (response.success) {
+        if (!response.success) {
+          throw new Error(
+            response.error?.message || 
+            (isEditMode ? 'Không thể cập nhật bài học' : 'Không thể tạo bài học')
+          );
+        }
+
         toast.success(
           response.error?.message ??
             (isEditMode ? 'Đã cập nhật bài học' : 'Đã tạo bài học'),
@@ -134,31 +138,17 @@ export default function LessonForm({
         if (onSuccess) {
           onSuccess();
         }
+      } catch (error) {
+        const errorTitle = isEditMode
+          ? 'Lỗi khi cập nhật bài học phát âm'
+          : 'Lỗi khi tạo bài học phát âm';
 
-        // Refresh the page data to show the updated lesson
-        router.refresh();
-      } else {
-        toast.error(
-          isEditMode ? 'Không thể cập nhật bài học' : 'Không thể tạo bài học',
-          {
-            description:
-              response.error?.message || 'Đã xảy ra lỗi không xác định',
-          },
-        );
-      }
-    } catch (error) {
-      toast.error(
-        isEditMode ? 'Lỗi khi cập nhật bài học' : 'Lỗi khi tạo bài học',
-        {
+        toast.error(errorTitle, {
           description:
-            error instanceof Error
-              ? error.message
-              : 'Đã xảy ra lỗi không xác định',
-        },
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
+            error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định',
+        });
+      }
+    });
   };
 
   return (
@@ -174,7 +164,7 @@ export default function LessonForm({
                 <Input
                   placeholder="Ví dụ: 'Các âm nguyên khó phát âm'"
                   {...field}
-                  disabled={isSubmitting}
+                  disabled={isPending}
                 />
               </FormControl>
               <FormMessage />
@@ -190,7 +180,7 @@ export default function LessonForm({
               size="sm"
               variant="outline"
               onClick={addWord}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               <Plus className="mr-1 h-4 w-4" /> Thêm từ
             </Button>
@@ -215,7 +205,7 @@ export default function LessonForm({
                         onChange={field.onChange}
                         onBlur={field.onBlur}
                         placeholder="Nhập một từ"
-                        disabled={isSubmitting}
+                        disabled={isPending}
                       />
                     </FormControl>
                     <FormMessage />
@@ -228,7 +218,7 @@ export default function LessonForm({
                 size="icon"
                 onClick={() => removeWord(wordItem.id)}
                 disabled={
-                  (form.watch('words')?.length || 0) <= 1 || isSubmitting
+                  (form.watch('words')?.length || 0) <= 1 || isPending
                 }
                 className="mt-0.5"
               >
@@ -243,12 +233,12 @@ export default function LessonForm({
             variant="outline"
             type="button"
             onClick={onCancel}
-            disabled={isSubmitting}
+            disabled={isPending}
           >
             Hủy
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
+          <Button type="submit" disabled={isPending}>
+            {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {isEditMode ? 'Đang cập nhật...' : 'Đang lưu...'}

@@ -33,7 +33,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 interface QuestionFormProps {
-  userId: string;
   onSuccess: () => void;
   onCancel: () => void;
   question?: ReflexQuestion;
@@ -41,7 +40,6 @@ interface QuestionFormProps {
 }
 
 export default function QuestionForm({
-  userId,
   onSuccess,
   onCancel,
   question,
