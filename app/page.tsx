@@ -17,7 +17,7 @@ export const metadata = generateOGMetadata({
 
 export default function Home() {
   return (
-    <main className="relative flex min-h-screen flex-col overflow-hidden">
+    <main className="relative flex min-h-screen flex-col overflow-hidden bg-[#235390] ">
       {/* Enhanced stars background effect with varying opacity and animation speed */}
       <div className="absolute inset-0 overflow-hidden">
         {Array.from({ length: 1000 }).map((_, i) => {
@@ -28,7 +28,7 @@ export default function Home() {
           return (
             <div
               key={i}
-              className="absolute rounded-full bg-black dark:bg-white"
+              className="absolute rounded-full bg-white"
               style={{
                 width: `${size}px`,
                 height: `${size}px`,
@@ -72,12 +72,13 @@ export default function Home() {
             loop={true}
             autoplay={true}
           />
+          <div className="absolute inset-0 bg-blue-500 opacity-30 blur-lg rounded-full top-5 -left-5" />
         </div>
 
         {/* Text and CTA with enhanced typography and button styling */}
         <div className="mb-10 w-full max-w-xl text-center md:mt-0 md:text-right">
-          <h1 className="text-3xl leading-tight font-extrabold tracking-tight md:text-5xl lg:text-6xl">
-            The free, fun, and effective way to learn a language!
+          <h1 className="text-white text-3xl leading-tight font-extrabold tracking-tight md:text-5xl lg:text-6xl">
+            Cách học ngôn ngữ miễn phí, thú vị và hiệu quả!
           </h1>
 
           <div className="mt-10 flex w-full flex-col items-center space-y-4 md:items-end">
@@ -85,7 +86,7 @@ export default function Home() {
               href="/login"
               className="block w-full max-w-md transition-transform hover:scale-105"
             >
-              <Button className="w-full">GET STARTED</Button>
+              <Button className="w-full">BẮT ĐẦU NGAY</Button>
             </Link>
           </div>
         </div>

@@ -27,16 +27,6 @@ export const Header = () => {
             <span>Quay lại</span>
           </Button>
         </Link>
-        <div className="flex items-center gap-2">
-          <Image
-            src={logo}
-            alt="SPEA-KING Logo"
-            width={32}
-            height={32}
-            className="object-contain rounded-lg"
-          />
-          <span className="text-primary font-semibold">SPEA-KING</span>
-        </div>
       </div>
     </motion.header>
   );
