@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MatchingPairs } from '@/components/matching-pairs';
+import { MatchingPairs } from '@/app/(user)/vocabulary/components/matching-pairs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

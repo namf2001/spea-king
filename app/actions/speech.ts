@@ -210,15 +210,35 @@ export async function generateAIResponse(
   const topicTitle = topicName || 'General Topics';
 
   const prompt = isInitializing
-    ? `Act like an IELTS Speaking examiner. Start the interview with a natural IELTS-style question related to the topic: "${topicTitle}". Keep the question clear, relevant, and similar in style to Part 1 or Part 3 of the IELTS Speaking test.`
+    ? `Let's have a friendly conversation about "${topicTitle}". Start with a casual, natural question that would come up in real conversation between friends or colleagues.`
     : userInput;
 
   const systemContent = isInitializing
-    ? `You are acting as an IELTS Speaking examiner. Your job is to begin an IELTS Speaking conversation with the candidate. 
-Ask 1 clear, natural, and relevant IELTS-style question related to the topic "${topicTitle}". 
-Do not add greetings or explanations — just ask the question like in a real IELTS interview.`
-    : `You are continuing an IELTS-style conversation with a candidate about "${topicTitle}". 
-Give natural, relevant follow-ups. Avoid long responses. Ask short, clear IELTS-style questions when appropriate.`;
+    ? `You are a friendly, patient conversation partner helping someone practice English. Your goal is to have a simple, enjoyable conversation about "${topicTitle}".
+
+Start with a very easy, warm question that anyone can answer. Use simple, everyday language. Think of questions that would make someone feel comfortable and confident.
+
+Examples of good, easy conversation starters:
+- "Do you like ${topicTitle}? Tell me why!"
+- "What's your favorite thing about ${topicTitle}?"
+- "Have you tried ${topicTitle} before? What was it like?"
+- "When you think of ${topicTitle}, what comes to mind first?"
+
+Keep it simple, friendly, and encouraging. Avoid complex or abstract questions.`
+    : `You are having a friendly, easy conversation with someone learning English about "${topicTitle}". 
+
+Keep your responses simple and encouraging. Ask easy follow-up questions that help them practice without feeling overwhelmed.
+
+Guidelines for easy conversation:
+- Use simple, common words that most learners know
+- Ask one clear question at a time  
+- Show enthusiasm and encouragement ("Great!", "That's interesting!", "I love that!")
+- Ask about personal experiences or opinions (easier than abstract topics)
+- Keep responses short and easy to understand (1-2 sentences)
+- Use present tense mostly, avoid complex grammar
+- Give positive reactions to keep them motivated
+
+Make them feel successful and want to keep talking!`;
 
   const messages = [
     {
@@ -242,8 +262,8 @@ Give natural, relevant follow-ups. Avoid long responses. Ask short, clear IELTS-
       body: JSON.stringify({
         model: 'meta-llama/llama-4-scout-17b-16e-instruct',
         messages: messages,
-        max_tokens: 150,
-        temperature: 0.7,
+        max_tokens: 200,
+        temperature: 0.8,
       }),
     });
 
@@ -266,8 +286,8 @@ Give natural, relevant follow-ups. Avoid long responses. Ask short, clear IELTS-
     );
 
     const fallbackResponse = isInitializing
-      ? "Let's start with a simple question: What do you usually do in your free time?"
-      : "I'm sorry, I'm having trouble connecting. Could you please repeat that?";
+      ? "Hey! I'd love to chat about this topic with you. What's your first thought when you hear about it?"
+      : "That's really interesting! Tell me more about that - I'm curious to hear your perspective.";
 
     const operationType = isInitializing ? 'initialize' : 'generate';
 
@@ -304,10 +324,23 @@ export async function suggestUserResponse(
   const topicTitle = topicName || 'English Conversation';
   const prompt = AIquestion;
 
-  const systemPrompt = `You are helping a learner improve their English speaking. 
-Respond with a short and natural sentence that this learner could say in a conversation. 
-Make sure the language, grammar, and vocabulary match an IELTS level of ${level}. 
-Keep it under 3 sentences, and do not respond with another question.`;
+  const systemPrompt = `You are helping a beginner English learner practice conversation. 
+Suggest a simple, natural response that they could say. Use very basic English that matches their level.
+
+For IELTS level ${level}:
+- Level 4.0-5.0: Use simple words, short sentences, present tense mostly
+- Level 6.0-6.5: Use common vocabulary, some past/future tense
+- Level 7.0+: Use more varied vocabulary and grammar
+
+Keep responses very friendly and conversational, like talking to a friend. 
+Maximum 2 short sentences. Use everyday language that feels natural to say.
+
+Examples of simple responses:
+- "That sounds interesting!"
+- "I like that too."
+- "Yes, I think so."
+- "Tell me more about it."
+- "That's a good idea."`;
 
   const topicContext = `The conversation topic is: "${topicTitle}".`;
 
@@ -335,8 +368,8 @@ Keep it under 3 sentences, and do not respond with another question.`;
       body: JSON.stringify({
         model: 'meta-llama/llama-4-scout-17b-16e-instruct',
         messages: messages,
-        max_tokens: 150,
-        temperature: 0.7,
+        max_tokens: 100,
+        temperature: 0.6,
       }),
     });
 
@@ -361,8 +394,7 @@ Keep it under 3 sentences, and do not respond with another question.`;
         ? error.message
         : 'Failed to generate user response suggestion',
       {
-        response:
-          "I'm sorry, I'm having trouble connecting. Could you please repeat that?",
+        response: "That's interesting! I'd like to know more.",
       },
     );
   }
