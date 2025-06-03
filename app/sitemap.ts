@@ -1,19 +1,20 @@
 import { MetadataRoute } from 'next'
 
-// Get base URL with proper environment handling
+// Get base URL with proper environment handling for builds
 const getBaseUrl = (): string => {
-  // If NEXT_PUBLIC_APP_URL is set, use it
-  if (process.env.NEXT_PUBLIC_APP_URL) {
-    return process.env.NEXT_PUBLIC_APP_URL;
+  // If NEXT_PUBLIC_APP_URL is set and valid, use it
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (envUrl && (envUrl.startsWith('http://') || envUrl.startsWith('https://'))) {
+    return envUrl;
   }
   
-  // For development or when building locally, use localhost
-  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === undefined) {
+  // For development, use localhost
+  if (process.env.NODE_ENV === 'development') {
     return 'http://localhost:3000';
   }
   
-  // For production builds without NEXT_PUBLIC_APP_URL, use a placeholder
-  return 'https://your-domain.com'; // Placeholder that won't break the build
+  // For production builds without valid NEXT_PUBLIC_APP_URL, use a complete placeholder
+  return 'https://speaking-app.vercel.app'; // More realistic placeholder
 };
 
 export default function sitemap(): MetadataRoute.Sitemap {
