@@ -18,11 +18,11 @@ const getBaseUrl = (): string => {
   if (process.env.NEXT_PUBLIC_APP_URL) {
     return process.env.NEXT_PUBLIC_APP_URL;
   }
-  
+
   if (process.env.NODE_ENV === 'development') {
     return 'http://localhost:3000';
   }
-  
+
   throw new Error('NEXT_PUBLIC_APP_URL must be set for production');
 };
 
@@ -87,7 +87,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="vi" suppressHydrationWarning>
       <body>
         <ThemeProvider
           attribute="class"
