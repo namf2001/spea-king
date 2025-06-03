@@ -71,16 +71,7 @@ export default function ProgressClient({ stats, error }: ProgressClientProps) {
     <div className="container mx-auto px-4 py-12">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8">
-          <Link
-            href="/"
-            className="mb-4 inline-block text-blue-500 hover:underline"
-          >
-            ← Back to Home
-          </Link>
-          <h1 className="mb-2 text-3xl font-bold">Your Progress</h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Track your English speaking improvement over time
-          </p>
+          <h1 className="mb-2 text-3xl font-bold">Tiến Độ Học Tập</h1>
         </div>
 
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -165,7 +156,7 @@ export default function ProgressClient({ stats, error }: ProgressClientProps) {
                       <Line
                         type="monotone"
                         dataKey="count"
-                        stroke="#3b82f6"
+                        stroke="#EF9492"
                         strokeWidth={2}
                         activeDot={{ r: 8 }}
                       />
@@ -195,7 +186,7 @@ export default function ProgressClient({ stats, error }: ProgressClientProps) {
                       <XAxis dataKey="name" />
                       <YAxis domain={[0, 'dataMax + 1']} />
                       <Tooltip />
-                      <Bar dataKey="value" fill="#3b82f6" />
+                      <Bar dataKey="value" fill="#EF9492" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -212,7 +203,7 @@ export default function ProgressClient({ stats, error }: ProgressClientProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="h-[400px] overflow-y-auto space-y-4 pr-2">
                   {stats.recentRecords.length > 0 ? (
                     stats.recentRecords.map((record) => (
                       <div

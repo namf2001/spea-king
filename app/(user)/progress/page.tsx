@@ -9,7 +9,6 @@ export const metadata = generateOGMetadata({
   url: '/progress',
 });
 
-// Force dynamic rendering since we use authentication
 export const dynamic = 'force-dynamic';
 
 export default async function ProgressPage() {
