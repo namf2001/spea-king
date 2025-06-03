@@ -7,13 +7,27 @@ interface OpenGraphImageOptions {
   url?: string;
 }
 
+// Get base URL with proper error handling
+const getBaseUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL;
+  }
+  
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3000';
+  }
+  
+  throw new Error('NEXT_PUBLIC_APP_URL must be set for production');
+};
+
 export function generateMetadata({
   title = 'SpeaKing - Language Learning App',
   description = 'Practice your language speaking skills with AI feedback',
   image = '/images/logo-social.png',
   url = '/',
 }: OpenGraphImageOptions = {}): Metadata {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+  const baseUrl = getBaseUrl();
+  const fullUrl = url === '/' ? baseUrl : `${baseUrl}${url}`;
 
   return {
     title,
@@ -21,7 +35,7 @@ export function generateMetadata({
     openGraph: {
       type: 'website',
       locale: 'vi_VN',
-      url,
+      url: fullUrl,
       title,
       description,
       siteName: 'SpeaKing',
@@ -44,7 +58,7 @@ export function generateMetadata({
     },
     metadataBase: new URL(baseUrl),
     alternates: {
-      canonical: url,
+      canonical: fullUrl,
     },
   };
 }

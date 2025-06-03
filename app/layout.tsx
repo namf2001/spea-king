@@ -5,6 +5,29 @@ import { Toaster } from '@/components/ui/sonner';
 
 import './globals.css';
 
+// Build-time check for required environment variable
+if (!process.env.NEXT_PUBLIC_APP_URL && process.env.NODE_ENV === 'production') {
+  throw new Error(
+    'NEXT_PUBLIC_APP_URL environment variable is required for production builds. ' +
+    'Please set it to your app\'s domain (e.g., https://yourdomain.com)'
+  );
+}
+
+// Get base URL with fallback only for development
+const getBaseUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL;
+  }
+  
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3000';
+  }
+  
+  throw new Error('NEXT_PUBLIC_APP_URL must be set for production');
+};
+
+const baseUrl = getBaseUrl();
+
 export const metadata: Metadata = {
   title: 'SpeaKing - Language Learning App',
   description: 'Practice your language speaking skills with AI feedback',
@@ -17,14 +40,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
+  metadataBase: new URL(baseUrl),
   alternates: {
-    canonical: '/',
+    canonical: baseUrl,
   },
   openGraph: {
     type: 'website',
     locale: 'vi_VN',
-    url: '/',
+    url: baseUrl,
     title: 'SpeaKing - Language Learning App',
     description: 'Practice your language speaking skills with AI feedback',
     siteName: 'SpeaKing',
@@ -55,9 +78,6 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
-  },
-  verification: {
-    google: 'your-google-verification-code', // Replace with actual verification code
   },
 };
 
