@@ -1,11 +1,9 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-import { logo } from '@/assets/image';
 import { Button } from '@/components/ui/button';
 
 export const Header = () => {

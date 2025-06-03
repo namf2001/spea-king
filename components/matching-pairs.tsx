@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { CheckCircle2, X, Heart } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -23,6 +22,15 @@ interface MatchingPairsProps {
   readonly className?: string;
 }
 
+// Enhanced pair management interface
+interface ManagedPair {
+  id: string; // Unique pair identifier
+  english: PairItem;
+  vietnamese: PairItem;
+  isMatched: boolean;
+  isVisible: boolean;
+}
+
 const BATCH_SIZE = 5; // Số từ hiển thị mỗi lần
 const MAX_LIVES = 5; // Số mạng tối đa
 
@@ -31,102 +39,237 @@ export function MatchingPairs({
   onComplete,
   className,
 }: MatchingPairsProps) {
-  const [allEnglishWords, setAllEnglishWords] = useState<PairItem[]>([]);
-  const [allVietnameseWords, setAllVietnameseWords] = useState<PairItem[]>([]);
-  const [visibleEnglishWords, setVisibleEnglishWords] = useState<PairItem[]>(
-    [],
-  );
-  const [visibleVietnameseWords, setVisibleVietnameseWords] = useState<
-    PairItem[]
-  >([]);
+  // Enhanced state management with proper pair tracking
+  const [managedPairs, setManagedPairs] = useState<ManagedPair[]>([]);
   const [selectedItem, setSelectedItem] = useState<PairItem | null>(null);
-  const [matchedPairs, setMatchedPairs] = useState<Set<string>>(new Set());
   const [incorrectPairs, setIncorrectPairs] = useState<Set<string>>(new Set());
   const [attempts, setAttempts] = useState(0);
   const [startTime] = useState(Date.now());
-  const [completedPairs, setCompletedPairs] = useState(0);
   const [lives, setLives] = useState(MAX_LIVES);
-  const [gameOver, setGameOver] = useState(false);
 
-  // Initialize và shuffle words
-  useEffect(() => {
-    const englishWords = pairs
-      .map((p) => p.english)
-      .sort(() => Math.random() - 0.5);
-    const vietnameseWords = pairs
-      .map((p) => p.vietnamese)
-      .sort(() => Math.random() - 0.5);
+  // Enhanced state for tracking shuffled order
+  const [shuffledEnglishOrder, setShuffledEnglishOrder] = useState<string[]>([]);
+  const [shuffledVietnameseOrder, setShuffledVietnameseOrder] = useState<string[]>([]);
 
-    setAllEnglishWords(englishWords);
-    setAllVietnameseWords(vietnameseWords);
+  // Utility function for proper array shuffling (Fisher-Yates algorithm)
+  const shuffleArray = (array: any[]) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
 
-    // Hiển thị batch đầu tiên
-    setVisibleEnglishWords(englishWords.slice(0, BATCH_SIZE));
-    setVisibleVietnameseWords(vietnameseWords.slice(0, BATCH_SIZE));
+  // Create a reliable matching lookup map
+  const matchingMap = useMemo(() => {
+    const map = new Map<string, string>();
+    pairs.forEach(({ english, vietnamese }) => {
+      // Ensure bidirectional mapping for reliable lookups
+      map.set(english.id, vietnamese.id);
+      map.set(vietnamese.id, english.id);
+    });
+    return map;
   }, [pairs]);
 
-  // Function để thêm từ mới vào visible list
-  const addNewWordsToVisible = (
-    matchedEnglishId: string,
-    matchedVietnameseId: string,
-  ) => {
-    const totalPairs = pairs.length;
-    const remainingPairs = totalPairs - completedPairs - 1; // -1 vì sắp complete 1 pair
+  // Initialize managed pairs with proper shuffling and validation
+  useEffect(() => {
+    // Validate input pairs first
+    const validatedPairs = pairs.filter(({ english, vietnamese }) => {
+      const isValid = english?.id && vietnamese?.id && english.text && vietnamese.text;
+      if (!isValid) {
+        console.warn('Invalid pair detected:', { english, vietnamese });
+      }
+      return isValid;
+    });
 
-    // Nếu còn ít hơn BATCH_SIZE pairs thì không thêm từ mới, chỉ ẩn từ đã match
-    if (remainingPairs < BATCH_SIZE) {
+    if (validatedPairs.length === 0) {
+      console.error('No valid pairs found');
       return;
     }
 
-    // Tìm từ tiếng Anh mới để thêm vào
-    const nextEnglishWord = allEnglishWords.find(
-      (word) =>
-        !visibleEnglishWords.some((visible) => visible.id === word.id) &&
-        !matchedPairs.has(word.id),
-    );
+    // Shuffle the pairs first BEFORE creating managed pairs
+    const shuffledValidatedPairs = shuffleArray(validatedPairs);
 
-    // Tìm từ tiếng Việt mới để thêm vào
-    const nextVietnameseWord = allVietnameseWords.find(
-      (word) =>
-        !visibleVietnameseWords.some((visible) => visible.id === word.id) &&
-        !matchedPairs.has(word.id),
-    );
+    // Create managed pairs with unique identifiers
+    const initialManagedPairs: ManagedPair[] = shuffledValidatedPairs.map((pair, index) => ({
+      id: `pair-${Date.now()}-${index}`, // More unique pair identifier
+      english: pair.english,
+      vietnamese: pair.vietnamese,
+      isMatched: false,
+      isVisible: index < BATCH_SIZE, // First batch is visible (now from shuffled order)
+    }));
 
-    // Thay thế từ đã match bằng từ mới tại cùng vị trí
-    if (nextEnglishWord) {
-      setVisibleEnglishWords((prev) =>
-        prev.map((word) =>
-          word.id === matchedEnglishId ? nextEnglishWord : word,
-        ),
-      );
-    } else {
-      // Nếu không có từ mới, loại bỏ từ đã match
-      setVisibleEnglishWords((prev) =>
-        prev.filter((word) => word.id !== matchedEnglishId),
-      );
+    setManagedPairs(initialManagedPairs);
+
+    // Create separate shuffled orders for display
+    const visiblePairs = initialManagedPairs.filter(pair => pair.isVisible);
+    const initialEnglishIds = visiblePairs.map(pair => pair.english.id);
+    const initialVietnameseIds = visiblePairs.map(pair => pair.vietnamese.id);
+    
+    // Shuffle the display order independently
+    setShuffledEnglishOrder(shuffleArray(initialEnglishIds));
+    setShuffledVietnameseOrder(shuffleArray(initialVietnameseIds));
+  }, [pairs]);
+
+  // Update shuffled orders when new words become visible
+  useEffect(() => {
+    const currentVisiblePairs = managedPairs.filter(pair => pair.isVisible && !pair.isMatched);
+    if (currentVisiblePairs.length > 0) {
+      // Get current English and Vietnamese IDs
+      const englishIds = currentVisiblePairs.map(pair => pair.english.id);
+      const vietnameseIds = currentVisiblePairs.map(pair => pair.vietnamese.id);
+      
+      // Only update if the visible items have changed
+      const prevEnglishSet = new Set(shuffledEnglishOrder);
+      const prevVietnameseSet = new Set(shuffledVietnameseOrder);
+      
+      const englishChanged = englishIds.length !== shuffledEnglishOrder.length || 
+        !englishIds.every(id => prevEnglishSet.has(id));
+      const vietnameseChanged = vietnameseIds.length !== shuffledVietnameseOrder.length || 
+        !vietnameseIds.every(id => prevVietnameseSet.has(id));
+      
+      if (englishChanged) {
+        setShuffledEnglishOrder(shuffleArray(englishIds));
+      }
+      if (vietnameseChanged) {
+        setShuffledVietnameseOrder(shuffleArray(vietnameseIds));
+      }
     }
+  }, [managedPairs, shuffledEnglishOrder, shuffledVietnameseOrder]);
 
-    if (nextVietnameseWord) {
-      setVisibleVietnameseWords((prev) =>
-        prev.map((word) =>
-          word.id === matchedVietnameseId ? nextVietnameseWord : word,
-        ),
-      );
-    } else {
-      // Nếu không có từ mới, loại bỏ từ đã match
-      setVisibleVietnameseWords((prev) =>
-        prev.filter((word) => word.id !== matchedVietnameseId),
-      );
+  // Computed values based on managed pairs with proper shuffling
+  const visibleEnglishWords = useMemo(() => {
+    const visiblePairs = managedPairs.filter(pair => pair.isVisible && !pair.isMatched);
+    const pairMap = new Map(visiblePairs.map(pair => [pair.english.id, pair.english]));
+    
+    // Return words in the shuffled order
+    return shuffledEnglishOrder
+      .map(id => pairMap.get(id))
+      .filter(Boolean) as PairItem[];
+  }, [managedPairs, shuffledEnglishOrder]);
+
+  const visibleVietnameseWords = useMemo(() => {
+    const visiblePairs = managedPairs.filter(pair => pair.isVisible && !pair.isMatched);
+    const pairMap = new Map(visiblePairs.map(pair => [pair.vietnamese.id, pair.vietnamese]));
+    
+    // Return words in the shuffled order
+    return shuffledVietnameseOrder
+      .map(id => pairMap.get(id))
+      .filter(Boolean) as PairItem[];
+  }, [managedPairs, shuffledVietnameseOrder]);
+
+  const completedPairs = useMemo(() => {
+    return managedPairs.filter(pair => pair.isMatched).length;
+  }, [managedPairs]);
+
+  const matchedItemIds = useMemo(() => {
+    return new Set(
+      managedPairs
+        .filter(pair => pair.isMatched)
+        .flatMap(pair => [pair.english.id, pair.vietnamese.id])
+    );
+  }, [managedPairs]);
+
+  // Enhanced function to manage word visibility with proper pair relationships
+  const updateWordVisibility = (matchedPairId: string) => {
+    setManagedPairs(prev => {
+      const updatedPairs = [...prev];
+      
+      // Mark the matched pair as completed
+      const matchedPairIndex = updatedPairs.findIndex(pair => pair.id === matchedPairId);
+      if (matchedPairIndex !== -1) {
+        updatedPairs[matchedPairIndex] = {
+          ...updatedPairs[matchedPairIndex],
+          isMatched: true,
+        };
+      }
+
+      // Calculate how many pairs should be visible
+      const remainingUnmatchedPairs = updatedPairs.filter(pair => !pair.isMatched);
+      const currentVisibleCount = updatedPairs.filter(pair => pair.isVisible && !pair.isMatched).length - 1; // -1 for the just matched pair
+      
+      // If we need more visible pairs and have remaining pairs
+      if (currentVisibleCount < BATCH_SIZE && remainingUnmatchedPairs.length > currentVisibleCount) {
+        // Find the next unmatched, invisible pair to make visible
+        const nextPairToShow = updatedPairs.find(pair => !pair.isMatched && !pair.isVisible);
+        if (nextPairToShow) {
+          const nextPairIndex = updatedPairs.findIndex(pair => pair.id === nextPairToShow.id);
+          if (nextPairIndex !== -1) {
+            updatedPairs[nextPairIndex] = {
+              ...updatedPairs[nextPairIndex],
+              isVisible: true,
+            };
+          }
+        }
+      }
+
+      return updatedPairs;
+    });
+  };
+
+  // Helper function to handle correct matches
+  const handleCorrectMatch = (selectedItem: PairItem, item: PairItem) => {
+    const matchedPair = managedPairs.find(pair => 
+      (pair.english.id === selectedItem.id && pair.vietnamese.id === item.id) ||
+      (pair.english.id === item.id && pair.vietnamese.id === selectedItem.id)
+    );
+
+    if (matchedPair) {
+      updateWordVisibility(matchedPair.id);
+
+      // Check if exercise is complete
+      const newCompletedCount = completedPairs + 1;
+      if (newCompletedCount >= pairs.length) {
+        const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+        const score = Math.max(0, Math.floor(100 - (attempts * 5)));
+        setTimeout(() => {
+          onComplete(score, timeSpent, attempts + 1);
+        }, 1000);
+      }
     }
   };
 
+  // Helper function to handle incorrect matches
+  const handleIncorrectMatch = (selectedItem: PairItem, item: PairItem) => {
+    setIncorrectPairs(prev => new Set([...prev, selectedItem.id, item.id]));
+
+    const newLives = lives - 1;
+    setLives(newLives);
+
+    if (newLives <= 0) {
+      onComplete(
+        0,
+        Math.floor((Date.now() - startTime) / 1000),
+        attempts + 1,
+      );
+      return;
+    }
+
+    setTimeout(() => {
+      setIncorrectPairs(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(selectedItem.id);
+        newSet.delete(item.id);
+        return newSet;
+      });
+    }, 1000);
+  };
+
+  // Helper function to validate if two items match
+  const validateMatch = (selectedItem: PairItem, item: PairItem): boolean => {
+    const expectedMatchId = matchingMap.get(selectedItem.id);
+    return expectedMatchId === item.id;
+  };
+
+  // Enhanced item click handler with reduced complexity
   const handleItemClick = (item: PairItem) => {
     // Ignore if item is already matched
-    if (matchedPairs.has(item.id)) return;
+    if (matchedItemIds.has(item.id)) return;
 
-    // Clear incorrect feedback
+    // Clear incorrect feedback for this item
     if (incorrectPairs.has(item.id)) {
-      setIncorrectPairs((prev) => {
+      setIncorrectPairs(prev => {
         const newSet = new Set(prev);
         newSet.delete(item.id);
         return newSet;
@@ -134,87 +277,37 @@ export function MatchingPairs({
     }
 
     if (!selectedItem) {
-      // First selection
       setSelectedItem(item);
-    } else if (selectedItem.id !== item.id) {
-      // Check if trying to select same language type
-      if (selectedItem.isEnglish === item.isEnglish) {
-        // Same language type - replace selection
-        setSelectedItem(item);
-        return;
-      }
+      return;
+    }
 
-      // Different language types - check for match
-      setAttempts((prev) => prev + 1);
+    if (selectedItem.id === item.id) {
+      setSelectedItem(null);
+      return;
+    }
 
-      if (
-        selectedItem.matchId === item.id ||
-        item.matchId === selectedItem.id
-      ) {
-        // Match found
-        const newMatchedPairs = new Set([
-          ...matchedPairs,
-          selectedItem.id,
-          item.id,
-        ]);
-        setMatchedPairs(newMatchedPairs);
+    // Check if trying to select same language type
+    if (selectedItem.isEnglish === item.isEnglish) {
+      setSelectedItem(item);
+      return;
+    }
 
-        const newCompletedPairs = completedPairs + 1;
-        setCompletedPairs(newCompletedPairs);
+    // Different language types - validate match
+    setAttempts(prev => prev + 1);
+    const isCorrectMatch = validateMatch(selectedItem, item);
 
-        // Check if exercise is complete
-        if (newCompletedPairs >= pairs.length) {
-          const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-          const score = Math.max(0, Math.floor(100 - attempts * 5)); // Deduct 5 points per incorrect attempt
-          setTimeout(() => {
-            onComplete(score, timeSpent, attempts + 1);
-          }, 1000);
-        } else {
-          // Add new words to visible list and remove matched ones - no delay
-          addNewWordsToVisible(selectedItem.id, item.id);
-        }
-      } else {
-        // Incorrect match - show feedback and reduce lives
-        setIncorrectPairs(
-          (prev) => new Set([...prev, selectedItem.id, item.id]),
-        );
-
-        // Reduce lives
-        const newLives = lives - 1;
-        setLives(newLives);
-
-        // Check if game over
-        if (newLives <= 0) {
-          setGameOver(true);
-          setTimeout(() => {
-            onComplete(
-              0,
-              Math.floor((Date.now() - startTime) / 1000),
-              attempts + 1,
-            );
-          }, 1500);
-        }
-
-        setTimeout(() => {
-          setIncorrectPairs((prev) => {
-            const newSet = new Set(prev);
-            newSet.delete(selectedItem.id);
-            newSet.delete(item.id);
-            return newSet;
-          });
-        }, 1000);
-      }
-
-      // Reset selection
+    if (isCorrectMatch) {
+      handleCorrectMatch(selectedItem, item);
       setTimeout(() => setSelectedItem(null), 500);
     } else {
-      // Clicking the same item - deselect
-      setSelectedItem(null);
+      handleIncorrectMatch(selectedItem, item);
+      setTimeout(() => setSelectedItem(null), 1000);
     }
   };
 
+  // Enhanced styling function with consistent state checking
   const getItemStyle = (item: PairItem) => {
-    if (matchedPairs.has(item.id)) {
+    if (matchedItemIds.has(item.id)) {
       return 'border-green-500 bg-green-50 text-green-700 opacity-50';
     }
     if (incorrectPairs.has(item.id)) {
@@ -243,12 +336,12 @@ export function MatchingPairs({
 
           {/* 3 checkpoint indicators */}
           <div className="absolute top-0 left-0 flex w-full items-center justify-between">
-            {[0, 50, 100].map((checkpoint, index) => {
+            {[0, 50, 100].map((checkpoint) => {
               const isCompleted = progressPercentage >= checkpoint;
 
               return (
                 <div
-                  key={index}
+                  key={`checkpoint-${checkpoint}`}
                   className={`-mt-2.5 flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300 ${
                     isCompleted ? 'bg-[#4755FB] text-white' : 'bg-gray-200'
                   }`}
@@ -274,9 +367,9 @@ export function MatchingPairs({
             </div>
           ) : (
             <div className="flex gap-1">
-              {Array.from({ length: MAX_LIVES }).map((_, index) => (
+              {Array.from({ length: MAX_LIVES }, (_, index) => (
                 <Heart
-                  key={index}
+                  key={`life-${index + 1}`}
                   className={cn(
                     'h-6 w-6 transition-all duration-300',
                     index < lives
@@ -294,118 +387,56 @@ export function MatchingPairs({
       <div className="grid grid-cols-2 items-center justify-center gap-4">
         {/* English Column */}
         <div className="space-y-3">
-          <AnimatePresence>
-            {visibleEnglishWords.map((item) => (
-              <motion.button
-                key={item.id}
-                onClick={() => handleItemClick(item)}
-                className={cn(
-                  'w-full rounded-lg border p-4 text-left transition-all duration-200',
-                  'flex min-h-[60px] items-center justify-between text-lg font-medium',
-                  getItemStyle(item),
-                )}
-                disabled={matchedPairs.has(item.id)}
-                initial={{ opacity: 0, scale: 0.7 }}
-                animate={{
-                  opacity: 1,
-                  scale: selectedItem?.id === item.id ? 1.02 : 1,
-                }}
-                exit={{
-                  opacity: 0,
-                  scale: 1,
-                  transition: { duration: 0 },
-                }}
-                transition={{
-                  type: 'spring',
-                  stiffness: 500,
-                  damping: 25,
-                  mass: 0.5,
-                }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <span>{item.text}</span>
-                {matchedPairs.has(item.id) && (
+          {visibleEnglishWords.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleItemClick(item)}
+              className={cn(
+                'w-full rounded-lg border p-4 text-left transition-all duration-200',
+                'flex min-h-[60px] items-center justify-between text-lg font-medium',
+                getItemStyle(item),
+              )}
+              disabled={matchedItemIds.has(item.id)}
+            >
+              <span>{item.text}</span>
+              <div>
+                {matchedItemIds.has(item.id) && (
                   <CheckCircle2 className="h-5 w-5 text-green-600" />
                 )}
                 {incorrectPairs.has(item.id) && (
                   <X className="h-5 w-5 text-red-600" />
                 )}
-              </motion.button>
-            ))}
-          </AnimatePresence>
+              </div>
+            </button>
+          ))}
         </div>
 
         {/* Vietnamese Column */}
         <div className="space-y-3">
-          <AnimatePresence>
-            {visibleVietnameseWords.map((item) => (
-              <motion.button
-                key={item.id}
-                onClick={() => handleItemClick(item)}
-                className={cn(
-                  'w-full rounded-lg border p-4 text-left transition-all duration-200',
-                  'flex min-h-[60px] items-center justify-between text-lg font-medium',
-                  getItemStyle(item),
-                )}
-                disabled={matchedPairs.has(item.id)}
-                initial={{ opacity: 0, scale: 0.7 }}
-                animate={{
-                  opacity: 1,
-                  scale: selectedItem?.id === item.id ? 1.02 : 1,
-                }}
-                exit={{
-                  opacity: 0,
-                  scale: 1,
-                  transition: { duration: 0 },
-                }}
-                transition={{
-                  type: 'spring',
-                  stiffness: 500,
-                  damping: 25,
-                  mass: 0.5,
-                }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <span>{item.text}</span>
-                {matchedPairs.has(item.id) && (
+          {visibleVietnameseWords.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleItemClick(item)}
+              className={cn(
+                'w-full rounded-lg border p-4 text-left transition-all duration-200',
+                'flex min-h-[60px] items-center justify-between text-lg font-medium',
+                getItemStyle(item),
+              )}
+              disabled={matchedItemIds.has(item.id)}
+            >
+              <span>{item.text}</span>
+              <div>
+                {matchedItemIds.has(item.id) && (
                   <CheckCircle2 className="h-5 w-5 text-green-600" />
                 )}
                 {incorrectPairs.has(item.id) && (
                   <X className="h-5 w-5 text-red-600" />
                 )}
-              </motion.button>
-            ))}
-          </AnimatePresence>
+              </div>
+            </button>
+          ))}
         </div>
       </div>
-      {/* Game Over Message */}
-      {gameOver && (
-        <div className="bg-opacity-50 absolute inset-0 z-50 flex items-center justify-center bg-black">
-          <div className="rounded-lg bg-white p-6 text-center shadow-lg">
-            <h2 className="mb-4 text-xl font-semibold">Game Over</h2>
-            <p className="mb-4 text-gray-700">
-              Bạn đã hết mạng. Vui lòng thử lại.
-            </p>
-            <button
-              onClick={() => {
-                setGameOver(false);
-                setAttempts(0);
-                setCompletedPairs(0);
-                setLives(MAX_LIVES);
-                setMatchedPairs(new Set());
-                setIncorrectPairs(new Set());
-                setVisibleEnglishWords(allEnglishWords.slice(0, BATCH_SIZE));
-                setVisibleVietnameseWords(
-                  allVietnameseWords.slice(0, BATCH_SIZE),
-                );
-              }}
-              className="rounded-lg bg-[#4755FB] px-4 py-2 text-white transition-all duration-200 hover:bg-[#3748a1]"
-            >
-              Chơi lại
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

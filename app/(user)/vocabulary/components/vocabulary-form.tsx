@@ -1,6 +1,6 @@
 'use client';
 
-import { startTransition, useTransition } from 'react';
+import { useTransition } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { nanoid } from 'nanoid';
@@ -155,18 +155,19 @@ export function VocabularyForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
         <FormField
           control={form.control}
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Tiêu đề bài tập</FormLabel>
+              <FormLabel className="text-sm sm:text-base">Tiêu đề bài tập</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Ví dụ: Từ vựng về thời tiết"
                   {...field}
                   disabled={isPending}
+                  className="text-sm sm:text-base"
                 />
               </FormControl>
               <FormMessage />
@@ -179,11 +180,11 @@ export function VocabularyForm({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Mô tả (tùy chọn)</FormLabel>
+              <FormLabel className="text-sm sm:text-base">Mô tả (tùy chọn)</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Mô tả về bài tập từ vựng này"
-                  className="min-h-[80px] resize-none"
+                  className="min-h-[60px] sm:min-h-[80px] resize-none text-sm sm:text-base"
                   {...field}
                   value={field.value || ''}
                   disabled={isPending}
@@ -194,32 +195,33 @@ export function VocabularyForm({
           )}
         />
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <FormLabel className="text-base">Các cặp từ vựng</FormLabel>
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <FormLabel className="text-sm font-medium sm:text-base">Các cặp từ vựng</FormLabel>
             <Button
               type="button"
               size="sm"
               variant="outline"
               onClick={addWordPair}
               disabled={isPending}
+              className="w-full text-xs sm:w-auto sm:text-sm"
             >
-              <Plus className="mr-1 h-4 w-4" /> Thêm cặp từ
+              <Plus className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> Thêm cặp từ
             </Button>
           </div>
 
           {form.formState.errors.pairs?.message && (
-            <p className="text-destructive text-sm">
+            <p className="text-destructive text-xs sm:text-sm">
               {form.formState.errors.pairs.message}
             </p>
           )}
 
-          <ScrollArea className="h-[300px] rounded-md border pr-4">
-            <div className="space-y-4 p-4">
+          <ScrollArea className="h-[250px] sm:h-[300px] md:h-[350px] rounded-md border pr-2 sm:pr-4">
+            <div className="space-y-3 p-2 sm:space-y-4 sm:p-4">
               {fields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="grid grid-cols-[1fr_1fr_auto] items-start gap-3"
+                  className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_auto] sm:items-start sm:gap-3"
                 >
                   <FormField
                     control={form.control}
@@ -231,6 +233,7 @@ export function VocabularyForm({
                             placeholder="Từ tiếng Anh"
                             {...field}
                             disabled={isPending}
+                            className="text-sm sm:text-base"
                           />
                         </FormControl>
                         <FormMessage />
@@ -248,6 +251,7 @@ export function VocabularyForm({
                             placeholder="Từ tiếng Việt"
                             {...field}
                             disabled={isPending}
+                            className="text-sm sm:text-base"
                           />
                         </FormControl>
                         <FormMessage />
@@ -261,9 +265,9 @@ export function VocabularyForm({
                     size="icon"
                     onClick={() => remove(index)}
                     disabled={fields.length <= 1 || isPending}
-                    className="mt-0.5"
+                    className="mt-0 h-8 w-8 self-center sm:mt-0.5 sm:h-10 sm:w-10"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
                 </div>
               ))}
@@ -271,34 +275,39 @@ export function VocabularyForm({
           </ScrollArea>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex-col gap-2 sm:flex-row sm:gap-0">
           {onCancel && (
             <Button
               type="button"
               variant="outline"
               onClick={onCancel}
               disabled={isPending}
+              className="w-full text-sm sm:w-auto sm:text-base"
             >
-              <X className="mr-2 h-4 w-4" /> Hủy
+              <X className="mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Hủy
             </Button>
           )}
 
-          <Button type="submit" disabled={isPending}>
+          <Button 
+            type="submit" 
+            disabled={isPending}
+            className="w-full text-sm sm:w-auto sm:text-base"
+          >
             {isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 h-3 w-3 animate-spin sm:h-4 sm:w-4" />
                 {isEditMode ? 'Đang cập nhật...' : 'Đang lưu...'}
               </>
             ) : (
               <>
                 {isEditMode ? (
                   <>
-                    <Edit className="mr-2 h-4 w-4" />
+                    <Edit className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                     Cập nhật
                   </>
                 ) : (
                   <>
-                    <Save className="mr-2 h-4 w-4" />
+                    <Save className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                     Tạo bài tập
                   </>
                 )}
