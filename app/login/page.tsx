@@ -25,7 +25,7 @@ export default function LoginPage() {
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="relative h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24"
+              className="relative h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 rounded-lg"
             >
               <Image
                 src={logo}

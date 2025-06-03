@@ -33,7 +33,7 @@ export const Header = () => {
             alt="SPEA-KING Logo"
             width={32}
             height={32}
-            className="object-contain"
+            className="object-contain rounded-lg"
           />
           <span className="text-primary font-semibold">SPEA-KING</span>
         </div>

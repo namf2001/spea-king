@@ -51,7 +51,7 @@ export default function Home() {
               alt="SpeaKing Logo"
               width={48}
               height={48}
-              className="h-12 w-12"
+              className="h-12 w-12 rounded-lg"
               priority
             />
           </div>

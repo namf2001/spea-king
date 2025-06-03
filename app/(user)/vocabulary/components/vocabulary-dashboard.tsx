@@ -35,7 +35,7 @@ import type {
 import { VocabularyModal } from './vocabulary-modal';
 import VocabularyDeleteDialog from './vocabulary-delete-dialog';
 import { VocabularySearch } from './vocabulary-search';
-import { cuteStudying, cuteHoodie, cuteFood } from '@/assets/image';
+import { cuteStudying, cutePool, cuteFood } from '@/assets/image';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -392,7 +392,7 @@ export function VocabularyDashboard({
                   <CardContent className="relative p-0">
                     <AspectRatio ratio={16 / 9} className="bg-muted rounded-lg">
                       <Image
-                        src={cuteHoodie}
+                        src={cutePool}
                         alt="Cute character in hoodie"
                         fill
                         className="h-full w-full rounded-lg object-cover"

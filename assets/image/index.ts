@@ -7,13 +7,12 @@ import image5 from './5.svg';
 import image7 from './7.svg';
 import image8 from './8.svg';
 import image9 from './9.svg';
-import logo from './logo.svg';
+import logo from './cuteHoodie.jpg';
 
 // Import cute character images
 import cutePool from './cutePool.jpg';
 import cuteBalloons from './cuteBalloons.jpg';
 import cuteStudying from './cuteStudying.jpg';
-import cuteHoodie from './cuteHoodie.jpg';
 import cuteFood from './cuteFood.jpg';
 import cutePattern from './cutePattern.jpg';
 
@@ -31,7 +30,6 @@ export {
   cutePool,
   cuteBalloons,
   cuteStudying,
-  cuteHoodie,
   cuteFood,
   cutePattern,
 };
@@ -50,7 +48,6 @@ export const images = {
   cutePool,
   cuteBalloons,
   cuteStudying,
-  cuteHoodie,
   cuteFood,
   cutePattern,
 };

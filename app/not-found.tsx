@@ -55,7 +55,7 @@ export default function NotFound() {
       <div className="z-10 container mx-auto px-4 py-8 text-center">
         {/* Header with logo */}
         <div className="mb-8 flex justify-center">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2 rounded-lg">
             <Image
               src={logo}
               alt="SpeaKing Logo"
