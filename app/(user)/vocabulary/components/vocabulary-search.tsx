@@ -75,7 +75,7 @@ export function VocabularySearch({ onSearchResults }: VocabularySearchProps) {
   };
 
   return (
-    <div className="relative mb-6">
+    <div className="relative h-full">
       <div className="relative">
         <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
         <Input

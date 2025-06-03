@@ -3,6 +3,14 @@ import { auth } from '@/lib/auth';
 import { getReflexQuestions } from '@/app/actions/reflex';
 import { notFound } from 'next/navigation';
 import ReflexClient from './components/reflex-client';
+import { generateMetadata as generateOGMetadata } from '@/lib/og-metadata';
+
+export const metadata = generateOGMetadata({
+  title: 'Reflex Speaking - SpeaKing',
+  description:
+    'Practice quick thinking and speaking reflexes with random questions and AI feedback',
+  url: '/reflex',
+});
 
 // Force dynamic rendering since we use authentication
 export const dynamic = 'force-dynamic';

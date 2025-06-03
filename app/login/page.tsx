@@ -31,7 +31,7 @@ export default function LoginPage() {
                 src={logo}
                 alt="SPEA-KING Logo"
                 fill
-                className="block object-contain"
+                className="block object-contain rounded-lg"
                 priority
               />
             </motion.div>
@@ -44,11 +44,6 @@ export default function LoginPage() {
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <Separator className="w-full" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="text-muted-foreground from-primary/20 to-background bg-gradient-to-b px-2">
-                  login with
-                </span>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">

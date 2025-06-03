@@ -35,16 +35,16 @@ export default function ProgressClient({ stats, error }: ProgressClientProps) {
         <div className="mx-auto max-w-6xl">
           <div className="py-20 text-center">
             <h2 className="mb-2 text-xl font-semibold">
-              Error Loading Progress
+              Lỗi Tải Tiến Độ
             </h2>
             <p className="text-gray-600 dark:text-gray-300">
-              {error || 'Failed to load statistics'}
+              {error || 'Không thể tải thống kê'}
             </p>
             <Link
               href="/"
               className="mt-4 inline-block text-blue-500 hover:underline"
             >
-              ← Back to Home
+              ← Về trang chủ
             </Link>
           </div>
         </div>
@@ -54,10 +54,10 @@ export default function ProgressClient({ stats, error }: ProgressClientProps) {
 
   // Calculate overall level based on total speaking count
   const getOverallLevel = (count: number) => {
-    if (count >= 100) return 'Advanced';
-    if (count >= 50) return 'Intermediate';
-    if (count >= 20) return 'Beginner Plus';
-    return 'Beginner';
+    if (count >= 100) return 'Nâng cao';
+    if (count >= 50) return 'Trung cấp';
+    if (count >= 20) return 'Sơ cấp +';
+    return 'Sơ cấp';
   };
 
   // Calculate percentage for progress bar
@@ -71,23 +71,14 @@ export default function ProgressClient({ stats, error }: ProgressClientProps) {
     <div className="container mx-auto px-4 py-12">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8">
-          <Link
-            href="/"
-            className="mb-4 inline-block text-blue-500 hover:underline"
-          >
-            ← Back to Home
-          </Link>
-          <h1 className="mb-2 text-3xl font-bold">Your Progress</h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Track your English speaking improvement over time
-          </p>
+          <h1 className="mb-2 text-3xl font-bold">Tiến Độ Học Tập</h1>
         </div>
 
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Total Speaking Sessions</CardTitle>
-              <CardDescription>Your overall practice count</CardDescription>
+              <CardTitle className="text-lg">Tổng Buổi Luyện Nói</CardTitle>
+              <CardDescription>Tổng số buổi luyện tập của bạn</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="mb-2 text-center text-3xl font-bold">
@@ -98,29 +89,29 @@ export default function ProgressClient({ stats, error }: ProgressClientProps) {
                 className="h-2"
               />
               <p className="mt-2 text-center text-xs text-gray-500">
-                {getOverallLevel(stats.totalSpeakingCount)} Level
+                Trình độ {getOverallLevel(stats.totalSpeakingCount)}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Practice Streak</CardTitle>
-              <CardDescription>Consecutive days practiced</CardDescription>
+              <CardTitle className="text-lg">Chuỗi Luyện Tập</CardTitle>
+              <CardDescription>Số ngày luyện tập liên tiếp</CardDescription>
             </CardHeader>
             <CardContent className="text-center">
               <div className="mb-1 text-3xl font-bold">
-                {stats.practiceStreak} days
+                {stats.practiceStreak} ngày
               </div>
-              <p className="text-xs text-gray-500">Keep it up!</p>
+              <p className="text-xs text-gray-500">Hãy tiếp tục!</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Sessions This Month</CardTitle>
+              <CardTitle className="text-lg">Buổi Học Tháng Này</CardTitle>
               <CardDescription>
-                Total practice sessions this month
+                Tổng buổi luyện tập trong tháng này
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center">
@@ -128,9 +119,9 @@ export default function ProgressClient({ stats, error }: ProgressClientProps) {
                 {stats.exercisesThisMonth}
               </div>
               <p className="text-xs text-gray-500">
-                {stats.pronunciationCount} pronunciation,{' '}
-                {stats.conversationCount} conversation, {stats.reflexCount}{' '}
-                reflex
+                {stats.pronunciationCount} phát âm,{' '}
+                {stats.conversationCount} giao tiếp, {stats.reflexCount}{' '}
+                phản xạ
               </p>
             </CardContent>
           </Card>
@@ -138,17 +129,17 @@ export default function ProgressClient({ stats, error }: ProgressClientProps) {
 
         <Tabs defaultValue="progress" className="mb-8">
           <TabsList className="mb-4 grid grid-cols-3">
-            <TabsTrigger value="progress">Practice Over Time</TabsTrigger>
-            <TabsTrigger value="skills">Skills Breakdown</TabsTrigger>
-            <TabsTrigger value="recent">Recent Sessions</TabsTrigger>
+            <TabsTrigger value="progress">Tiến Độ Theo Thời Gian</TabsTrigger>
+            <TabsTrigger value="skills">Phân Tích Kỹ Năng</TabsTrigger>
+            <TabsTrigger value="recent">Buổi Học Gần Đây</TabsTrigger>
           </TabsList>
 
           <TabsContent value="progress">
             <Card>
               <CardHeader>
-                <CardTitle>Practice Sessions Over Time</CardTitle>
+                <CardTitle>Buổi Luyện Tập Theo Thời Gian</CardTitle>
                 <CardDescription>
-                  Your daily speaking practice count
+                  Số lượng buổi luyện nói hàng ngày của bạn
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -165,7 +156,7 @@ export default function ProgressClient({ stats, error }: ProgressClientProps) {
                       <Line
                         type="monotone"
                         dataKey="count"
-                        stroke="#3b82f6"
+                        stroke="#EF9492"
                         strokeWidth={2}
                         activeDot={{ r: 8 }}
                       />
@@ -179,9 +170,9 @@ export default function ProgressClient({ stats, error }: ProgressClientProps) {
           <TabsContent value="skills">
             <Card>
               <CardHeader>
-                <CardTitle>Practice Type Breakdown</CardTitle>
+                <CardTitle>Phân Tích Loại Luyện Tập</CardTitle>
                 <CardDescription>
-                  Your practice sessions by category
+                  Buổi luyện tập của bạn theo từng danh mục
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -195,7 +186,7 @@ export default function ProgressClient({ stats, error }: ProgressClientProps) {
                       <XAxis dataKey="name" />
                       <YAxis domain={[0, 'dataMax + 1']} />
                       <Tooltip />
-                      <Bar dataKey="value" fill="#3b82f6" />
+                      <Bar dataKey="value" fill="#EF9492" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -206,13 +197,13 @@ export default function ProgressClient({ stats, error }: ProgressClientProps) {
           <TabsContent value="recent">
             <Card>
               <CardHeader>
-                <CardTitle>Recent Practice Sessions</CardTitle>
+                <CardTitle>Buổi Luyện Tập Gần Đây</CardTitle>
                 <CardDescription>
-                  Your latest speaking practice sessions
+                  Những buổi luyện nói gần đây nhất của bạn
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="h-[400px] overflow-y-auto space-y-4 pr-2">
                   {stats.recentRecords.length > 0 ? (
                     stats.recentRecords.map((record) => (
                       <div
@@ -225,7 +216,7 @@ export default function ProgressClient({ stats, error }: ProgressClientProps) {
                             <p className="text-sm text-gray-500">
                               {record.topicTitle ||
                                 record.questionText ||
-                                'Practice session'}
+                                'Buổi luyện tập'}
                             </p>
                           </div>
                           <div className="text-right">
@@ -242,8 +233,7 @@ export default function ProgressClient({ stats, error }: ProgressClientProps) {
                   ) : (
                     <div className="py-8 text-center">
                       <p className="text-gray-500">
-                        No practice sessions yet. Start practicing to see your
-                        progress!
+                        Chưa có buổi luyện tập nào. Hãy bắt đầu luyện tập để xem tiến độ của bạn!
                       </p>
                     </div>
                   )}

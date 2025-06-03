@@ -3,6 +3,13 @@ import { getConversationTopicsByUserId } from '@/app/actions/conversation';
 import { defaultTopics } from './data/topics';
 import ConversationClient from './components/conversation-client';
 import ConversationLoading from './loading';
+import { generateMetadata as generateOGMetadata } from '@/lib/og-metadata';
+
+export const metadata = generateOGMetadata({
+  title: 'Conversation Practice - SpeaKing',
+  description: 'Practice real-world conversations with AI partners on various topics',
+  url: '/conversation',
+});
 
 // Force dynamic rendering since we use authentication
 export const dynamic = 'force-dynamic';

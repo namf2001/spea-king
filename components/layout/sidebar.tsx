@@ -131,7 +131,7 @@ export function AppSidebar() {
                     alt="SPEA-KING Logo"
                     fill
                     sizes="(max-width: 768px) 40px, 56px"
-                    className="object-contain"
+                    className="object-contain rounded-lg"
                   />
                 </div>
               ) : (

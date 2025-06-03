@@ -35,7 +35,7 @@ import type {
 import { VocabularyModal } from './vocabulary-modal';
 import VocabularyDeleteDialog from './vocabulary-delete-dialog';
 import { VocabularySearch } from './vocabulary-search';
-import { cuteStudying, cuteHoodie, cuteFood } from '@/assets/image';
+import { cuteStudying, cutePool, cuteFood } from '@/assets/image';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -130,9 +130,9 @@ export function VocabularyDashboard({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingExercise, setDeletingExercise] = useState<
     | (VocabularyExercise & {
-        pairs: VocabularyPair[];
-        results: ExerciseResult[];
-      })
+      pairs: VocabularyPair[];
+      results: ExerciseResult[];
+    })
     | null
   >(null);
   const router = useRouter();
@@ -213,9 +213,9 @@ export function VocabularyDashboard({
       {!error && initialExercises.length === 0 && (
         <motion.div
           variants={itemVariants}
-          className="flex min-h-[60vh] items-center justify-center"
+          className="flex min-h-[60vh] items-center justify-center px-4 py-12"
         >
-          <Card className="mx-auto mb-6 max-w-2xl border-dashed">
+          <Card className="mx-auto mb-6 border-dashed w-full ">
             <CardContent className="flex flex-col items-center pt-8 pb-6 text-center">
               <motion.div
                 className="bg-muted mb-5 flex h-16 w-16 items-center justify-center rounded-full"
@@ -271,15 +271,15 @@ export function VocabularyDashboard({
                     className="min-w-[200px]"
                   >
                     <motion.div
-                      animate={
-                        isCreatingDefaults ? { rotate: 360 } : { rotate: 0 }
-                      }
+                      animate={isCreatingDefaults ? { rotate: 360 } : {}}
                       transition={{
                         duration: 1,
                         repeat: isCreatingDefaults ? Infinity : 0,
+                        ease: "linear"
                       }}
+                      className="mr-2"
                     >
-                      <Plus className="mr-2 h-4 w-4" />
+                      <Plus className="h-4 w-4" />
                     </motion.div>
                     {isCreatingDefaults ? 'Đang tạo...' : 'Tạo bài tập mẫu'}
                   </Button>
@@ -318,11 +318,10 @@ export function VocabularyDashboard({
                   Luyện Tập Từ Vựng
                 </motion.h1>
               </div>
-
-              {/* Search Bar */}
-              <motion.div variants={itemVariants} whileHover={{ scale: 1.02 }}>
-                <VocabularySearch onSearchResults={handleSearchResults} />
-              </motion.div>
+                {/* Search Bar */}
+                <motion.div variants={itemVariants} whileHover={{ scale: 1.02 }} className="h-full">
+                  <VocabularySearch onSearchResults={handleSearchResults} />
+                </motion.div>
             </motion.div>
 
             {/* Search Results Info */}
@@ -346,7 +345,7 @@ export function VocabularyDashboard({
 
             {/* Statistics */}
             <motion.div
-              className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3"
+              className="mb-6 sm:grid gap-3 sm:mb-8 sm:gap-4 grid-cols-3 hidden "
               variants={containerVariants}
             >
               <motion.div variants={itemVariants} whileHover={{ y: -5 }}>
@@ -359,11 +358,11 @@ export function VocabularyDashboard({
                         fill
                         className="h-full w-full rounded-lg object-cover"
                       />
-                      <div className="absolute inset-0 z-10 flex items-center justify-between p-6">
-                        <div className="rounded-lg bg-blue-500/80 p-4 shadow-lg">
-                          <p className="text-sm font-bold">Tổng bài tập</p>
+                      <div className="absolute inset-0 z-10 flex items-center justify-between p-3 sm:p-4 md:p-6">
+                        <div className="rounded-lg bg-blue-500/80 p-2 shadow-lg sm:p-3 md:p-4">
+                          <p className="text-xs font-bold sm:text-sm md:text-sm">Tổng bài tập</p>
                           <motion.p
-                            className="text-2xl font-bold"
+                            className="text-lg font-bold sm:text-xl md:text-2xl"
                             initial={{ scale: 0.5, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             transition={{
@@ -379,7 +378,7 @@ export function VocabularyDashboard({
                           whileHover={{ rotate: 360, scale: 1.1 }}
                           transition={{ duration: 0.6 }}
                         >
-                          <Target className="h-8 w-8 text-blue-600" />
+                          <Target className="h-6 w-6 text-blue-600 sm:h-7 sm:w-7 md:h-8 md:w-8" />
                         </motion.div>
                       </div>
                     </AspectRatio>
@@ -392,16 +391,16 @@ export function VocabularyDashboard({
                   <CardContent className="relative p-0">
                     <AspectRatio ratio={16 / 9} className="bg-muted rounded-lg">
                       <Image
-                        src={cuteHoodie}
+                        src={cutePool}
                         alt="Cute character in hoodie"
                         fill
                         className="h-full w-full rounded-lg object-cover"
                       />
-                      <div className="absolute inset-0 z-10 flex items-center justify-between p-6">
-                        <div className="rounded-lg bg-green-500/80 p-4 shadow-lg">
-                          <p className="text-sm font-bold">Đã hoàn thành</p>
+                      <div className="absolute inset-0 z-10 flex items-center justify-between p-3 sm:p-4 md:p-6">
+                        <div className="rounded-lg bg-green-500/80 p-2 shadow-lg sm:p-3 md:p-4">
+                          <p className="text-xs font-bold sm:text-sm md:text-sm">Đã hoàn thành</p>
                           <motion.p
-                            className="text-2xl font-bold"
+                            className="text-lg font-bold sm:text-xl md:text-2xl"
                             initial={{ scale: 0.5, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             transition={{
@@ -428,7 +427,7 @@ export function VocabularyDashboard({
                             ease: 'easeInOut',
                           }}
                         >
-                          <Trophy className="h-8 w-8 text-green-600" />
+                          <Trophy className="h-6 w-6 text-green-600 sm:h-7 sm:w-7 md:h-8 md:w-8" />
                         </motion.div>
                       </div>
                     </AspectRatio>
@@ -446,11 +445,11 @@ export function VocabularyDashboard({
                         fill
                         className="h-full w-full rounded-lg object-cover"
                       />
-                      <div className="absolute inset-0 z-10 flex items-center justify-between p-6">
-                        <div className="rounded-lg bg-orange-500/80 p-4 shadow-lg">
-                          <p className="text-sm font-bold">Tổng điểm</p>
+                      <div className="absolute inset-0 z-10 flex items-center justify-between p-3 sm:p-4 md:p-6">
+                        <div className="rounded-lg bg-orange-500/80 p-2 shadow-lg sm:p-3 md:p-4">
+                          <p className="text-xs font-bold sm:text-sm md:text-sm">Tổng điểm</p>
                           <motion.p
-                            className="text-2xl font-bold"
+                            className="text-lg font-bold sm:text-xl md:text-2xl"
                             initial={{ scale: 0.5, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             transition={{
@@ -461,33 +460,33 @@ export function VocabularyDashboard({
                           >
                             {initialExercises.length > 0
                               ? Math.round(
-                                  initialExercises
-                                    .filter((ex) => ex.results.length > 0)
-                                    .reduce(
-                                      (acc, ex) =>
-                                        acc + (ex.results[0]?.score || 0),
-                                      0,
-                                    ) /
-                                    Math.max(
-                                      initialExercises.filter(
-                                        (ex) => ex.results.length > 0,
-                                      ).length,
-                                      1,
-                                    ),
-                                )
+                                initialExercises
+                                  .filter((ex) => ex.results.length > 0)
+                                  .reduce(
+                                    (acc, ex) =>
+                                      acc + (ex.results[0]?.score || 0),
+                                    0,
+                                  ) /
+                                Math.max(
+                                  initialExercises.filter(
+                                    (ex) => ex.results.length > 0,
+                                  ).length,
+                                  1,
+                                ),
+                              )
                               : 0}
                             %
                           </motion.p>
                         </div>
                         <motion.div
-                          className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100"
+                          className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-100 sm:h-7 sm:w-7 md:h-8 md:w-8"
                           whileHover={{
                             scale: 1.2,
                             backgroundColor: '#fed7aa',
                           }}
                           transition={{ duration: 0.2 }}
                         >
-                          <span className="font-bold text-orange-600">%</span>
+                          <span className="text-xs font-bold text-orange-600 sm:text-sm md:text-base">%</span>
                         </motion.div>
                       </div>
                     </AspectRatio>

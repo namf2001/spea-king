@@ -1,8 +1,15 @@
 import { redirect } from 'next/navigation';
 
 import { auth } from '@/lib/auth';
+import { generateMetadata as generateOGMetadata } from '@/lib/og-metadata';
 
 import { Header } from './components/header';
+
+export const metadata = generateOGMetadata({
+  title: 'Đăng Nhập - SpeaKing',
+  description: 'Đăng nhập vào SpeaKing để bắt đầu hành trình học ngôn ngữ của bạn',
+  url: '/login',
+});
 
 export default async function LoginLayout({
   children,

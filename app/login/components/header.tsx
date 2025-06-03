@@ -1,11 +1,9 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-import { logo } from '@/assets/image';
 import { Button } from '@/components/ui/button';
 
 export const Header = () => {
@@ -27,16 +25,6 @@ export const Header = () => {
             <span>Quay lại</span>
           </Button>
         </Link>
-        <div className="flex items-center gap-2">
-          <Image
-            src={logo}
-            alt="SPEA-KING Logo"
-            width={32}
-            height={32}
-            className="object-contain"
-          />
-          <span className="text-primary font-semibold">SPEA-KING</span>
-        </div>
       </div>
     </motion.header>
   );
