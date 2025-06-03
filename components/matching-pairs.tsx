@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
-import { CheckCircle2, X, Heart } from 'lucide-react';
+import { CheckCircle2, X, Heart, Sparkles } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export interface PairItem {
   id: string;
@@ -50,6 +51,9 @@ export function MatchingPairs({
   // Enhanced state for tracking shuffled order
   const [shuffledEnglishOrder, setShuffledEnglishOrder] = useState<string[]>([]);
   const [shuffledVietnameseOrder, setShuffledVietnameseOrder] = useState<string[]>([]);
+
+  // Celebration animation state
+  const [celebrationItems, setCelebrationItems] = useState<Array<{id: string, x: number, y: number}>>([]);
 
   // Utility function for proper array shuffling (Fisher-Yates algorithm)
   const shuffleArray = (array: any[]) => {
@@ -208,7 +212,7 @@ export function MatchingPairs({
     });
   };
 
-  // Helper function to handle correct matches
+  // Helper function to handle correct matches with celebration
   const handleCorrectMatch = (selectedItem: PairItem, item: PairItem) => {
     const matchedPair = managedPairs.find(pair => 
       (pair.english.id === selectedItem.id && pair.vietnamese.id === item.id) ||
@@ -216,6 +220,9 @@ export function MatchingPairs({
     );
 
     if (matchedPair) {
+      // Trigger celebration animation
+      triggerCelebration();
+      
       updateWordVisibility(matchedPair.id);
 
       // Check if exercise is complete
@@ -228,6 +235,22 @@ export function MatchingPairs({
         }, 1000);
       }
     }
+  };
+
+  // Celebration animation function
+  const triggerCelebration = () => {
+    const newItems = Array.from({ length: 8 }, (_, i) => ({
+      id: `celebration-${Date.now()}-${i}`,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+    }));
+    
+    setCelebrationItems(newItems);
+    
+    // Remove celebration items after animation
+    setTimeout(() => {
+      setCelebrationItems([]);
+    }, 2000);
   };
 
   // Helper function to handle incorrect matches
@@ -305,7 +328,7 @@ export function MatchingPairs({
     }
   };
 
-  // Enhanced styling function with consistent state checking
+  // Enhanced styling function with celebration animation
   const getItemStyle = (item: PairItem) => {
     if (matchedItemIds.has(item.id)) {
       return 'border-green-500 bg-green-50 text-green-700 opacity-50';
@@ -323,14 +346,51 @@ export function MatchingPairs({
   const isMobile = useIsMobile();
 
   return (
-    <div className={cn('flex flex-col gap-6', className)}>
+    <div className={cn('flex flex-col gap-6 relative', className)}>
+      {/* Celebration Animation Overlay */}
+      <AnimatePresence>
+        {celebrationItems.length > 0 && (
+          <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+            {celebrationItems.map((item) => (
+              <motion.div
+                key={item.id}
+                className="absolute"
+                style={{
+                  left: `${item.x}%`,
+                  top: `${item.y}%`,
+                }}
+                initial={{ 
+                  scale: 0, 
+                  rotate: 0,
+                  opacity: 1,
+                }}
+                animate={{ 
+                  scale: [0, 1.5, 1, 0],
+                  rotate: [0, 180, 360],
+                  opacity: [1, 1, 1, 0],
+                  y: [-20, -60, -40, 20],
+                }}
+                transition={{ 
+                  duration: 2,
+                  ease: "easeOut",
+                }}
+              >
+                <Sparkles className="h-6 w-6 text-yellow-400" />
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </AnimatePresence>
+
       <div className="flex items-center gap-4">
         {/* Progress Bar with 3 sections */}
         <div className="relative flex-1">
           <div className="h-3.5 w-full rounded-full bg-gray-200">
-            <div
-              className="h-full rounded-full bg-[#4755FB] transition-all duration-300"
-              style={{ width: `${progressPercentage}%` }}
+            <motion.div
+              className="h-full rounded-full bg-[#4755FB]"
+              initial={{ width: 0 }}
+              animate={{ width: `${progressPercentage}%` }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
             />
           </div>
 
@@ -340,22 +400,41 @@ export function MatchingPairs({
               const isCompleted = progressPercentage >= checkpoint;
 
               return (
-                <div
+                <motion.div
                   key={`checkpoint-${checkpoint}`}
-                  className={`-mt-2.5 flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300 ${
+                  className={`-mt-2.5 flex h-8 w-8 items-center justify-center rounded-full ${
                     isCompleted ? 'bg-[#4755FB] text-white' : 'bg-gray-200'
                   }`}
+                  animate={isCompleted ? {
+                    scale: [1, 1.2, 1],
+                    backgroundColor: '#4755FB'
+                  } : {}}
+                  transition={{ duration: 0.3 }}
                 >
-                  {isCompleted && <CheckCircle2 className="h-4 w-4" />}
-                </div>
+                  {isCompleted && (
+                    <motion.div
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                    </motion.div>
+                  )}
+                </motion.div>
               );
             })}
           </div>
           {/* Current progress indicator */}
           <div className="absolute -top-2.5 -right-2">
-            <div className="flex h-8 w-12 items-center justify-center rounded-lg border-2 border-[#4755FB] bg-white text-sm font-medium text-[#4755FB]">
+            <motion.div 
+              className="flex h-8 w-12 items-center justify-center rounded-lg border-2 border-[#4755FB] bg-white text-sm font-medium text-[#4755FB]"
+              animate={completedPairs > 0 ? {
+                scale: [1, 1.1, 1]
+              } : {}}
+              transition={{ duration: 0.3 }}
+            >
               {completedPairs}/{pairs.length}
-            </div>
+            </motion.div>
           </div>
         </div>
         {/* Lives Display */}
@@ -368,15 +447,23 @@ export function MatchingPairs({
           ) : (
             <div className="flex gap-1">
               {Array.from({ length: MAX_LIVES }, (_, index) => (
-                <Heart
+                <motion.div
                   key={`life-${index + 1}`}
-                  className={cn(
-                    'h-6 w-6 transition-all duration-300',
-                    index < lives
-                      ? 'fill-red-500 text-red-500'
-                      : 'text-gray-300',
-                  )}
-                />
+                  animate={index >= lives ? {
+                    scale: [1, 0.8, 1],
+                    opacity: [1, 0.3, 0.3]
+                  } : {}}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Heart
+                    className={cn(
+                      'h-6 w-6',
+                      index < lives
+                        ? 'fill-red-500 text-red-500'
+                        : 'text-gray-300',
+                    )}
+                  />
+                </motion.div>
               ))}
             </div>
           )}
@@ -388,52 +475,90 @@ export function MatchingPairs({
         {/* English Column */}
         <div className="space-y-3">
           {visibleEnglishWords.map((item) => (
-            <button
+            <motion.button
               key={item.id}
               onClick={() => handleItemClick(item)}
               className={cn(
-                'w-full rounded-lg border p-4 text-left transition-all duration-200',
+                'w-full rounded-lg border p-4 text-left',
                 'flex min-h-[60px] items-center justify-between text-lg font-medium',
                 getItemStyle(item),
               )}
               disabled={matchedItemIds.has(item.id)}
+              whileHover={!matchedItemIds.has(item.id) ? { scale: 1.02 } : {}}
+              whileTap={!matchedItemIds.has(item.id) ? { scale: 0.98 } : {}}
+              animate={matchedItemIds.has(item.id) ? {
+                scale: [1, 1.1, 1],
+                backgroundColor: 'rgb(240 253 244)'
+              } : {}}
+              transition={{ duration: 0.3 }}
             >
               <span>{item.text}</span>
               <div>
                 {matchedItemIds.has(item.id) && (
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ duration: 0.5, type: "spring" }}
+                  >
+                    <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  </motion.div>
                 )}
                 {incorrectPairs.has(item.id) && (
-                  <X className="h-5 w-5 text-red-600" />
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <X className="h-5 w-5 text-red-600" />
+                  </motion.div>
                 )}
               </div>
-            </button>
+            </motion.button>
           ))}
         </div>
 
         {/* Vietnamese Column */}
         <div className="space-y-3">
           {visibleVietnameseWords.map((item) => (
-            <button
+            <motion.button
               key={item.id}
               onClick={() => handleItemClick(item)}
               className={cn(
-                'w-full rounded-lg border p-4 text-left transition-all duration-200',
+                'w-full rounded-lg border p-4 text-left',
                 'flex min-h-[60px] items-center justify-between text-lg font-medium',
                 getItemStyle(item),
               )}
               disabled={matchedItemIds.has(item.id)}
+              whileHover={!matchedItemIds.has(item.id) ? { scale: 1.02 } : {}}
+              whileTap={!matchedItemIds.has(item.id) ? { scale: 0.98 } : {}}
+              animate={matchedItemIds.has(item.id) ? {
+                scale: [1, 1.1, 1],
+                backgroundColor: 'rgb(240 253 244)'
+              } : {}}
+              transition={{ duration: 0.3 }}
             >
               <span>{item.text}</span>
               <div>
                 {matchedItemIds.has(item.id) && (
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ duration: 0.5, type: "spring" }}
+                  >
+                    <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  </motion.div>
                 )}
                 {incorrectPairs.has(item.id) && (
-                  <X className="h-5 w-5 text-red-600" />
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <X className="h-5 w-5 text-red-600" />
+                  </motion.div>
                 )}
               </div>
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
