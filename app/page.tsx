@@ -6,6 +6,14 @@ import { world } from '@/assets/animations';
 import { LottieAnimation } from '@/components/animations/lottie-animation';
 import { MotivationalQuotesSlider } from '@/components/layout/motivational-quotes-slider';
 import { Button } from '@/components/ui/button';
+import { generateMetadata as generateOGMetadata } from '@/lib/og-metadata';
+
+export const metadata = generateOGMetadata({
+  title: 'SpeaKing - The free, fun, and effective way to learn a language!',
+  description:
+    'Practice your language speaking skills with AI feedback. Improve pronunciation, vocabulary, and conversation skills.',
+  url: '/',
+});
 
 export default function Home() {
   return (

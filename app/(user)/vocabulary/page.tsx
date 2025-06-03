@@ -4,6 +4,13 @@ import { notFound } from 'next/navigation';
 import { getVocabularyExercises } from '@/app/actions/vocabulary';
 import { PageLoading } from '@/components/animations/page-loading';
 import { VocabularyDashboard } from './components/vocabulary-dashboard';
+import { generateMetadata as generateOGMetadata } from '@/lib/og-metadata';
+
+export const metadata = generateOGMetadata({
+  title: 'Vocabulary Practice - SpeaKing',
+  description: 'Expand your vocabulary with interactive exercises and AI-powered learning',
+  url: '/vocabulary',
+});
 
 // Force dynamic rendering since we use authentication
 export const dynamic = 'force-dynamic';

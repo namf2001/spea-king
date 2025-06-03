@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://your-domain.com/sitemap.xml
+
+# Block admin and API routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login/
+Disallow: /settings/
+
+# Allow all public pages
+Allow: /
+Allow: /pronunciation
+Allow: /vocabulary
+Allow: /conversation
+Allow: /reflex
+Allow: /progress

@@ -4,6 +4,13 @@ import LessonsSkeleton from './loading';
 import { auth } from '@/lib/auth';
 import { getPronunciationLessonsByUserId } from '@/app/actions/pronunciation';
 import { notFound } from 'next/navigation';
+import { generateMetadata as generateOGMetadata } from '@/lib/og-metadata';
+
+export const metadata = generateOGMetadata({
+  title: 'Pronunciation Practice - SpeaKing',
+  description: 'Improve your English pronunciation with AI-powered feedback and interactive lessons',
+  url: '/pronunciation',
+});
 
 export default async function PronunciationPage() {
   const session = await auth();

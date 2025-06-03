@@ -1,6 +1,13 @@
 import { Suspense } from 'react';
 import { getUserSpeakingStats } from '@/app/actions/speech';
 import ProgressClient from './components/progress-client';
+import { generateMetadata as generateOGMetadata } from '@/lib/og-metadata';
+
+export const metadata = generateOGMetadata({
+  title: 'Learning Progress - SpeaKing',
+  description: 'Track your language learning progress and view detailed statistics',
+  url: '/progress',
+});
 
 // Force dynamic rendering since we use authentication
 export const dynamic = 'force-dynamic';
