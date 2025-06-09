@@ -15,6 +15,7 @@ import {
   pronunciationIcon,
   reflexIcon,
 } from '@/assets/image/icon';
+import { BookOpen } from 'lucide-react';
 
 import {
   Sidebar,
@@ -98,6 +99,11 @@ export function AppSidebar() {
       label: 'THỐNG KÊ',
       href: '/progress',
       icon: <Image src={progressIcon} alt="Progress" width={32} height={32} />,
+    },
+    {
+      label: 'NGỮ PHÁP',
+      href: '/gramma',
+      icon: <BookOpen className="h-8 w-8" />,
     },
   ];
 
@@ -195,7 +201,7 @@ export function AppSidebar() {
   return (
     <div className="bg-secondary fixed right-0 bottom-0 left-0 z-50 border-t-2 border-gray-200 md:hidden dark:border-gray-800">
       <div className="flex items-center justify-between px-1 py-2">
-        {navigation.slice(0, 5).map((item) => (
+        {navigation.slice(0, 6).map((item) => (
           <Link key={item.href} href={item.href} className="w-full">
             <div className="flex flex-col items-center">
               <div
