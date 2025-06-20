@@ -1,4 +1,4 @@
-   Các Rule và Best Practices từ dự án Next.js App Router
+okiiiCác Rule và Best Practices từ dự án Next.js App Router
 Dựa trên phân tích dự án Next.js App Router Playground này, tôi có thể đưa ra các nguyên tắc và best practices quan trọng:
 
 1. Server vs Client Components
